@@ -2077,6 +2077,11 @@ dialog::backdrop {
     width: 100%;
   }
 
+  .hero-actions .button:last-child {
+    width: calc(100% - 4.5rem);
+    align-self: flex-start;
+  }
+
   .hero-scroll {
     display: none;
   }
