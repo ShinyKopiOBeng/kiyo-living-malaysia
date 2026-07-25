@@ -154,10 +154,9 @@ function MenuDialog({ open, onClose }: DialogProps) {
     };
   }, [open]);
 
-  if (!open) return null;
-
   return (
     <dialog
+      id="primary-menu"
       ref={dialogRef}
       className="mobile-menu"
       aria-label="Primary navigation"
@@ -203,10 +202,9 @@ function ShopDialog({ open, onClose }: DialogProps) {
     };
   }, [open]);
 
-  if (!open) return null;
-
   return (
     <dialog
+      id="shop-dialog"
       ref={dialogRef}
       className="shop-dialog"
       aria-labelledby="shop-dialog-title"
@@ -315,12 +313,15 @@ function SocialLinks({ compact = false }: { compact?: boolean }) {
 export function KiyoExperience() {
   const rootRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
   const torchFrame = useRef<number | null>(null);
   const torchPoint = useRef({ x: 68, y: 38 });
   const locationRef = useRef<HTMLElement>(null);
   const locationTrackRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const [headerCompact, setHeaderCompact] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
 
   const updateTorch = useCallback((event: ReactPointerEvent<HTMLElement>) => {
     const hero = heroRef.current;
@@ -340,11 +341,42 @@ export function KiyoExperience() {
   }, []);
 
   useEffect(() => {
+    let frame: number | null = null;
+    const handleScroll = () => {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(() => {
+        setHeaderCompact(window.scrollY > 72);
+        frame = null;
+      });
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const footer = footerRef.current;
+    if (!footer) return;
+
+    if (!("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterVisible(entry.isIntersecting),
+      { rootMargin: "0px 0px -8% 0px", threshold: 0 },
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     gsap.registerPlugin(ScrollTrigger);
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const floatingTweens: gsap.core.Tween[] = [];
     let cancelled = false;
 
     const context = gsap.context(() => {
@@ -424,13 +456,6 @@ export function KiyoExperience() {
           });
         }
       });
-
-      if (!reduceMotion) {
-        floatingTweens.push(
-          gsap.to(".hero-float--person", { y: -9, duration: 3.8, repeat: -1, yoyo: true, ease: "sine.inOut" }),
-          gsap.to(".hero-float--case", { y: 11, duration: 3.2, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 0.35 }),
-        );
-      }
     }, root);
 
     const media = gsap.matchMedia();
@@ -473,17 +498,12 @@ export function KiyoExperience() {
       },
     );
 
-    const handleVisibility = () => {
-      floatingTweens.forEach((tween) => (document.hidden ? tween.pause() : tween.resume()));
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
     document.fonts.ready.then(() => {
       if (!cancelled) ScrollTrigger.refresh();
     });
 
     return () => {
       cancelled = true;
-      document.removeEventListener("visibilitychange", handleVisibility);
       if (torchFrame.current !== null) window.cancelAnimationFrame(torchFrame.current);
       media.revert();
       context.revert();
@@ -497,21 +517,28 @@ export function KiyoExperience() {
     <div ref={rootRef} className="site-shell">
       <a className="skip-link" href="#main">Skip to content</a>
 
-      <header className="site-header">
+      <header className={`site-header${headerCompact ? " site-header--compact" : ""}`}>
         <a className="brand" href="#home" aria-label="KIYO home">
           <img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" />
         </a>
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigation.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
-        </nav>
         <div className="header-actions">
-          <button className="text-button" onClick={() => setShopOpen(true)}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
           <button
-            className="icon-button menu-trigger"
+            className="text-button"
+            onClick={() => setShopOpen(true)}
+            aria-haspopup="dialog"
+            aria-controls="shop-dialog"
+          >
+            Shop KIYO <ArrowUpRight aria-hidden="true" />
+          </button>
+          <button
+            className="menu-trigger"
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
+            aria-haspopup="dialog"
+            aria-controls="primary-menu"
             aria-expanded={menuOpen}
           >
+            <span>Menu</span>
             <Menu aria-hidden="true" />
           </button>
         </div>
@@ -529,8 +556,6 @@ export function KiyoExperience() {
           <div className="hero-media" aria-hidden="true">
             <img className="hero-image hero-image--dark" src="/images/hero-dark.webp" alt="" width="1448" height="1086" />
             <img className="hero-image hero-image--light" src="/images/hero-light.webp" alt="" width="1448" height="1086" />
-            <img className="hero-image hero-float hero-float--person" src="/images/hero-dark.webp" alt="" width="1448" height="1086" />
-            <img className="hero-image hero-float hero-float--case" src="/images/hero-dark.webp" alt="" width="1448" height="1086" />
             <div className="hero-vignette" />
             <div className="hero-grid" />
           </div>
@@ -540,7 +565,14 @@ export function KiyoExperience() {
             <p className="hero-intro">Luggage, corporate gifts, and travel sets shaped with practical thinking and a polished point of view.</p>
             <div className="hero-actions">
               <a className="button button--coral" href="#corporate">Explore corporate solutions <ArrowDown aria-hidden="true" /></a>
-              <button className="button button--ghost" onClick={() => setShopOpen(true)}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
+              <button
+                className="button button--ghost"
+                onClick={() => setShopOpen(true)}
+                aria-haspopup="dialog"
+                aria-controls="shop-dialog"
+              >
+                Shop KIYO <ArrowUpRight aria-hidden="true" />
+              </button>
             </div>
           </div>
           <div className="torch-hint" aria-hidden="true"><span /> Move to reveal</div>
@@ -604,7 +636,14 @@ export function KiyoExperience() {
 
           <div className="section-cta reveal">
             <p>Ready to browse the current collection?</p>
-            <button className="button button--light" onClick={() => setShopOpen(true)}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
+            <button
+              className="button button--light"
+              onClick={() => setShopOpen(true)}
+              aria-haspopup="dialog"
+              aria-controls="shop-dialog"
+            >
+              Shop KIYO <ArrowUpRight aria-hidden="true" />
+            </button>
           </div>
         </section>
 
@@ -645,8 +684,14 @@ export function KiyoExperience() {
               <a className="button button--ink" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Plan an UMRAH set <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             </div>
             <div className="umrah-gallery">
-              <figure className="image-reveal umrah-gallery__travel"><img src="/images/umrah-travel.webp" alt="An UMRAH traveller at an airport with two KIYO luggage cases" width="1088" height="1360" /></figure>
-              <figure className="image-reveal umrah-gallery__gift"><img src="/images/umrah-gifts.webp" alt="A KIYO UMRAH luggage set arranged with prayer and travel essentials" width="1088" height="1360" /></figure>
+              <figure className="image-reveal umrah-gallery__travel">
+                <img src="/images/umrah-travel.webp" alt="An UMRAH traveller at an airport with two KIYO luggage cases" width="1088" height="1360" />
+                <figcaption><span>01</span><strong>Journey set</strong></figcaption>
+              </figure>
+              <figure className="image-reveal umrah-gallery__gift">
+                <img src="/images/umrah-gifts.webp" alt="A KIYO UMRAH luggage set arranged with prayer and travel essentials" width="1088" height="1360" />
+                <figcaption><span>02</span><strong>Included essentials</strong></figcaption>
+              </figure>
             </div>
           </div>
 
@@ -708,7 +753,7 @@ export function KiyoExperience() {
         </section>
       </main>
 
-      <footer className="site-footer">
+      <footer ref={footerRef} className="site-footer">
         <a className="brand brand--footer" href="#home" aria-label="Back to KIYO home"><img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" /></a>
         <p>Practical travel, presented with purpose.</p>
         <div className="footer-links">
@@ -718,13 +763,13 @@ export function KiyoExperience() {
       </footer>
 
       <a
-        className={`whatsapp-float${menuOpen || shopOpen ? " whatsapp-float--hidden" : ""}`}
+        className={`whatsapp-float${footerVisible ? " whatsapp-float--raised" : ""}${menuOpen || shopOpen ? " whatsapp-float--hidden" : ""}`}
         href={WHATSAPP_URL}
         target="_blank"
         rel="noreferrer"
         aria-label="Chat with KIYO on WhatsApp (opens in a new tab)"
       >
-        <span>Chat with KIYO</span><FaWhatsapp aria-hidden="true" />
+        <span className="whatsapp-float__tooltip" aria-hidden="true">Chat with KIYO</span><FaWhatsapp aria-hidden="true" />
       </a>
 
       <MenuDialog open={menuOpen} onClose={() => setMenuOpen(false)} />
