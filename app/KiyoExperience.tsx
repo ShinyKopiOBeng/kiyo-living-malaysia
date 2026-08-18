@@ -8,26 +8,18 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import useEmblaCarousel from "embla-carousel-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import {
   ArrowDown,
-  ArrowLeft,
-  ArrowRight,
   ArrowUpRight,
-  Box,
   Check,
-  ChevronRight,
   Mail,
   MapPin,
   Menu,
-  PackageCheck,
-  Palette,
   Plane,
   ShieldCheck,
   Sparkles,
@@ -41,6 +33,11 @@ import {
   FaYoutube,
 } from "react-icons/fa6";
 import { SiShopee } from "react-icons/si";
+import {
+  CorporateGiftGallery,
+  ProductInspector,
+  UmrahServiceGallery,
+} from "./components/KiyoInteractiveSections";
 
 const WHATSAPP_URL =
   "https://wa.me/60132767887?text=Hi%20KIYO%2C%20I%27m%20interested%20in%20your%20products%20or%20services.";
@@ -53,57 +50,6 @@ const navigation = [
   ["Services", "#services"],
   ["Location", "#location"],
   ["Contact", "#contact"],
-] as const;
-
-const corporateSolutions = [
-  {
-    number: "01",
-    title: "Branded luggage sets",
-    copy: "A coordinated travel set shaped around your campaign, team, or customer programme.",
-    image: "/images/kiyo/product-gift.webp",
-  },
-  {
-    number: "02",
-    title: "Executive travel kits",
-    copy: "Polished essentials for leadership retreats, client appreciation, and loyalty rewards.",
-    image: "/images/kiyo/product-airport.webp",
-  },
-  {
-    number: "03",
-    title: "Event & team gifts",
-    copy: "Useful travel pieces prepared for launches, annual dinners, roadshows, and staff milestones.",
-    image: "/images/kiyo/product-hero.webp",
-  },
-  {
-    number: "04",
-    title: "Custom presentation",
-    copy: "Colour matching, logo placement, packaging, and a clear approval path before production.",
-    image: "/images/kiyo/product-gift.webp",
-  },
-];
-
-const umrahStories = [
-  {
-    number: "01",
-    title: "Journey set",
-    image: "/images/kiyo/umrah-journey.webp",
-    alt: "An UMRAH traveller at the airport with a coordinated KIYO luggage set",
-    className: "umrah-gallery__journey",
-  },
-  {
-    number: "02",
-    title: "Included essentials",
-    image: "/images/kiyo/umrah-essentials.webp",
-    alt: "A coordinated UMRAH luggage set with carefully arranged travel essentials",
-    className: "umrah-gallery__essentials",
-  },
-  {
-    number: "03",
-    title: "Custom presentation",
-    image: "/images/kiyo/umrah-custom.webp",
-    alt: "A cream UMRAH luggage case with custom presentation materials",
-    className: "umrah-gallery__custom",
-  },
 ] as const;
 
 const warehouseGallery = [
@@ -132,7 +78,7 @@ const warehouseGallery = [
     image: "/images/kiyo/warehouse-4.webp",
     alt: "A welcoming KIYO office and client discussion space",
     label: "04 · Connected",
-    title: "Working together",
+    title: "Team & client space",
     wide: false,
   },
   {
@@ -143,29 +89,6 @@ const warehouseGallery = [
     wide: false,
   },
 ] as const;
-
-const customSteps = [
-  {
-    title: "Select",
-    copy: "Choose the luggage format, size mix, colour direction, and practical accessories.",
-    icon: Box,
-  },
-  {
-    title: "Brand",
-    copy: "Apply your identity through print, embossing, colour matching, or curated packaging.",
-    icon: Palette,
-  },
-  {
-    title: "Approve",
-    copy: "Review the proposed treatment and confirm the details before production begins.",
-    icon: Check,
-  },
-  {
-    title: "Deliver",
-    copy: "Receive a coordinated order prepared for your event, programme, team, or travellers.",
-    icon: PackageCheck,
-  },
-];
 
 const socialLinks = [
   {
@@ -313,85 +236,6 @@ function ShopDialog({ open, onClose }: DialogProps) {
   );
 }
 
-function ProductCarousel() {
-  const [viewportRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    const update = () => setSelectedIndex(emblaApi.selectedScrollSnap());
-    update();
-    emblaApi.on("select", update);
-    emblaApi.on("reInit", update);
-    return () => {
-      emblaApi.off("select", update);
-      emblaApi.off("reInit", update);
-    };
-  }, [emblaApi]);
-
-  const slides = [
-    {
-      name: "Cabin ready",
-      note: "A clean, compact silhouette for the journeys ahead.",
-      image: "/images/kiyo/product-pedestal.webp",
-      alt: "A navy KIYO cabin case displayed on a studio pedestal",
-      width: 760,
-      height: 950,
-    },
-    {
-      name: "Travel with ease",
-      note: "A considered suitcase for terminals, lobbies, and everyday movement.",
-      image: "/images/kiyo/product-airport.webp",
-      alt: "A navy KIYO suitcase standing in a bright airport terminal",
-      width: 1440,
-      height: 810,
-    },
-    {
-      name: "Gift-ready",
-      note: "A polished luggage presentation for a meaningful occasion.",
-      image: "/images/kiyo/product-gift.webp",
-      alt: "A KIYO suitcase presented with a wrapped gift box",
-      width: 1440,
-      height: 810,
-    },
-  ];
-
-  return (
-    <div className="lineup" role="region" aria-label="KIYO luggage formats">
-      <div className="lineup__toolbar">
-        <p>Explore the lineup</p>
-        <div className="lineup__controls">
-          <button onClick={() => emblaApi?.scrollPrev()} aria-label="Previous luggage format"><ArrowLeft aria-hidden="true" /></button>
-          <span aria-live="polite">{String(selectedIndex + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span>
-          <button onClick={() => emblaApi?.scrollNext()} aria-label="Next luggage format"><ArrowRight aria-hidden="true" /></button>
-        </div>
-      </div>
-      <div className="lineup__viewport" ref={viewportRef}>
-        <div className="lineup__track">
-          {slides.map((slide, index) => (
-            <article className="lineup__slide" key={slide.name} aria-label={`${index + 1} of ${slides.length}: ${slide.name}`}>
-              <div className="lineup__image">
-                <img
-                  src={slide.image}
-                  alt={slide.alt}
-                  width={slide.width}
-                  height={slide.height}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <div className="lineup__copy">
-                <h3>{slide.name}</h3>
-                <p>{slide.note}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function SocialLinks({ compact = false }: { compact?: boolean }) {
   return (
     <div className={compact ? "socials socials--compact" : "socials"} aria-label="KIYO social media">
@@ -504,37 +348,32 @@ export function KiyoExperience() {
         );
       });
 
-      gsap.utils.toArray<HTMLElement>(".custom-card").forEach((card, index) => {
-        if (reduceMotion) return;
+      if (!reduceMotion) {
         gsap.fromTo(
-          card,
-          { y: 72, scale: 0.96 },
+          ".about-founder__proof span",
+          { y: 14, autoAlpha: 0 },
           {
             y: 0,
-            scale: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 92%",
-              end: "top 48%",
-              scrub: 0.6,
-            },
+            autoAlpha: 1,
+            duration: 0.45,
+            stagger: 0.07,
+            ease: "power2.out",
+            scrollTrigger: { trigger: ".about-founder", start: "top 68%", once: true },
           },
         );
-        if (index < customSteps.length - 1) {
-          gsap.to(card, {
-            scale: 0.975,
-            opacity: 0.72,
-            ease: "none",
-            scrollTrigger: {
-              trigger: card,
-              start: "bottom 35%",
-              end: "bottom 10%",
-              scrub: true,
-            },
-          });
-        }
-      });
+        gsap.fromTo(
+          ".about-founder__capability span",
+          { y: 12, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.4,
+            stagger: 0.055,
+            ease: "power2.out",
+            scrollTrigger: { trigger: ".about-founder", start: "top 68%", once: true },
+          },
+        );
+      }
     }, root);
 
     const media = gsap.matchMedia();
@@ -624,7 +463,7 @@ export function KiyoExperience() {
         <section
           id="home"
           ref={heroRef}
-          className="hero"
+          className="hero chapter-screen"
           onPointerMove={updateTorch}
           onPointerDown={updateTorch}
           onPointerLeave={() => heroRef.current?.style.setProperty("--torch-opacity", "0.16")}
@@ -666,14 +505,14 @@ export function KiyoExperience() {
           </div>
         </div>
 
-        <section id="about" className="chapter about about--founder">
+        <section id="about" className="chapter chapter-screen about about--founder">
           <div className="about-founder">
             <img className="about-founder__background" src="/images/kiyo/samantha-warehouse.webp" alt="" aria-hidden="true" width="1047" height="941" loading="lazy" decoding="async" />
             <div className="about-founder__wash" aria-hidden="true" />
             <div className="about-founder__copy reveal">
               <p className="eyebrow eyebrow--coral">Behind KIYO</p>
-              <h2>A thoughtful journey starts with people.</h2>
-              <p>Founded by Samantha Ng, KIYO brings together retail luggage, bulk gifting, custom branding, and UMRAH-ready sets in one focused Malaysian travel brand.</p>
+              <h2>Building a Malaysian travel & live-commerce brand.</h2>
+              <p>From viral TikTok campaigns to nationwide wholesale distribution, premium corporate gifting, and thoughtful UMRAH-ready travel programmes.</p>
               <div className="about-founder__proof" aria-label="KIYO capabilities">
                 <span><ShieldCheck aria-hidden="true" /> Practical product thinking</span>
                 <span><Sparkles aria-hidden="true" /> Brand-ready presentation</span>
@@ -682,123 +521,65 @@ export function KiyoExperience() {
             </div>
             <figure className="about-founder__portrait image-reveal">
               <img src="/images/kiyo/samantha-founder.webp" alt="Samantha Ng, founder of KIYO" width="608" height="921" loading="lazy" decoding="async" />
-              <figcaption><span>Founder</span><strong>Samantha Ng</strong></figcaption>
             </figure>
+            <div className="about-founder__capability" aria-label="KIYO brand capabilities">
+              <span>Viral TikTok Campaigns</span>
+              <span>Nationwide Wholesale Distribution</span>
+              <span>Premium Corporate Gifting Solutions</span>
+              <span>Live-Commerce Ecosystem</span>
+              <span>Strategic Partnerships</span>
+            </div>
           </div>
         </section>
 
-        <section id="products" className="chapter chapter--ink products">
-          <div className="section-heading section-heading--split reveal">
-            <div>
-              <p className="eyebrow eyebrow--teal">Luggage collection</p>
-              <h2>Engineered for the journey ahead.</h2>
-            </div>
-            <p>Durable shells, smooth movement, and useful details—presented as a focused collection rather than an endless catalogue.</p>
-          </div>
-
-          <div className="product-lookbook" role="list" aria-label="KIYO luggage lookbook">
-            <figure className="product-lookbook__hero image-reveal" role="listitem">
-              <img src="/images/kiyo/product-hero.webp" alt="A navy KIYO luggage case in a warm studio setting" width="1440" height="810" loading="lazy" decoding="async" />
-              <figcaption><span>01 · The signature case</span><strong>Made to go further.</strong></figcaption>
-            </figure>
-            <figure className="product-lookbook__portrait image-reveal" role="listitem">
-              <img src="/images/kiyo/product-cabin.webp" alt="A compact navy KIYO cabin case" width="760" height="950" loading="lazy" decoding="async" />
-              <figcaption><span>02 · Cabin</span><strong>Compact, composed.</strong></figcaption>
-            </figure>
-            <figure className="product-lookbook__detail product-lookbook__detail--wheels image-reveal" role="listitem">
-              <img src="/images/kiyo/product-wheels.webp" alt="A close view of a KIYO luggage wheel" width="760" height="428" loading="lazy" decoding="async" />
-              <figcaption><span>03 · Details</span><strong>Built to move.</strong></figcaption>
-            </figure>
-            <figure className="product-lookbook__detail product-lookbook__detail--handle image-reveal" role="listitem">
-              <img src="/images/kiyo/product-handle.webp" alt="A close view of a KIYO luggage handle" width="760" height="760" loading="lazy" decoding="async" />
-              <figcaption><span>04 · Details</span><strong>Within reach.</strong></figcaption>
-            </figure>
-            <figure className="product-lookbook__colours image-reveal" role="listitem">
-              <img src="/images/kiyo/product-colours.webp" alt="A row of KIYO luggage cases in a range of colours" width="1254" height="1254" loading="lazy" decoding="async" />
-              <figcaption><span>05 · Colour story</span><strong>Choose your point of view.</strong></figcaption>
-            </figure>
-          </div>
-
-          <ProductCarousel />
-
-          <div className="section-cta reveal">
-            <p>Ready to browse the current collection?</p>
-            <button
-              className="button button--light"
-              onClick={() => setShopOpen(true)}
-              aria-haspopup="dialog"
-              aria-controls="shop-dialog"
-            >
-              Shop KIYO <ArrowUpRight aria-hidden="true" />
-            </button>
-          </div>
+        <section id="products" className="chapter chapter-screen chapter--ink products products--inspector">
+          <ProductInspector onShop={() => setShopOpen(true)} />
         </section>
 
-        <section id="corporate" className="chapter chapter--black corporate">
-          <div className="corporate-intro reveal">
+        <section id="corporate" className="chapter chapter-screen chapter--black corporate corporate--gallery">
+          <div className="corporate-intro corporate-intro--v3 reveal">
             <div>
-              <p className="eyebrow eyebrow--gold">Corporate & bulk orders</p>
-              <h2>Corporate gifts that travel further.</h2>
+              <p className="eyebrow eyebrow--gold">Corporate gifting solutions</p>
+              <h2>Gift sets that travel further.</h2>
             </div>
             <div>
-              <p>Give clients, teams, and travellers something useful—made more memorable with your brand.</p>
-              <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Discuss on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+              <p>Useful, brand-ready sets for clients, teams, events, loyalty programmes and executive gifting.</p>
+              <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Enquire for corporate gifts <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             </div>
           </div>
-          <div className="corporate-panels" role="list" aria-label="Corporate gift solutions">
-            {corporateSolutions.map((solution) => (
-              <article className="corporate-panel" key={solution.number} role="listitem" tabIndex={0}>
-                <img src={solution.image} alt="" aria-hidden="true" width="1440" height="810" loading="lazy" decoding="async" />
-                <div className="corporate-panel__wash" />
-                <span className="corporate-panel__number">{solution.number}</span>
-                <div className="corporate-panel__copy"><h3>{solution.title}</h3><p>{solution.copy}</p><ChevronRight aria-hidden="true" /></div>
-              </article>
-            ))}
-          </div>
+          <CorporateGiftGallery whatsappUrl={WHATSAPP_URL} />
         </section>
 
-        <section id="services" className="chapter chapter--sand services">
-          <div className="umrah-grid">
+        <section id="services" className="chapter chapter-screen chapter--sand services services--interactive">
+          <div className="umrah-grid umrah-grid--v3">
             <div className="umrah-copy reveal">
-              <p className="eyebrow eyebrow--gold">UMRAH travel sets</p>
+              <p className="eyebrow eyebrow--gold">UMRAH agency programme</p>
               <h2>A complete travel set for a meaningful journey.</h2>
-              <p>Coordinate luggage and thoughtful travel essentials for UMRAH groups, agencies, and gifting programmes—with a calm, respectful presentation.</p>
+              <p>Coordinate luggage, thoughtful travel essentials and agency branding for UMRAH groups with a calm, professional presentation.</p>
               <ul>
                 <li><Check aria-hidden="true" /> Coordinated luggage sizes</li>
                 <li><Check aria-hidden="true" /> Optional prayer and travel essentials</li>
-                <li><Check aria-hidden="true" /> Agency and group branding</li>
+                <li><Check aria-hidden="true" /> Custom agency logo & branding</li>
+                <li><Check aria-hidden="true" /> Group-order & warehouse support</li>
               </ul>
               <a className="button button--ink" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Plan an UMRAH set <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             </div>
-            <div className="umrah-gallery" role="list" aria-label="KIYO UMRAH travel set story">
-              {umrahStories.map(({ number, title, image, alt, className }) => (
-                <figure className={`image-reveal ${className}`} key={number} role="listitem">
-                  <img src={image} alt={alt} width="800" height="1000" loading="lazy" decoding="async" />
-                  <figcaption><span>{number}</span><strong>{title}</strong></figcaption>
-                </figure>
-              ))}
-            </div>
+            <UmrahServiceGallery />
           </div>
-
-          <div className="custom-service">
-            <div className="custom-service__heading reveal">
-              <p className="eyebrow eyebrow--teal">Custom logo service</p>
-              <h2>Your logo.<br /><em>Their journey.</em></h2>
-              <p>One clear path from product selection to a finished, brand-ready order.</p>
+          <div className="agency-process">
+            <div className="agency-process__heading">
+              <p>Agency customisation</p>
+              <h3>Your agency. Their journey.</h3>
             </div>
-            <div className="custom-stack">
-              {customSteps.map(({ title, copy, icon: Icon }, index) => (
-                <article className="custom-card" key={title} style={{ "--card-offset": `${index}rem` } as CSSProperties}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <Icon aria-hidden="true" />
-                  <div><h3>{title}</h3><p>{copy}</p></div>
-                </article>
+            <div className="agency-process__steps" aria-label="Agency customisation process">
+              {['Select', 'Brand', 'Approve', 'Deliver'].map((step, index) => (
+                <span key={step}><small>{String(index + 1).padStart(2, '0')}</small>{step}</span>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="location" ref={locationRef} className="location">
+        <section id="location" ref={locationRef} className="chapter-screen location">
           <div className="location-head">
             <div><p className="eyebrow eyebrow--teal">Shah Alam · Selangor</p><h2>Built to deliver,<br />across Malaysia.</h2></div>
             <p>A working base for stock, quality checks, order preparation, and conversations about your next travel programme.</p>
@@ -819,11 +600,11 @@ export function KiyoExperience() {
           </div>
         </section>
 
-        <section id="contact" className="contact">
+        <section id="contact" className="chapter-screen contact">
           <div className="contact-orbit" aria-hidden="true"><Plane /></div>
           <p className="eyebrow">Your next journey starts here</p>
           <h2>Let&apos;s build your next<br />journey together.</h2>
-          <p className="contact-intro">Tell us what you are planning—corporate gifts, an UMRAH set, custom branding, or a retail enquiry.</p>
+          <p className="contact-intro">Tell us what you are planning: corporate gifts, an UMRAH set, custom branding, or a retail enquiry.</p>
           <div className="contact-actions">
             <a className="button button--ink" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Start on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             <a className="button button--ghost-dark" href="mailto:hello@kiyo.com.my">hello@kiyo.com.my <Mail aria-hidden="true" /></a>

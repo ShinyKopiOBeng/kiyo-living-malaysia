@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "KIYO Living creates practical luggage, branded corporate gifts, custom travel sets, and UMRAH solutions from Shah Alam, Malaysia.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "KIYO Living — Designed for every journey. Built for business.",
+    title: "KIYO Living | Designed for every journey. Built for business.",
     description: "Luggage, corporate gifts, custom branding, and UMRAH travel sets by KIYO Malaysia.",
     url: "/",
     siteName: "KIYO Living",

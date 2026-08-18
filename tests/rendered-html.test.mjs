@@ -32,12 +32,38 @@ test("server-renders the KIYO portfolio experience", async () => {
   assert.match(html, /Services/);
   assert.match(html, /Location/);
   assert.match(html, /Contact/);
-  assert.match(html, /Samantha Ng/);
+  assert.match(html, /Building a Malaysian travel &amp; live-commerce brand\./);
+  assert.match(html, /\/images\/kiyo\/samantha-warehouse\.webp/);
   assert.match(html, /\/images\/kiyo\/samantha-founder\.webp/);
-  assert.match(html, /\/images\/kiyo\/product-hero\.webp/);
+  assert.doesNotMatch(html, /<figcaption><span>Founder<\/span><strong>Samantha Ng<\/strong><\/figcaption>/);
+  assert.match(html, /aria-label="KIYO product inspector"/);
+  for (const label of ["Overview", "Colours", "Handle", "360 Wheels", "Security Lock", "Studio View", "Travel"]) {
+    assert.match(html, new RegExp(`>${label}<`));
+  }
+  assert.match(html, /\/images\/kiyo\/product-lock\.webp/);
+  assert.doesNotMatch(html, /Explore the lineup/);
+  for (const title of [
+    "Branded Luggage + Travel Amenities Set",
+    "Team Building Outdoor Kit",
+    "Mini Luggage Travel Kit",
+    "A5 Notebook Gift Set",
+  ]) {
+    assert.ok(html.includes(title));
+  }
+  for (const asset of [
+    "corporate-gift-travel-amenities",
+    "corporate-gift-team-building",
+    "corporate-gift-mini-luggage",
+    "corporate-gift-notebook",
+  ]) {
+    assert.match(html, new RegExp(`/images/kiyo/${asset}\\.webp`));
+  }
+  assert.match(html, /Inspect set/);
   assert.match(html, /\/images\/kiyo\/umrah-journey\.webp/);
   assert.match(html, /\/images\/kiyo\/umrah-essentials\.webp/);
   assert.match(html, /\/images\/kiyo\/umrah-custom\.webp/);
+  assert.match(html, /Custom agency logo/);
+  assert.match(html, /Agency customisation/);
   assert.match(html, /wa\.me\/60132767887/);
   assert.match(html, /shopee\.com\.my\/kiyoliving/);
   assert.match(html, /tiktok\.com\/@kiyoliving/);
@@ -48,6 +74,7 @@ test("server-renders the KIYO portfolio experience", async () => {
     (match) => Number(match[1]),
   );
   assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
+  assert.ok(html.indexOf("Visit by appointment") > html.indexOf("/images/kiyo/warehouse-5.webp"));
 });
 
 test("removes the disposable starter preview and keeps production metadata", async () => {
@@ -68,7 +95,12 @@ test("removes the disposable starter preview and keeps production metadata", asy
 test("includes the approved KIYO production asset set", async () => {
   const requiredAssets = [
     "../public/images/kiyo/samantha-founder.webp",
-    "../public/images/kiyo/product-hero.webp",
+    "../public/images/kiyo/product-overview.webp",
+    "../public/images/kiyo/product-lock.webp",
+    "../public/images/kiyo/corporate-gift-travel-amenities.webp",
+    "../public/images/kiyo/corporate-gift-team-building.webp",
+    "../public/images/kiyo/corporate-gift-mini-luggage.webp",
+    "../public/images/kiyo/corporate-gift-notebook.webp",
     "../public/images/kiyo/umrah-custom.webp",
     "../public/images/kiyo/warehouse-5.webp",
   ];
