@@ -21,8 +21,6 @@ import {
   MapPin,
   Menu,
   Plane,
-  ShieldCheck,
-  Sparkles,
   X,
 } from "lucide-react";
 import {
@@ -348,32 +346,6 @@ export function KiyoExperience() {
         );
       });
 
-      if (!reduceMotion) {
-        gsap.fromTo(
-          ".about-founder__proof span",
-          { y: 14, autoAlpha: 0 },
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 0.45,
-            stagger: 0.07,
-            ease: "power2.out",
-            scrollTrigger: { trigger: ".about-founder", start: "top 68%", once: true },
-          },
-        );
-        gsap.fromTo(
-          ".about-founder__capability span",
-          { y: 12, autoAlpha: 0 },
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 0.4,
-            stagger: 0.055,
-            ease: "power2.out",
-            scrollTrigger: { trigger: ".about-founder", start: "top 68%", once: true },
-          },
-        );
-      }
     }, root);
 
     const media = gsap.matchMedia();
@@ -513,22 +485,10 @@ export function KiyoExperience() {
               <p className="eyebrow eyebrow--coral">Behind KIYO</p>
               <h2>Building a Malaysian travel & live-commerce brand.</h2>
               <p>From viral TikTok campaigns to nationwide wholesale distribution, premium corporate gifting, and thoughtful UMRAH-ready travel programmes.</p>
-              <div className="about-founder__proof" aria-label="KIYO capabilities">
-                <span><ShieldCheck aria-hidden="true" /> Practical product thinking</span>
-                <span><Sparkles aria-hidden="true" /> Brand-ready presentation</span>
-                <span><MapPin aria-hidden="true" /> Shah Alam, Selangor</span>
-              </div>
             </div>
             <figure className="about-founder__portrait image-reveal">
               <img src="/images/kiyo/samantha-founder.webp" alt="Samantha Ng, founder of KIYO" width="608" height="921" loading="lazy" decoding="async" />
             </figure>
-            <div className="about-founder__capability" aria-label="KIYO brand capabilities">
-              <span>Viral TikTok Campaigns</span>
-              <span>Nationwide Wholesale Distribution</span>
-              <span>Premium Corporate Gifting Solutions</span>
-              <span>Live-Commerce Ecosystem</span>
-              <span>Strategic Partnerships</span>
-            </div>
           </div>
         </section>
 
@@ -538,14 +498,10 @@ export function KiyoExperience() {
 
         <section id="corporate" className="chapter chapter-screen chapter--black corporate corporate--gallery">
           <div className="corporate-intro corporate-intro--v3 reveal">
-            <div>
-              <p className="eyebrow eyebrow--gold">Corporate gifting solutions</p>
-              <h2>Gift sets that travel further.</h2>
-            </div>
-            <div>
-              <p>Useful, brand-ready sets for clients, teams, events, loyalty programmes and executive gifting.</p>
-              <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Enquire for corporate gifts <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-            </div>
+            <p className="eyebrow eyebrow--gold">Corporate gifting solutions</p>
+            <h2>Gift sets that travel further.</h2>
+            <p>Useful, brand-ready sets for clients, teams, events, loyalty programmes and executive gifting.</p>
+            <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Enquire for corporate gifts <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
           </div>
           <CorporateGiftGallery whatsappUrl={WHATSAPP_URL} />
         </section>

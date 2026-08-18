@@ -3,7 +3,7 @@
 /* Production images are pre-sized in public/images/kiyo for the static runtime. */
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { gsap } from "gsap";
 import {
   ArrowLeft,
@@ -24,6 +24,7 @@ type ProductScene = {
   image: string;
   alt: string;
   mode: "portrait" | "wide" | "square";
+  surface: string;
   width: number;
   height: number;
 };
@@ -32,84 +33,91 @@ const productScenes: ProductScene[] = [
   {
     id: "overview",
     label: "Overview",
-    eyebrow: "01 · Signature case",
+    eyebrow: "Signature case",
     title: "The KIYO silhouette",
     description: "A clean front profile of KIYO's signature luggage design.",
     image: "/images/kiyo/product-overview.webp",
     alt: "Front view of KIYO's signature navy luggage case",
     mode: "portrait",
+    surface: "#f8e8db",
     width: 1000,
     height: 1250,
   },
   {
     id: "colours",
     label: "Colours",
-    eyebrow: "02 · Colour choice",
+    eyebrow: "Colour choice",
     title: "One silhouette. Six colours.",
     description: "Explore the curated colour choices available in the same luggage design.",
     image: "/images/kiyo/product-colours.webp",
     alt: "Six KIYO luggage colour choices shown side by side",
     mode: "wide",
+    surface: "#efe9dd",
     width: 1439,
     height: 810,
   },
   {
     id: "handle",
     label: "Handle",
-    eyebrow: "03 · Detail",
+    eyebrow: "Handle detail",
     title: "Handle & top detail",
     description: "Inspect the telescopic handle, top grip and upper luggage construction.",
     image: "/images/kiyo/product-handle.webp",
     alt: "Close view of the KIYO telescopic handle, top grip and upper case",
     mode: "square",
+    surface: "#f8e8db",
     width: 1100,
     height: 1100,
   },
   {
     id: "wheels",
     label: "360 Wheels",
-    eyebrow: "04 · Detail",
+    eyebrow: "Wheel detail",
     title: "360° spinner wheels",
     description: "A close-up look at the wheel system designed for smooth directional movement.",
     image: "/images/kiyo/product-wheels.webp",
     alt: "Close view of KIYO 360 degree spinner wheels",
     mode: "square",
+    surface: "#f3e6dd",
     width: 1100,
     height: 1100,
   },
   {
     id: "security",
     label: "Security Lock",
-    eyebrow: "05 · Security",
+    eyebrow: "Security detail",
     title: "Integrated travel lock",
     description: "Inspect the integrated lock and zipper-pull security detail.",
     image: "/images/kiyo/product-lock.webp",
     alt: "Close view of the integrated KIYO luggage lock and zipper pulls",
     mode: "square",
+    surface: "#171d2a",
     width: 1100,
     height: 1100,
   },
   {
     id: "studio",
     label: "Studio View",
-    eyebrow: "06 · Profile",
+    eyebrow: "Studio profile",
     title: "Studio profile",
     description: "The same signature case presented as a clean design object.",
     image: "/images/kiyo/product-studio.webp",
     alt: "KIYO luggage case presented on a warm studio pedestal",
     mode: "portrait",
+    surface: "#eee7dc",
     width: 1000,
     height: 1250,
   },
   {
     id: "travel",
     label: "Travel",
-    eyebrow: "07 · In motion",
+    eyebrow: "Travel context",
     title: "Travel ready",
     description: "See the signature case in a bright airport environment.",
     image: "/images/kiyo/product-airport.webp",
     alt: "KIYO luggage case standing in a bright airport terminal",
     mode: "wide",
+    surface: "#e5ebe8",
     width: 1439,
     height: 810,
   },
@@ -143,17 +151,6 @@ export function ProductInspector({ onShop }: { onShop: () => void }) {
   return (
     <div ref={rootRef} className="product-inspector" aria-label="KIYO product inspector">
       <div className="product-inspector__rail">
-        <img
-          className="product-inspector__rail-image"
-          src="/images/kiyo/product-intro.webp"
-          alt=""
-          aria-hidden="true"
-          width="1439"
-          height="810"
-          loading="lazy"
-          decoding="async"
-        />
-        <div className="product-inspector__rail-wash" aria-hidden="true" />
         <div className="product-inspector__intro">
           <p className="eyebrow eyebrow--teal">Luggage collection</p>
           <h2>One design. A closer look.</h2>
@@ -174,22 +171,15 @@ export function ProductInspector({ onShop }: { onShop: () => void }) {
           ))}
         </div>
         <div className="product-inspector__retail">
-          <img
-            src="/images/kiyo/product-gift-transition.webp"
-            alt="KIYO luggage presented as a gift"
-            width="1439"
-            height="810"
-            loading="lazy"
-            decoding="async"
-          />
-          <div>
-            <p>Looking for more KIYO styles?</p>
-            <button type="button" onClick={onShop}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
-          </div>
+          <p>Looking for more KIYO styles?</p>
+          <button type="button" onClick={onShop}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
         </div>
       </div>
 
-      <div className="product-inspector__stage">
+      <div
+        className="product-inspector__stage"
+        style={{ "--product-surface": activeScene.surface } as CSSProperties}
+      >
         <div className={`product-inspector__media product-inspector__media--${activeScene.mode}`}>
           {productScenes.map((scene) => (
             <img
@@ -210,9 +200,6 @@ export function ProductInspector({ onShop }: { onShop: () => void }) {
           <h3>{activeScene.title}</h3>
           <span>{activeScene.description}</span>
         </div>
-        <span className="product-inspector__progress" aria-hidden="true">
-          {String(activeIndex + 1).padStart(2, "0")} / {String(productScenes.length).padStart(2, "0")}
-        </span>
       </div>
     </div>
   );
@@ -349,46 +336,26 @@ function CorporateGiftDialog({
 }
 
 export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const context = gsap.context(() => {
-      gsap.to(".corporate-card.is-active .corporate-card__media", { scale: 1, duration: 0.55, ease: "power3.out" });
-      gsap.fromTo(
-        ".corporate-card.is-active .corporate-card__detail > *",
-        { autoAlpha: 0, y: 10 },
-        { autoAlpha: 1, y: 0, duration: 0.34, stagger: 0.04, ease: "power2.out" },
-      );
-    }, root);
-    return () => context.revert();
-  }, [activeIndex]);
 
   return (
     <>
-      <div ref={rootRef} className="corporate-gallery" role="list" aria-label="Corporate gift solutions">
+      <div className="corporate-gallery" role="list" aria-label="Corporate gift solutions">
         {corporateGiftSets.map((gift, index) => {
-          const active = index === activeIndex;
           return (
-            <article key={gift.id} className={`corporate-card${active ? " is-active" : ""}`} role="listitem">
+            <article key={gift.id} className="corporate-card" role="listitem">
               <button
                 type="button"
                 className="corporate-card__selector"
-                aria-pressed={active}
-                aria-label={`${active ? "Inspect" : "Select"} ${gift.title}`}
-                onClick={() => active ? setDialogIndex(index) : setActiveIndex(index)}
+                aria-label={`Inspect ${gift.title}`}
+                onClick={() => setDialogIndex(index)}
               >
                 <img className="corporate-card__media" src={gift.image} alt={gift.alt} width="1440" height="1080" loading="lazy" decoding="async" />
-                <span className="corporate-card__wash" aria-hidden="true" />
-                <span className="corporate-card__number">{gift.number}</span>
-                <strong>{gift.title}</strong>
               </button>
-              <div className="corporate-card__detail" aria-hidden={!active}>
+              <div className="corporate-card__detail">
+                <span className="corporate-card__number">{gift.number}</span>
+                <h3>{gift.title}</h3>
                 <p>{gift.summary}</p>
-                <ul>{gift.bullets.slice(0, 3).map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
                 <button type="button" onClick={() => setDialogIndex(index)}>Inspect set <Expand aria-hidden="true" /></button>
               </div>
             </article>

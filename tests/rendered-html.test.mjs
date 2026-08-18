@@ -36,12 +36,15 @@ test("server-renders the KIYO portfolio experience", async () => {
   assert.match(html, /\/images\/kiyo\/samantha-warehouse\.webp/);
   assert.match(html, /\/images\/kiyo\/samantha-founder\.webp/);
   assert.doesNotMatch(html, /<figcaption><span>Founder<\/span><strong>Samantha Ng<\/strong><\/figcaption>/);
+  assert.doesNotMatch(html, /KIYO brand capabilities/);
   assert.match(html, /aria-label="KIYO product inspector"/);
   for (const label of ["Overview", "Colours", "Handle", "360 Wheels", "Security Lock", "Studio View", "Travel"]) {
     assert.match(html, new RegExp(`>${label}<`));
   }
   assert.match(html, /\/images\/kiyo\/product-lock\.webp/);
   assert.doesNotMatch(html, /Explore the lineup/);
+  assert.doesNotMatch(html, /product-inspector__rail-image/);
+  assert.doesNotMatch(html, /product-inspector__progress/);
   for (const title of [
     "Branded Luggage + Travel Amenities Set",
     "Team Building Outdoor Kit",

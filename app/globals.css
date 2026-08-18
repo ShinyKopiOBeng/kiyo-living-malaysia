@@ -22,7 +22,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height) + 1.25rem);
+  scroll-padding-top: 0;
   background: var(--ink);
 }
 
@@ -3616,5 +3616,681 @@ dialog::backdrop {
   .corporate-card__media,
   .umrah-service-card {
     transition: none !important;
+  }
+}
+
+/* Layout repair: content-led chapter sizing and calmer asset presentation */
+
+.chapter-screen {
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
+}
+
+.hero.chapter-screen,
+.location.chapter-screen {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.about--founder {
+  height: 100dvh;
+  min-height: 48rem;
+  overflow: hidden;
+}
+
+.about-founder {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 0.94fr) minmax(22rem, 1.06fr);
+  align-items: end;
+  gap: clamp(1.5rem, 4vw, 5rem);
+  padding: var(--floating-header-clearance) var(--page-pad) 0;
+}
+
+.about-founder__background {
+  object-position: 56% center;
+  filter: saturate(0.88) contrast(1.03);
+  transform: none;
+}
+
+.about-founder__wash {
+  background:
+    linear-gradient(90deg, rgba(3, 12, 22, 0.96) 0%, rgba(3, 12, 22, 0.82) 35%, rgba(3, 12, 22, 0.35) 63%, rgba(3, 12, 22, 0.12) 100%),
+    linear-gradient(0deg, rgba(3, 12, 22, 0.72) 0%, transparent 42%);
+}
+
+.about-founder__copy {
+  align-self: center;
+  max-width: 43rem;
+  padding: 1.5rem 0 2rem;
+}
+
+.about-founder__copy h2 {
+  max-width: 10.5ch;
+  font-size: clamp(3.9rem, 5.2vw, 6.2rem);
+  line-height: 0.9;
+}
+
+.about-founder__copy > p:not(.eyebrow) {
+  max-width: 39rem;
+  margin: 1.6rem 0 0;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: clamp(0.9rem, 1vw, 1.03rem);
+  line-height: 1.7;
+}
+
+.about-founder__portrait {
+  width: min(39vw, 38rem);
+  max-height: calc(100dvh - var(--floating-header-clearance));
+}
+
+.about-founder__portrait img {
+  max-height: calc(100dvh - var(--floating-header-clearance));
+  object-position: center bottom;
+}
+
+.product-inspector {
+  min-height: 100dvh;
+  grid-template-columns: minmax(22rem, 0.31fr) minmax(0, 0.69fr);
+}
+
+.product-inspector__rail {
+  min-height: 100dvh;
+  padding: calc(var(--floating-header-clearance) + 1rem) clamp(1.5rem, 3vw, 3.5rem) 2rem;
+  overflow: visible;
+  background: var(--navy);
+}
+
+.product-inspector__intro h2 {
+  max-width: 8.5ch;
+  font-size: clamp(3.25rem, 4vw, 4.8rem);
+  line-height: 0.91;
+}
+
+.product-inspector__intro > p:last-child {
+  max-width: 29rem;
+  margin-top: 1.25rem;
+  font-size: 0.86rem;
+}
+
+.product-inspector__selectors {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.product-inspector__selectors button {
+  min-height: 52px;
+  padding: 0 0.75rem;
+}
+
+.product-inspector__selectors button:nth-child(odd) {
+  border-right: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.product-inspector__selectors button:hover,
+.product-inspector__selectors button.is-active {
+  padding-inline: 1rem;
+}
+
+.product-inspector__retail {
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.product-inspector__retail p {
+  max-width: 13rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.product-inspector__retail button {
+  min-height: 44px;
+  padding: 0 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.product-inspector__retail button:hover {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: var(--ink);
+}
+
+.product-inspector__stage {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: minmax(35rem, 1fr) auto;
+  overflow: hidden;
+  background: var(--product-surface, #f1ebe4);
+}
+
+.product-inspector__media {
+  position: relative;
+  inset: auto;
+  min-height: 35rem;
+  padding: 0;
+  background: var(--product-surface, #f1ebe4);
+}
+
+.product-inspector__image {
+  object-fit: cover;
+}
+
+.product-inspector__media--portrait .product-inspector__image.is-active,
+.product-inspector__media--square .product-inspector__image.is-active {
+  object-fit: contain;
+  padding: clamp(2rem, 5vw, 5rem);
+}
+
+.product-inspector__media--wide .product-inspector__image.is-active {
+  object-fit: cover;
+  padding: 0;
+}
+
+.product-inspector__stage::after {
+  content: none;
+}
+
+.product-inspector__caption {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.42fr) minmax(16rem, 0.58fr);
+  gap: 0.45rem 2rem;
+  align-items: end;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 4rem);
+  background: var(--warm-white);
+  border-top: 1px solid rgba(9, 32, 51, 0.16);
+  color: var(--navy);
+}
+
+.product-inspector__caption p {
+  grid-column: 1;
+  color: #277f86;
+}
+
+.product-inspector__caption h3 {
+  grid-column: 1;
+  font-size: clamp(2.65rem, 4vw, 4.5rem);
+}
+
+.product-inspector__caption > span {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: end;
+  max-width: 32rem;
+  margin: 0;
+  color: #5f6870;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.corporate--gallery {
+  min-height: 100dvh;
+  display: block;
+  padding: calc(var(--floating-header-clearance) + 2rem) var(--page-pad) clamp(5rem, 8vw, 8rem);
+}
+
+.corporate-intro--v3 {
+  width: min(100%, 92rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.36fr);
+  gap: 0.65rem clamp(2rem, 6vw, 7rem);
+  align-items: end;
+}
+
+.corporate-intro--v3 .eyebrow {
+  grid-column: 1 / -1;
+}
+
+.corporate-intro--v3 h2 {
+  max-width: 10ch;
+  margin: 0;
+  font-size: clamp(3.7rem, 5.2vw, 5.8rem);
+  line-height: 0.9;
+}
+
+.corporate-intro--v3 > p:not(.eyebrow) {
+  grid-column: 2;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.corporate-intro--v3 .button {
+  grid-column: 2;
+  width: fit-content;
+  margin-top: 1.2rem;
+  white-space: nowrap;
+}
+
+.corporate-gallery {
+  width: min(100%, 110rem);
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 1.6vw, 1.6rem);
+  margin-top: clamp(3.5rem, 6vw, 6rem);
+  overflow: visible;
+}
+
+.corporate-card,
+.corporate-card.is-active {
+  min-width: 0;
+  overflow: visible;
+  background: transparent;
+  color: var(--warm-white);
+}
+
+.corporate-card__selector {
+  position: relative;
+  inset: auto;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  display: block;
+  overflow: hidden;
+  background: #d9cabb;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.corporate-card__media {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  transform: scale(1.01);
+  transition: transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.corporate-card__selector:hover .corporate-card__media {
+  transform: scale(1.045);
+}
+
+.corporate-card__detail,
+.corporate-card.is-active .corporate-card__detail {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  min-height: 17.5rem;
+  display: flex;
+  flex-direction: column;
+  padding: 1.4rem 0 0;
+  color: var(--warm-white);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.corporate-card__number {
+  position: static;
+  color: var(--coral);
+  font-size: 0.66rem;
+}
+
+.corporate-card__detail h3 {
+  margin: 0.65rem 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2rem, 2.4vw, 2.85rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 0.96;
+}
+
+.corporate-card__detail p {
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.corporate-card__detail button {
+  min-height: 44px;
+  width: fit-content;
+  margin-top: auto;
+  padding: 0;
+  background: transparent;
+  border-bottom: 1px solid var(--coral);
+  color: var(--warm-white);
+  transition: color 180ms ease, gap 180ms ease;
+}
+
+.corporate-card__detail button:hover {
+  gap: 0.8rem;
+  color: var(--coral);
+}
+
+.services--interactive {
+  min-height: 100dvh;
+  display: block;
+  padding: calc(var(--floating-header-clearance) + 2rem) var(--page-pad) clamp(5rem, 8vw, 8rem);
+}
+
+.umrah-grid--v3 {
+  width: min(100%, 110rem);
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.38fr) minmax(0, 0.62fr);
+  gap: clamp(3rem, 6vw, 7rem);
+  align-items: start;
+}
+
+.umrah-grid--v3 .umrah-copy h2 {
+  max-width: 9.5ch;
+  font-size: clamp(3.7rem, 5.1vw, 5.7rem);
+  line-height: 0.91;
+}
+
+.umrah-grid--v3 .umrah-copy > p:not(.eyebrow) {
+  max-width: 34rem;
+  margin: 1.5rem 0;
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+
+.umrah-grid--v3 .umrah-copy ul {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin-bottom: 2rem;
+  border-top: 1px solid rgba(9, 32, 51, 0.18);
+}
+
+.umrah-grid--v3 .umrah-copy li {
+  min-height: 4rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(9, 32, 51, 0.18);
+  font-size: 0.74rem;
+}
+
+.umrah-grid--v3 .umrah-copy li:nth-child(odd) {
+  padding-right: 1rem;
+}
+
+.umrah-service-gallery__cards {
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.2vw, 1.2rem);
+}
+
+.umrah-service-card,
+.umrah-service-card.is-active,
+.umrah-service-card:not(.is-active) {
+  min-width: 0;
+  aspect-ratio: 4 / 5;
+  filter: none;
+  opacity: 1;
+  transform: none;
+  border: 1px solid rgba(9, 32, 51, 0.12);
+}
+
+.umrah-service-card.is-active {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.umrah-service-gallery__detail {
+  min-height: 8rem;
+  grid-template-columns: minmax(11rem, 0.42fr) minmax(0, 0.58fr);
+  padding-top: 1.35rem;
+}
+
+.agency-process {
+  width: min(100%, 110rem);
+  min-height: 8.5rem;
+  margin: clamp(4rem, 7vw, 7rem) 0 0;
+}
+
+.contact.chapter-screen {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+}
+
+@media (max-width: 1180px) {
+  .product-inspector {
+    grid-template-columns: minmax(20rem, 0.37fr) minmax(0, 0.63fr);
+  }
+
+  .corporate-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .corporate-card__detail {
+    min-height: 15rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .chapter-screen,
+  .about--founder,
+  .contact.chapter-screen {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .about--founder {
+    overflow: hidden;
+  }
+
+  .about-founder {
+    min-height: 60rem;
+    grid-template-columns: minmax(0, 0.9fr) minmax(19rem, 1.1fr);
+  }
+
+  .about-founder__copy h2 {
+    font-size: clamp(3.5rem, 7.2vw, 5.3rem);
+  }
+
+  .about-founder__portrait {
+    width: min(47vw, 32rem);
+    max-height: 50rem;
+  }
+
+  .about-founder__portrait img {
+    max-height: 50rem;
+  }
+
+  .product-inspector {
+    grid-template-columns: 1fr;
+  }
+
+  .product-inspector__rail {
+    min-height: auto;
+    padding-bottom: 3rem;
+  }
+
+  .product-inspector__retail {
+    margin-top: 2.25rem;
+  }
+
+  .product-inspector__stage {
+    min-height: 46rem;
+  }
+
+  .corporate-intro--v3 {
+    grid-template-columns: 1fr;
+  }
+
+  .corporate-intro--v3 h2,
+  .corporate-intro--v3 > p:not(.eyebrow),
+  .corporate-intro--v3 .button {
+    grid-column: 1;
+  }
+
+  .corporate-intro--v3 > p:not(.eyebrow) {
+    max-width: 34rem;
+    margin-top: 1rem;
+  }
+
+  .umrah-grid--v3 {
+    grid-template-columns: 1fr;
+  }
+
+  .umrah-grid--v3 .umrah-copy {
+    max-width: 46rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .about-founder {
+    min-height: 58rem;
+    display: block;
+    padding-top: calc(var(--floating-header-clearance) + 2.5rem);
+  }
+
+  .about-founder__background {
+    object-position: 64% center;
+  }
+
+  .about-founder__wash {
+    background:
+      linear-gradient(180deg, rgba(3, 12, 22, 0.94) 0%, rgba(3, 12, 22, 0.72) 46%, rgba(3, 12, 22, 0.18) 72%),
+      linear-gradient(0deg, rgba(3, 12, 22, 0.8), transparent 40%);
+  }
+
+  .about-founder__copy {
+    position: relative;
+    z-index: 2;
+    max-width: 29rem;
+    padding: 0;
+  }
+
+  .about-founder__copy h2 {
+    max-width: 10ch;
+    font-size: clamp(3.25rem, 15vw, 4.75rem);
+  }
+
+  .about-founder__portrait {
+    position: absolute;
+    right: -3rem;
+    bottom: 0;
+    width: min(88vw, 31rem);
+    max-height: 36rem;
+  }
+
+  .about-founder__portrait img {
+    max-height: 36rem;
+  }
+
+  .product-inspector__rail {
+    min-height: auto;
+  }
+
+  .product-inspector__retail {
+    padding-right: 4.75rem;
+  }
+
+  .product-inspector__selectors {
+    grid-template-columns: 1fr;
+  }
+
+  .product-inspector__selectors button:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .product-inspector__stage {
+    min-height: 42rem;
+    grid-template-rows: minmax(27rem, 1fr) auto;
+  }
+
+  .product-inspector__media {
+    min-height: 27rem;
+  }
+
+  .product-inspector__media--portrait .product-inspector__image.is-active,
+  .product-inspector__media--square .product-inspector__image.is-active {
+    padding: 1rem;
+  }
+
+  .product-inspector__caption {
+    grid-template-columns: 1fr;
+    padding: 1.4rem var(--page-pad) 1.8rem;
+  }
+
+  .product-inspector__caption h3,
+  .product-inspector__caption > span {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .product-inspector__caption h3 {
+    font-size: clamp(2.55rem, 12vw, 3.6rem);
+  }
+
+  .product-inspector__caption > span {
+    margin-top: 0.4rem;
+  }
+
+  .corporate--gallery,
+  .services--interactive {
+    padding-top: calc(var(--floating-header-clearance) + 2.75rem);
+  }
+
+  .corporate-intro--v3 h2,
+  .umrah-grid--v3 .umrah-copy h2 {
+    font-size: clamp(3.25rem, 14vw, 4.7rem);
+  }
+
+  .corporate-gallery {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+
+  .corporate-card__detail {
+    min-height: 0;
+  }
+
+  .corporate-card__detail button {
+    margin-top: 1.5rem;
+  }
+
+  .umrah-grid--v3 .umrah-copy ul {
+    grid-template-columns: 1fr;
+  }
+
+  .umrah-service-gallery__cards {
+    width: calc(100% + var(--page-pad));
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .umrah-service-card,
+  .umrah-service-card.is-active,
+  .umrah-service-card:not(.is-active) {
+    width: 76vw;
+    flex: 0 0 76vw;
+    scroll-snap-align: start;
+  }
+
+  .umrah-service-gallery__detail {
+    grid-template-columns: 1fr;
+  }
+
+  .umrah-service-gallery__detail > span {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 0.6rem;
+  }
+
+  .agency-process {
+    grid-template-columns: 1fr;
   }
 }
