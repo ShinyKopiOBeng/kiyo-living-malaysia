@@ -52,3 +52,14 @@ test("removes the disposable starter preview and keeps production metadata", asy
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
 });
+
+test("includes the approved KIYO production asset set", async () => {
+  const requiredAssets = [
+    "../public/images/kiyo/samantha-founder.webp",
+    "../public/images/kiyo/product-hero.webp",
+    "../public/images/kiyo/umrah-custom.webp",
+    "../public/images/kiyo/warehouse-5.webp",
+  ];
+
+  await Promise.all(requiredAssets.map((asset) => access(new URL(asset, import.meta.url))));
+});

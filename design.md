@@ -130,10 +130,10 @@ No package change is planned. The project already includes the appropriate stabl
 - Create: `public/images/kiyo/*.webp`
 - Modify: `tests/rendered-html.test.mjs`
 
-- [ ] Optimise the 18 supplied images with Sharp according to the asset-delivery table, preserving alpha for `samantha-founder.webp`.
-- [ ] Verify that every image opens successfully, is substantially smaller than its PNG source, and that the Samantha portrait still has transparent corners.
-- [ ] Add a failing asset-presence test using `access()` for `samantha-founder.webp`, `product-hero.webp`, `umrah-custom.webp`, and `warehouse-5.webp`.
-- [ ] Run `npm test`; confirm the new test fails before files are added and passes once all assets exist.
+- [x] Optimise the 18 supplied images with Sharp according to the asset-delivery table, preserving alpha for `samantha-founder.webp`.
+- [x] Verify that every image opens successfully, is substantially smaller than its PNG source, and that the Samantha portrait still has transparent corners.
+- [x] Add a failing asset-presence test using `access()` for `samantha-founder.webp`, `product-hero.webp`, `umrah-custom.webp`, and `warehouse-5.webp`.
+- [x] Run `npm test`; confirm the new test fails before files are added and passes once all assets exist.
 
 ### Task 2: Replace the section data and semantic markup
 
