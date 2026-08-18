@@ -23,9 +23,6 @@ import {
   Box,
   Check,
   ChevronRight,
-  CircleGauge,
-  CupSoda,
-  LockKeyhole,
   Mail,
   MapPin,
   Menu,
@@ -34,7 +31,6 @@ import {
   Plane,
   ShieldCheck,
   Sparkles,
-  Usb,
   X,
 } from "lucide-react";
 import {
@@ -64,27 +60,89 @@ const corporateSolutions = [
     number: "01",
     title: "Branded luggage sets",
     copy: "A coordinated travel set shaped around your campaign, team, or customer programme.",
-    position: "76% center",
+    image: "/images/kiyo/product-gift.webp",
   },
   {
     number: "02",
     title: "Executive travel kits",
     copy: "Polished essentials for leadership retreats, client appreciation, and loyalty rewards.",
-    position: "58% center",
+    image: "/images/kiyo/product-airport.webp",
   },
   {
     number: "03",
     title: "Event & team gifts",
     copy: "Useful travel pieces prepared for launches, annual dinners, roadshows, and staff milestones.",
-    position: "42% center",
+    image: "/images/kiyo/product-hero.webp",
   },
   {
     number: "04",
     title: "Custom presentation",
     copy: "Colour matching, logo placement, packaging, and a clear approval path before production.",
-    position: "88% center",
+    image: "/images/kiyo/product-gift.webp",
   },
 ];
+
+const umrahStories = [
+  {
+    number: "01",
+    title: "Journey set",
+    image: "/images/kiyo/umrah-journey.webp",
+    alt: "An UMRAH traveller at the airport with a coordinated KIYO luggage set",
+    className: "umrah-gallery__journey",
+  },
+  {
+    number: "02",
+    title: "Included essentials",
+    image: "/images/kiyo/umrah-essentials.webp",
+    alt: "A coordinated UMRAH luggage set with carefully arranged travel essentials",
+    className: "umrah-gallery__essentials",
+  },
+  {
+    number: "03",
+    title: "Custom presentation",
+    image: "/images/kiyo/umrah-custom.webp",
+    alt: "A cream UMRAH luggage case with custom presentation materials",
+    className: "umrah-gallery__custom",
+  },
+] as const;
+
+const warehouseGallery = [
+  {
+    image: "/images/kiyo/warehouse-1.webp",
+    alt: "The exterior of KIYO's Shah Alam warehouse and showroom",
+    label: "01 · Our environment",
+    title: "Warehouse & showroom",
+    wide: true,
+  },
+  {
+    image: "/images/kiyo/warehouse-2.webp",
+    alt: "Organised luggage stock in KIYO's warehouse",
+    label: "02 · Prepared",
+    title: "Organised stock",
+    wide: false,
+  },
+  {
+    image: "/images/kiyo/warehouse-3.webp",
+    alt: "KIYO's luggage showroom with product displays",
+    label: "03 · Considered",
+    title: "Product showroom",
+    wide: false,
+  },
+  {
+    image: "/images/kiyo/warehouse-4.webp",
+    alt: "A welcoming KIYO office and client discussion space",
+    label: "04 · Connected",
+    title: "Working together",
+    wide: false,
+  },
+  {
+    image: "/images/kiyo/warehouse-5.webp",
+    alt: "KIYO's warehouse preparation and packing area",
+    label: "05 · In motion",
+    title: "Packing & dispatch",
+    wide: false,
+  },
+] as const;
 
 const customSteps = [
   {
@@ -257,9 +315,30 @@ function ProductCarousel() {
   }, [emblaApi]);
 
   const slides = [
-    { name: "Cabin", note: "Compact, quick-moving, overhead-ready", position: "37% center" },
-    { name: "Check-in", note: "More room for longer journeys", position: "61% center" },
-    { name: "Travel set", note: "A coordinated family of practical sizes", position: "82% center" },
+    {
+      name: "Cabin ready",
+      note: "A clean, compact silhouette for the journeys ahead.",
+      image: "/images/kiyo/product-pedestal.webp",
+      alt: "A navy KIYO cabin case displayed on a studio pedestal",
+      width: 760,
+      height: 950,
+    },
+    {
+      name: "Travel with ease",
+      note: "A considered suitcase for terminals, lobbies, and everyday movement.",
+      image: "/images/kiyo/product-airport.webp",
+      alt: "A navy KIYO suitcase standing in a bright airport terminal",
+      width: 1440,
+      height: 810,
+    },
+    {
+      name: "Gift-ready",
+      note: "A polished luggage presentation for a meaningful occasion.",
+      image: "/images/kiyo/product-gift.webp",
+      alt: "A KIYO suitcase presented with a wrapped gift box",
+      width: 1440,
+      height: 810,
+    },
   ];
 
   return (
@@ -278,11 +357,12 @@ function ProductCarousel() {
             <article className="lineup__slide" key={slide.name} aria-label={`${index + 1} of ${slides.length}: ${slide.name}`}>
               <div className="lineup__image">
                 <img
-                  src="/images/product-lineup.webp"
-                  alt="A studio lineup of modern hard-shell luggage in KIYO colours"
-                  width="1536"
-                  height="1024"
-                  style={{ objectPosition: slide.position }}
+                  src={slide.image}
+                  alt={slide.alt}
+                  width={slide.width}
+                  height={slide.height}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="lineup__copy">
@@ -510,9 +590,6 @@ export function KiyoExperience() {
     };
   }, []);
 
-  const manifesto =
-    "More than luggage. A travel partner for brands, teams, and meaningful journeys.";
-
   return (
     <div ref={rootRef} className="site-shell">
       <a className="skip-link" href="#main">Skip to content</a>
@@ -590,25 +667,24 @@ export function KiyoExperience() {
           </div>
         </div>
 
-        <section id="about" className="chapter chapter--light about">
-          <div className="section-heading reveal">
-            <p className="eyebrow eyebrow--coral">Malaysia-born. Journey-minded.</p>
-            <h2>We make travel feel considered—from the first impression to the final mile.</h2>
-          </div>
-          <div className="about-grid">
-            <p className="manifesto">
-              {manifesto.split(" ").map((word, index) => (
-                <span className="manifesto-word" key={`${word}-${index}`}>{word}{" "}</span>
-              ))}
-            </p>
-            <div className="about-note reveal">
-              <p>KIYO brings together retail luggage, bulk gifting, custom branding, and UMRAH-ready sets in one focused Malaysian travel brand.</p>
-              <div className="proof-list" aria-label="KIYO capabilities">
+        <section id="about" className="chapter about about--founder">
+          <div className="about-founder">
+            <img className="about-founder__background" src="/images/kiyo/samantha-warehouse.webp" alt="" aria-hidden="true" width="1047" height="941" loading="lazy" decoding="async" />
+            <div className="about-founder__wash" aria-hidden="true" />
+            <div className="about-founder__copy reveal">
+              <p className="eyebrow eyebrow--coral">Behind KIYO</p>
+              <h2>A thoughtful journey starts with people.</h2>
+              <p>Founded by Samantha Ng, KIYO brings together retail luggage, bulk gifting, custom branding, and UMRAH-ready sets in one focused Malaysian travel brand.</p>
+              <div className="about-founder__proof" aria-label="KIYO capabilities">
                 <span><ShieldCheck aria-hidden="true" /> Practical product thinking</span>
                 <span><Sparkles aria-hidden="true" /> Brand-ready presentation</span>
                 <span><MapPin aria-hidden="true" /> Shah Alam, Selangor</span>
               </div>
             </div>
+            <figure className="about-founder__portrait image-reveal">
+              <img src="/images/kiyo/samantha-founder.webp" alt="Samantha Ng, founder of KIYO" width="608" height="921" loading="lazy" decoding="async" />
+              <figcaption><span>Founder</span><strong>Samantha Ng</strong></figcaption>
+            </figure>
           </div>
         </section>
 
@@ -621,15 +697,27 @@ export function KiyoExperience() {
             <p>Durable shells, smooth movement, and useful details—presented as a focused collection rather than an endless catalogue.</p>
           </div>
 
-          <div className="product-bento">
-            <article className="product-bento__visual image-reveal">
-              <img src="/images/product-lineup.webp" alt="Four modern hard-shell luggage cases in navy, silver, coral and pale aqua" width="1536" height="1024" />
-              <div className="product-bento__caption"><span>KIYO colour story</span><strong>Travel, coordinated.</strong></div>
-            </article>
-            <article className="feature-card feature-card--aqua reveal"><ShieldCheck aria-hidden="true" /><span>Shell</span><h3>PC + ABS</h3><p>Balanced for everyday durability and practical handling.</p></article>
-            <article className="feature-card feature-card--navy reveal"><CircleGauge aria-hidden="true" /><span>Movement</span><h3>360° wheels</h3><p>Made to glide through terminals, lobbies, and city streets.</p></article>
-            <article className="feature-card feature-card--coral reveal"><LockKeyhole aria-hidden="true" /><span>Security</span><h3>TSA lock</h3><p>A familiar travel-ready locking format for added confidence.</p></article>
-            <article className="feature-card feature-card--gold reveal"><div className="feature-card__icons"><Usb aria-hidden="true" /><CupSoda aria-hidden="true" /></div><span>Convenience</span><h3>Useful details</h3><p>Selected models include USB access and an integrated cup holder.</p></article>
+          <div className="product-lookbook" role="list" aria-label="KIYO luggage lookbook">
+            <figure className="product-lookbook__hero image-reveal" role="listitem">
+              <img src="/images/kiyo/product-hero.webp" alt="A navy KIYO luggage case in a warm studio setting" width="1440" height="810" loading="lazy" decoding="async" />
+              <figcaption><span>01 · The signature case</span><strong>Made to go further.</strong></figcaption>
+            </figure>
+            <figure className="product-lookbook__portrait image-reveal" role="listitem">
+              <img src="/images/kiyo/product-cabin.webp" alt="A compact navy KIYO cabin case" width="760" height="950" loading="lazy" decoding="async" />
+              <figcaption><span>02 · Cabin</span><strong>Compact, composed.</strong></figcaption>
+            </figure>
+            <figure className="product-lookbook__detail product-lookbook__detail--wheels image-reveal" role="listitem">
+              <img src="/images/kiyo/product-wheels.webp" alt="A close view of a KIYO luggage wheel" width="760" height="428" loading="lazy" decoding="async" />
+              <figcaption><span>03 · Details</span><strong>Built to move.</strong></figcaption>
+            </figure>
+            <figure className="product-lookbook__detail product-lookbook__detail--handle image-reveal" role="listitem">
+              <img src="/images/kiyo/product-handle.webp" alt="A close view of a KIYO luggage handle" width="760" height="760" loading="lazy" decoding="async" />
+              <figcaption><span>04 · Details</span><strong>Within reach.</strong></figcaption>
+            </figure>
+            <figure className="product-lookbook__colours image-reveal" role="listitem">
+              <img src="/images/kiyo/product-colours.webp" alt="A row of KIYO luggage cases in a range of colours" width="1254" height="1254" loading="lazy" decoding="async" />
+              <figcaption><span>05 · Colour story</span><strong>Choose your point of view.</strong></figcaption>
+            </figure>
           </div>
 
           <ProductCarousel />
@@ -661,7 +749,7 @@ export function KiyoExperience() {
           <div className="corporate-panels" role="list" aria-label="Corporate gift solutions">
             {corporateSolutions.map((solution) => (
               <article className="corporate-panel" key={solution.number} role="listitem" tabIndex={0}>
-                <img src="/images/product-lineup.webp" alt="" aria-hidden="true" width="1536" height="1024" style={{ objectPosition: solution.position }} />
+                <img src={solution.image} alt="" aria-hidden="true" width="1440" height="810" loading="lazy" decoding="async" />
                 <div className="corporate-panel__wash" />
                 <span className="corporate-panel__number">{solution.number}</span>
                 <div className="corporate-panel__copy"><h3>{solution.title}</h3><p>{solution.copy}</p><ChevronRight aria-hidden="true" /></div>
@@ -683,15 +771,13 @@ export function KiyoExperience() {
               </ul>
               <a className="button button--ink" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Plan an UMRAH set <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             </div>
-            <div className="umrah-gallery">
-              <figure className="image-reveal umrah-gallery__travel">
-                <img src="/images/umrah-travel.webp" alt="An UMRAH traveller at an airport with two KIYO luggage cases" width="1088" height="1360" />
-                <figcaption><span>01</span><strong>Journey set</strong></figcaption>
-              </figure>
-              <figure className="image-reveal umrah-gallery__gift">
-                <img src="/images/umrah-gifts.webp" alt="A KIYO UMRAH luggage set arranged with prayer and travel essentials" width="1088" height="1360" />
-                <figcaption><span>02</span><strong>Included essentials</strong></figcaption>
-              </figure>
+            <div className="umrah-gallery" role="list" aria-label="KIYO UMRAH travel set story">
+              {umrahStories.map(({ number, title, image, alt, className }) => (
+                <figure className={`image-reveal ${className}`} key={number} role="listitem">
+                  <img src={image} alt={alt} width="800" height="1000" loading="lazy" decoding="async" />
+                  <figcaption><span>{number}</span><strong>{title}</strong></figcaption>
+                </figure>
+              ))}
             </div>
           </div>
 
@@ -719,18 +805,12 @@ export function KiyoExperience() {
             <p>A working base for stock, quality checks, order preparation, and conversations about your next travel programme.</p>
           </div>
           <div className="location-track" ref={locationTrackRef}>
-            <figure className="location-card location-card--wide">
-              <img src="/images/facility.webp" alt="A modern KIYO luggage warehouse and showroom in Shah Alam" width="1536" height="1024" />
-              <figcaption><span>Our environment</span><strong>Showroom & operations</strong></figcaption>
-            </figure>
-            <figure className="location-card">
-              <img src="/images/facility-stock.webp" alt="Organised shelves of luggage prepared for customer and corporate orders" width="845" height="1024" />
-              <figcaption><span>Prepared</span><strong>Organised stock</strong></figcaption>
-            </figure>
-            <figure className="location-card">
-              <img src="/images/facility-quality.webp" alt="A clean luggage quality-control and packing workspace" width="1106" height="870" />
-              <figcaption><span>Considered</span><strong>Quality & packing</strong></figcaption>
-            </figure>
+            {warehouseGallery.map(({ image, alt, label, title, wide }) => (
+              <figure className={`location-card${wide ? " location-card--wide" : ""}`} key={image}>
+                <img src={image} alt={alt} width="1440" height="864" loading="lazy" decoding="async" />
+                <figcaption><span>{label}</span><strong>{title}</strong></figcaption>
+              </figure>
+            ))}
             <aside className="location-card location-card--address">
               <MapPin aria-hidden="true" />
               <p>Visit by appointment</p>

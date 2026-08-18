@@ -32,10 +32,22 @@ test("server-renders the KIYO portfolio experience", async () => {
   assert.match(html, /Services/);
   assert.match(html, /Location/);
   assert.match(html, /Contact/);
+  assert.match(html, /Samantha Ng/);
+  assert.match(html, /\/images\/kiyo\/samantha-founder\.webp/);
+  assert.match(html, /\/images\/kiyo\/product-hero\.webp/);
+  assert.match(html, /\/images\/kiyo\/umrah-journey\.webp/);
+  assert.match(html, /\/images\/kiyo\/umrah-essentials\.webp/);
+  assert.match(html, /\/images\/kiyo\/umrah-custom\.webp/);
   assert.match(html, /wa\.me\/60132767887/);
   assert.match(html, /shopee\.com\.my\/kiyoliving/);
   assert.match(html, /tiktok\.com\/@kiyoliving/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+
+  const warehouseSources = Array.from(
+    html.matchAll(/\/images\/kiyo\/warehouse-(\d)\.webp/g),
+    (match) => Number(match[1]),
+  );
+  assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
 });
 
 test("removes the disposable starter preview and keeps production metadata", async () => {

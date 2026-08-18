@@ -141,13 +141,13 @@ No package change is planned. The project already includes the appropriate stabl
 - Modify: `app/KiyoExperience.tsx` (imports, `MenuDialog`, `ProductCarousel`, About through Location sections)
 - Modify: `tests/rendered-html.test.mjs`
 
-- [ ] Add typed `umrahStories` and `warehouseGallery` arrays. The warehouse array must list `warehouse-1.webp` through `warehouse-5.webp` without reordering.
-- [ ] Replace the About manifesto markup with the founder composition while keeping `id="about"` and the menu label `About`.
-- [ ] Replace the product bento with the mapped five-image lookbook and update the existing Embla carousel to the remaining three images.
-- [ ] Render UMRAH from the three-item sequence with descriptive alternative text and labels 01–03.
-- [ ] Render the five warehouse figures before the appointment card, using captions matching the approved sequence.
-- [ ] Extend the rendered HTML test to assert `/images/kiyo/samantha-founder.webp`, `/images/kiyo/umrah-custom.webp`, `/images/kiyo/warehouse-1.webp`, `/images/kiyo/warehouse-5.webp`, and `About` exist in the page output.
-- [ ] Run `npm test` and confirm the server-rendered content passes.
+- [x] Add typed `umrahStories` and `warehouseGallery` arrays. The warehouse array must list `warehouse-1.webp` through `warehouse-5.webp` without reordering.
+- [x] Replace the About manifesto markup with the founder composition while keeping `id="about"` and the menu label `About`.
+- [x] Replace the product bento with the mapped five-image lookbook and update the existing Embla carousel to the remaining three images.
+- [x] Render UMRAH from the three-item sequence with descriptive alternative text and labels 01–03.
+- [x] Render the five warehouse figures before the appointment card, using captions matching the approved sequence.
+- [x] Extend the rendered HTML test to assert `/images/kiyo/samantha-founder.webp`, `/images/kiyo/umrah-custom.webp`, `/images/kiyo/warehouse-1.webp`, `/images/kiyo/warehouse-5.webp`, and `About` exist in the page output.
+- [x] Run `npm test` and confirm the server-rendered content passes.
 
 ### Task 3: Implement the approved responsive visual system
 
