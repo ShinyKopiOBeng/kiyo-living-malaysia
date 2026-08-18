@@ -154,11 +154,11 @@ No package change is planned. The project already includes the appropriate stabl
 **Files:**
 - Modify: `app/globals.css` (About styles near the current about block; Product styles near the current product bento; UMRAH styles; Location styles; existing tablet/mobile media queries)
 
-- [ ] Create the desktop founder background/portrait overlay with copy contrast that passes readable visual review.
-- [ ] Replace product bento layout rules with the five-image editorial grid. At `max-width: 1023px`, reduce it to two columns; at `max-width: 700px`, switch to one column with no overlaps.
-- [ ] Change UMRAH gallery from two to three columns on large screens and a one-column 01–03 stack below 700 px.
-- [ ] Keep image 01 wide in the Location desktop rail. Ensure all five cards are swipable and snap-aligned below 1024 px.
-- [ ] Check a 320 px viewport for horizontal overflow, clipped captions, and inaccessible CTAs.
+- [x] Create the desktop founder background/portrait overlay with copy contrast that passes readable visual review.
+- [x] Replace product bento layout rules with the five-image editorial grid. At `max-width: 1023px`, reduce it to two columns; at `max-width: 700px`, switch to one column with no overlaps.
+- [x] Change UMRAH gallery from two to three columns on large screens and a one-column 01–03 stack below 700 px.
+- [x] Keep image 01 wide in the Location desktop rail. Ensure all five cards are swipable and snap-aligned below 1024 px.
+- [x] Check a 320 px viewport for horizontal overflow, clipped captions, and inaccessible CTAs.
 
 ### Task 4: Add controlled navigation and button interaction
 
@@ -166,21 +166,21 @@ No package change is planned. The project already includes the appropriate stabl
 - Modify: `app/KiyoExperience.tsx` (`MenuDialog` effect only)
 - Modify: `app/globals.css` (existing `.button`, `.text-button`, `.menu-trigger`, and `.mobile-menu` rules)
 
-- [ ] Add a scoped GSAP menu timeline that only runs after the native dialog opens; use `gsap.context()` scoped to the dialog and call `revert()` in cleanup.
-- [ ] Add the documented gradient sweep and arrow treatment through CSS transitions under `@media (hover: hover) and (pointer: fine)`.
-- [ ] Preserve button focus visibility, native dialog Escape handling, dialog focus placement, and the existing `aria-expanded` state.
-- [ ] Verify the `prefers-reduced-motion: reduce` path skips the timeline and does not initialise smooth scrolling.
+- [x] Add a scoped GSAP menu timeline that only runs after the native dialog opens; use `gsap.context()` scoped to the dialog and call `revert()` in cleanup.
+- [x] Add the documented gradient sweep and arrow treatment through CSS transitions under `@media (hover: hover) and (pointer: fine)`.
+- [x] Preserve button focus visibility, native dialog Escape handling, dialog focus placement, and the existing `aria-expanded` state.
+- [x] Verify the `prefers-reduced-motion: reduce` path skips the timeline and does not initialise smooth scrolling.
 
 ### Task 5: Validate the finished revision
 
 **Files:**
 - Modify only when a failing validation identifies a necessary correction.
 
-- [ ] Run `npm run lint`.
-- [ ] Run `npm test` (production build plus rendered HTML tests).
-- [ ] Inspect desktop at 1440 px and mobile at 390 px: founder contrast, full product gallery, 3 UMRAH figures, warehouse order 1–5, Shop dialog, mobile menu, and WhatsApp link.
-- [ ] Inspect a reduced-motion emulation: content is static but complete, and no pinned/horizontal scroll trap remains.
-- [ ] Run `git diff --check` and review only the intentional assets, component, stylesheet, test, and `design.md` changes.
+- [x] Run `npm run lint`.
+- [x] Run `npm test` (production build plus rendered HTML tests).
+- [x] Inspect desktop at 1440 px and mobile at 390 px: founder contrast, full product gallery, 3 UMRAH figures, warehouse order 1–5, Shop dialog, mobile menu, and WhatsApp link.
+- [x] Inspect a reduced-motion emulation: content is static but complete, and no pinned/horizontal scroll trap remains.
+- [x] Run `git diff --check` and review only the intentional assets, component, stylesheet, test, and `design.md` changes.
 
 ## 5. Approval checklist
 

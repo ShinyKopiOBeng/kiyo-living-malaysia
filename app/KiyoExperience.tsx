@@ -203,10 +203,25 @@ function MenuDialog({ open, onClose }: DialogProps) {
     if (!open || !dialog) return;
     dialog.showModal();
     const firstLink = dialog.querySelector<HTMLAnchorElement>("a");
-    firstLink?.focus();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const context = reduceMotion
+      ? undefined
+      : gsap.context(() => {
+          gsap.timeline({ defaults: { ease: "power3.out" } })
+            .fromTo(".mobile-menu__top", { y: -18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.42 })
+            .fromTo(
+              ".mobile-menu__links a",
+              { x: -28, autoAlpha: 0 },
+              { x: 0, autoAlpha: 1, duration: 0.5, stagger: 0.07 },
+              "<0.12",
+            )
+            .fromTo(".mobile-menu__cta", { y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.42 }, "<0.1");
+        }, dialog);
+    firstLink?.focus();
     return () => {
+      context?.revert();
       document.body.style.overflow = previousOverflow;
       if (dialog.open) dialog.close();
     };
@@ -473,22 +488,6 @@ export function KiyoExperience() {
           },
         );
       });
-
-      const words = gsap.utils.toArray<HTMLElement>(".manifesto-word");
-      if (words.length) {
-        gsap.fromTo(
-          words,
-          { opacity: reduceMotion ? 1 : 0.13 },
-          {
-            opacity: 1,
-            stagger: 0.045,
-            ease: "none",
-            scrollTrigger: reduceMotion
-              ? undefined
-              : { trigger: ".manifesto", start: "top 74%", end: "bottom 48%", scrub: 0.6 },
-          },
-        );
-      }
 
       gsap.utils.toArray<HTMLElement>(".image-reveal").forEach((element) => {
         gsap.fromTo(
