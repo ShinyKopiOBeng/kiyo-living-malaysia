@@ -1,4 +1,201 @@
-# KIYO Corporate Journey — Final Website Design Specification
+# KIYO Website — August 2026 Asset Revision Design
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Status:** Approved by KIYO on 18 August 2026 — implementation authorised.
+
+**Goal:** Replace the disposable review imagery with KIYO's supplied assets and turn the four affected areas into a more credible, editorial brand experience while keeping the existing navigation and conversion routes intact.
+
+**Architecture:** This is an asset and presentation revision of the existing single-page React experience. The implementation extends the existing `KiyoExperience` component, GSAP/ScrollTrigger lifecycle, Embla carousel, CSS design tokens, and native dialogs; it does not add a CMS, commerce flow, additional page routes, or a competing animation/carousel library.
+
+**Tech stack:** React 19, TypeScript, CSS custom properties/Grid/Flexbox, GSAP 3 + ScrollTrigger, Lenis (desktop fine-pointer only), Embla Carousel, Lucide React, React Icons, Sharp (one-time supplied-image optimization).
+
+**Spec:** `design.md` (this approval brief and implementation plan).
+
+## Global constraints
+
+- Preserve the current single-page navigation and its exact order: Home, **About**, Products, Corporate, Services, Location, Contact. `About` remains named **About**.
+- Reuse existing GSAP, Lenis, Embla, Lucide, and dialog patterns. Do not add Framer Motion, Swiper, another scroll library, or a UI kit.
+- Use only the supplied folder assets for the revised Samantha, luggage, UMRAH, and warehouse imagery; optimise them into production WebP files under `public/images/kiyo/`.
+- Keep external retail actions routed only to Shopee and TikTok, and service enquiries routed to the existing WhatsApp URL.
+- Preserve `prefers-reduced-motion`, keyboard accessibility, visible focus styles, valid image alternatives, lazy loading below the hero, and mobile reading order.
+- Do not introduce product specifications or founder claims that are not already supplied or verified. Proposed display copy below is subject to KIYO content approval.
+
+---
+
+## 1. Approved design direction
+
+The existing dark navy, coral, teal, editorial type, and cinematic scroll language stay in place. The revision replaces the previous generated/review images with an intentional visual narrative:
+
+| Area | New role | Desktop composition | Mobile composition |
+| --- | --- | --- | --- |
+| About | Founder portfolio | Warehouse background with Samantha's transparent portrait overlapping the right edge; copy occupies the left half. | Background at the top, portrait then copy in natural document order. |
+| Products | KIYO luggage lookbook | Five-image editorial grid followed by a three-slide Embla carousel. | One-column image story followed by swipe carousel. |
+| UMRAH | Respectful three-part story | Three vertical cards, gently staggered with equal visual importance. | Cards stack 01 → 02 → 03 without overlap. |
+| Location | Real operational proof | Current horizontal scroll gallery expanded to five photographs in filename order, then the appointment card. | Native horizontal swipe/snap gallery in the same 1 → 5 order. |
+
+### 1.1 About — Samantha founder portfolio
+
+`About` remains the navigation label and anchor (`#about`). It becomes a full-bleed dark chapter rather than the current light manifesto.
+
+- Background: `samantha/kiyo_warehouse_background.png`, with a navy gradient wash that keeps the copy readable.
+- Foreground: `samantha/samantha_kiyo_transparent.png` anchored at the lower right; no AI retouching, crop, or signature removal.
+- Copy treatment:
+  - Eyebrow: `Behind KIYO`
+  - Heading: `A thoughtful journey starts with people.`
+  - Founder line: `Samantha Ng · Founder`
+  - Support copy: a short approved description of KIYO's retail, corporate, custom-branding, and UMRAH focus.
+- Proof points stay as the existing three concise chips: practical product thinking, brand-ready presentation, Shah Alam, Selangor.
+- The portrait, founder line, and content must be readable when motion is off; it is not an animation-only reveal.
+
+### 1.2 Products — luggage lookbook
+
+The current repeated crops of one review image are replaced with an editorial lookbook. The section is visual-first and deliberately avoids adding unverified technical feature claims.
+
+| Lookbook sequence | Supplied luggage source | Planned visual role |
+| --- | --- | --- |
+| 01 | `03_14_42 PM (1).png` | Wide opening image: the signature navy case. |
+| 02 | `03_14_43 PM (2).png` | Tall cabin-case portrait. |
+| 03 | `03_14_45 PM (4).png` | Wheels close-up: movement/detail moment. |
+| 04 | `03_14_46 PM (6).png` | Handle close-up: tactile detail moment. |
+| 05 | `03_14_45 PM (5).png` | Wide colour-lineup conclusion. |
+| Carousel 01 | `03_14_44 PM (3).png` | Studio pedestal view. |
+| Carousel 02 | `03_14_46 PM (7).png` | Airport / travel-ready scene. |
+| Carousel 03 | `03_14_47 PM (8).png` | Gift-ready / corporate bridge. |
+
+The grid uses one large landscape visual, one tall portrait, two smaller details, and a colour-lineup strip. Each image has a short caption only; images remain the primary message. The existing `Shop KIYO` chooser remains below the carousel.
+
+### 1.3 UMRAH — three images, one calm narrative
+
+Replace both existing UMRAH images with the supplied files, in this exact order:
+
+1. `umrah/umrah1.png` — Journey set.
+2. `umrah/umrah2.png` — Included essentials.
+3. `umrah/umrah3.png` — Custom presentation.
+
+The three figures sit beside the existing UMRAH copy on desktop. They use gentle masked reveals or opacity/transform entrances only. No rapid zooming, 3D tilting, or religious-item animation is permitted. On mobile, all three become full-width stacked cards and retain their 01–03 labels.
+
+### 1.4 Location — warehouse sequence
+
+Use the photos exactly in numerical filename order and do not interleave the address card between them:
+
+1. `warehouse/warehouse 1.png` — exterior / warehouse and showroom.
+2. `warehouse/warehouse 2.png` — organised stock.
+3. `warehouse/warehouse 3.png` — product showroom.
+4. `warehouse/warehouse 4.png` — office and client-discussion space.
+5. `warehouse/warehouse 5.png` — packing and dispatch.
+
+On desktop, image 01 is the widest opening card, images 02–05 use the existing horizontal GSAP progression, and the coral appointment card follows image 05. On touch layouts, GSAP pinning is removed in favour of the existing CSS horizontal snap behaviour.
+
+### 1.5 Button and navigation motion
+
+The goal is a premium, controlled response—not continuous decorative animation.
+
+- **Shop and CTA buttons:** retain current button sizes and focus rings; add a fast coral/teal/light gradient sweep and a small arrow translation on hover/focus for fine-pointer devices only.
+- **Menu trigger:** retain the accessible `button`, `aria-expanded`, and native dialog. Add a restrained background sweep and 2–3 px lift on hover/focus.
+- **Full-screen menu:** when opened, use one scoped GSAP timeline: header first, links slide/fade in with a 70 ms stagger, then the enquiry CTA. Every link remains immediately present in the DOM and keyboard reachable. Closing never waits for an animation.
+- **Reduced motion:** retain the full menu and content but set all optional entrance/scrub durations to zero; Lenis remains disabled as it is today.
+
+## 2. Asset delivery plan
+
+The zip source stays untouched at `C:\Users\Admin\Downloads\KiyoWebsiteAssets.zip`. Before implementation, the supplied PNGs will be converted once using installed Sharp into these committed, web-safe names:
+
+| Destination | Source | Target treatment |
+| --- | --- | --- |
+| `public/images/kiyo/samantha-warehouse.webp` | `samantha/kiyo_warehouse_background.png` | Wide background, max 1200 px. |
+| `public/images/kiyo/samantha-founder.webp` | `samantha/samantha_kiyo_transparent.png` | Alpha-preserving portrait, max 640 px. |
+| `public/images/kiyo/product-{hero,cabin,pedestal,wheels,colours,handle,airport,gift}.webp` | Eight `luggage/*.png` files in the sequence above | 760 px for portrait/detail images, 1440 px for landscapes. |
+| `public/images/kiyo/umrah-{journey,essentials,custom}.webp` | `umrah/umrah1.png` through `umrah3.png` | Vertical images, max 800 px. |
+| `public/images/kiyo/warehouse-{1,2,3,4,5}.webp` | `warehouse/warehouse 1.png` through `warehouse 5.png` | Landscapes, max 1440 px. |
+
+All below-the-fold `<img>` elements will use explicit source dimensions, `loading="lazy"`, and `decoding="async"`. The transparent Samantha image remains WebP with alpha; it is never flattened onto a white background.
+
+## 3. File responsibilities
+
+| File | Responsibility after approval |
+| --- | --- |
+| `app/KiyoExperience.tsx` | Typed data arrays for the new assets; semantic image/caption markup; About founder chapter; Product lookbook/carousel content; three-card UMRAH mapping; ordered warehouse mapping; scoped menu-open GSAP timeline. |
+| `app/globals.css` | Founder overlay, product editorial grid, three-card UMRAH layout, five-card Location sizing, responsive breakpoints, and fine-pointer button/menu motion. |
+| `public/images/kiyo/*` | Optimised supplied production assets only. |
+| `tests/rendered-html.test.mjs` | Server-rendered checks for the founder, three UMRAH labels, all five warehouse images, and retained About navigation. |
+| `design.md` | This approved source of truth plus the original baseline specification below. |
+
+No package change is planned. The project already includes the appropriate stable libraries: GSAP for timelines/ScrollTrigger, Embla for carousel selection and touch drag, Lenis for desktop-only smooth scroll, and Lucide/React Icons for interface and brand icons.
+
+## 4. Implementation plan — execute only after approval
+
+### Task 1: Import the supplied production assets
+
+**Files:**
+- Create: `public/images/kiyo/*.webp`
+- Modify: `tests/rendered-html.test.mjs`
+
+- [ ] Optimise the 18 supplied images with Sharp according to the asset-delivery table, preserving alpha for `samantha-founder.webp`.
+- [ ] Verify that every image opens successfully, is substantially smaller than its PNG source, and that the Samantha portrait still has transparent corners.
+- [ ] Add a failing asset-presence test using `access()` for `samantha-founder.webp`, `product-hero.webp`, `umrah-custom.webp`, and `warehouse-5.webp`.
+- [ ] Run `npm test`; confirm the new test fails before files are added and passes once all assets exist.
+
+### Task 2: Replace the section data and semantic markup
+
+**Files:**
+- Modify: `app/KiyoExperience.tsx` (imports, `MenuDialog`, `ProductCarousel`, About through Location sections)
+- Modify: `tests/rendered-html.test.mjs`
+
+- [ ] Add typed `umrahStories` and `warehouseGallery` arrays. The warehouse array must list `warehouse-1.webp` through `warehouse-5.webp` without reordering.
+- [ ] Replace the About manifesto markup with the founder composition while keeping `id="about"` and the menu label `About`.
+- [ ] Replace the product bento with the mapped five-image lookbook and update the existing Embla carousel to the remaining three images.
+- [ ] Render UMRAH from the three-item sequence with descriptive alternative text and labels 01–03.
+- [ ] Render the five warehouse figures before the appointment card, using captions matching the approved sequence.
+- [ ] Extend the rendered HTML test to assert `/images/kiyo/samantha-founder.webp`, `/images/kiyo/umrah-custom.webp`, `/images/kiyo/warehouse-1.webp`, `/images/kiyo/warehouse-5.webp`, and `About` exist in the page output.
+- [ ] Run `npm test` and confirm the server-rendered content passes.
+
+### Task 3: Implement the approved responsive visual system
+
+**Files:**
+- Modify: `app/globals.css` (About styles near the current about block; Product styles near the current product bento; UMRAH styles; Location styles; existing tablet/mobile media queries)
+
+- [ ] Create the desktop founder background/portrait overlay with copy contrast that passes readable visual review.
+- [ ] Replace product bento layout rules with the five-image editorial grid. At `max-width: 1023px`, reduce it to two columns; at `max-width: 700px`, switch to one column with no overlaps.
+- [ ] Change UMRAH gallery from two to three columns on large screens and a one-column 01–03 stack below 700 px.
+- [ ] Keep image 01 wide in the Location desktop rail. Ensure all five cards are swipable and snap-aligned below 1024 px.
+- [ ] Check a 320 px viewport for horizontal overflow, clipped captions, and inaccessible CTAs.
+
+### Task 4: Add controlled navigation and button interaction
+
+**Files:**
+- Modify: `app/KiyoExperience.tsx` (`MenuDialog` effect only)
+- Modify: `app/globals.css` (existing `.button`, `.text-button`, `.menu-trigger`, and `.mobile-menu` rules)
+
+- [ ] Add a scoped GSAP menu timeline that only runs after the native dialog opens; use `gsap.context()` scoped to the dialog and call `revert()` in cleanup.
+- [ ] Add the documented gradient sweep and arrow treatment through CSS transitions under `@media (hover: hover) and (pointer: fine)`.
+- [ ] Preserve button focus visibility, native dialog Escape handling, dialog focus placement, and the existing `aria-expanded` state.
+- [ ] Verify the `prefers-reduced-motion: reduce` path skips the timeline and does not initialise smooth scrolling.
+
+### Task 5: Validate the finished revision
+
+**Files:**
+- Modify only when a failing validation identifies a necessary correction.
+
+- [ ] Run `npm run lint`.
+- [ ] Run `npm test` (production build plus rendered HTML tests).
+- [ ] Inspect desktop at 1440 px and mobile at 390 px: founder contrast, full product gallery, 3 UMRAH figures, warehouse order 1–5, Shop dialog, mobile menu, and WhatsApp link.
+- [ ] Inspect a reduced-motion emulation: content is static but complete, and no pinned/horizontal scroll trap remains.
+- [ ] Run `git diff --check` and review only the intentional assets, component, stylesheet, test, and `design.md` changes.
+
+## 5. Approval checklist
+
+Approve this design if all statements below reflect KIYO's intention:
+
+- [x] `About` stays named **About** and becomes the Samantha founder chapter.
+- [x] The Samantha assets, eight luggage images, three UMRAH images, and five warehouse images are used exactly as mapped above.
+- [x] Warehouse imagery is shown in numerical filename order from 1 to 5.
+- [x] Product presentation becomes an editorial lookbook rather than a technical specification grid.
+- [x] The full-screen menu and buttons use refined, reduced-motion-safe interaction rather than aggressive animation.
+- [x] Proposed founder and image-caption copy is acceptable, or KIYO will provide replacement wording before implementation.
+
+---
+
+## Existing baseline specification
 
 ## 1. Project Summary
 
