@@ -2,86 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Expand, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Expand, ShoppingBag, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { ImageSlotVisual } from "./ImagePlaceholder";
-import { corporateSlots, productSlots, umrahSlots, type ImageSlot } from "./imageSlots";
+import { corporateSlots, productCollectionSlot, umrahSlots, warehouseSlots, type ImageSlot } from "./imageSlots";
 
-type ProductScene = {
-  id: keyof typeof productSlots;
-  label: string;
-  title: string;
-  description: string;
-  slot: ImageSlot;
-};
-
-const productScenes: ProductScene[] = [
-  { id: "overview", label: "Overview", title: "The KIYO silhouette", description: "A clean front profile with balanced proportions and a polished, travel-ready finish.", slot: productSlots.overview },
-  { id: "colours", label: "Colours", title: "One silhouette. Six colours.", description: "A considered palette for personal travel, teams and coordinated programmes.", slot: productSlots.colours },
-  { id: "handle", label: "Handle", title: "Handle and top detail", description: "A closer view of the telescopic handle, top grip and upper case construction.", slot: productSlots.handle },
-  { id: "wheels", label: "360 Wheels", title: "Smooth directional movement", description: "The spinner wheel system is designed to move easily through busy travel environments.", slot: productSlots.wheels },
-  { id: "security", label: "Security Lock", title: "Integrated travel security", description: "A close view of the lock and zipper-pull detail built into the case.", slot: productSlots.security },
-  { id: "studio", label: "Studio", title: "A clean studio profile", description: "The signature case presented as a focused design object without visual distraction.", slot: productSlots.studio },
-  { id: "travel", label: "Travel", title: "Ready for the journey", description: "The same KIYO case shown in the environment it was designed to move through.", slot: productSlots.travel },
-];
-
-export function ProductInspector({ onShop }: { onShop: () => void }) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [activeId, setActiveId] = useState<ProductScene["id"]>("overview");
-  const activeScene = productScenes.find((scene) => scene.id === activeId) ?? productScenes[0];
-
-  const selectScene = (nextId: ProductScene["id"]) => {
-    if (nextId === activeId) return;
-    const root = rootRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setActiveId(nextId);
-      return;
-    }
-    const current = root.querySelector<HTMLElement>(".product-stage__visual.is-active");
-    gsap.killTweensOf(current);
-    gsap.to(current, {
-      autoAlpha: 0,
-      scale: 1.015,
-      duration: 0.18,
-      ease: "power2.in",
-      onComplete: () => setActiveId(nextId),
-    });
-  };
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const context = gsap.context(() => {
-      gsap.fromTo(".product-stage__visual.is-active", { autoAlpha: 0, scale: 0.985 }, { autoAlpha: 1, scale: 1, duration: 0.42, ease: "power3.out" });
-      gsap.fromTo(".product-inspector__detail > *", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.36, stagger: 0.04, ease: "power2.out" });
-    }, root);
-    return () => context.revert();
-  }, [activeId]);
-
+export function ProductCollectionOverview({ onShop }: { onShop: () => void }) {
   return (
-    <div ref={rootRef} className="product-inspector" aria-label="KIYO product inspector">
-      <header className="product-inspector__intro">
-        <p>KIYO signature luggage</p>
-        <h2>One design. Every detail considered.</h2>
+    <div className="product-collection" aria-label="KIYO premium luggage collection">
+      <header className="product-collection__intro">
+        <p className="eyebrow">KIYO travel collection</p>
+        <h2><span>Premium luggage</span> <em>collection</em></h2>
+        <p>Curated travel solutions designed for style, durability, and every journey.</p>
       </header>
 
-      <div className="product-stage" data-product-view={activeId}>
-        {productScenes.map((scene) => (
-          <ImageSlotVisual key={scene.id} slot={scene.slot} className={`product-stage__visual product-stage__visual--${scene.id}${scene.id === activeId ? " is-active" : ""}`} />
-        ))}
-      </div>
+      <div className="product-collection__layout">
+        <ImageSlotVisual slot={productCollectionSlot} className="product-collection__hero" />
 
-      <div className="product-inspector__selectors" role="tablist" aria-label="Choose a product view">
-        {productScenes.map((scene) => (
-          <button key={scene.id} type="button" role="tab" aria-selected={scene.id === activeId} className={scene.id === activeId ? "is-active" : ""} onClick={() => selectScene(scene.id)}>
-            {scene.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="product-inspector__detail" aria-live="polite">
-        <div><h3>{activeScene.title}</h3><p>{activeScene.description}</p></div>
-        <button className="text-link" type="button" onClick={onShop}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
+        <aside className="product-collection__proof">
+          <div className="product-collection__proof-copy">
+            <ShoppingBag aria-hidden="true" />
+            <p className="eyebrow">Retail and distribution</p>
+            <h3>Retail &amp; Wholesale Ready</h3>
+            <p>From individual travellers to global partners, KIYO delivers premium quality, reliable supply, and exceptional value.</p>
+          </div>
+          <ImageSlotVisual slot={warehouseSlots[2]} className="product-collection__showroom" />
+          <button className="button button--ink" type="button" onClick={onShop}>Explore products <ArrowUpRight aria-hidden="true" /></button>
+        </aside>
       </div>
     </div>
   );
@@ -93,15 +40,62 @@ type CorporateGiftSet = {
   title: string;
   summary: string;
   bullets: string[];
+  moq: string;
+  leadTime: string;
   slot: ImageSlot;
 };
 
 const corporateGiftSets: CorporateGiftSet[] = [
-  { id: "travel-amenities", number: "01", title: "Branded Luggage + Travel Amenities Set", summary: "A coordinated compact luggage and comfort set for clients, teams and travel programmes.", bullets: ["Travel essentials set", "Neck pillow, portable fan and headphones", "Custom logo printing available"], slot: corporateSlots[0] },
-  { id: "team-building", number: "02", title: "Team Building Outdoor Kit", summary: "Practical outdoor pieces for team programmes, events and shared activities.", bullets: ["Activity-ready presentation", "Selected outdoor essentials", "Custom logo printing available"], slot: corporateSlots[1] },
-  { id: "mini-luggage", number: "03", title: "Mini Luggage Travel Kit", summary: "A compact set combining mini luggage with useful everyday travel essentials.", bullets: ["Compact luggage format", "Everyday travel essentials", "Custom logo printing available"], slot: corporateSlots[2] },
-  { id: "notebook", number: "04", title: "A5 Notebook Gift Set", summary: "A refined desk and travel set in a premium navy presentation box.", bullets: ["A5 notebook, pen and bottle", "Gift-box presentation", "Custom logo printing available"], slot: corporateSlots[3] },
+  {
+    id: "travel-amenities",
+    number: "01",
+    title: "Branded Luggage + Travel Amenities Set",
+    summary: "A coordinated premium travel set for clients, teams and group programmes.",
+    bullets: ["Premium mini luggage with travel essentials", "Neck pillow, wireless fan & headphones", "Custom logo printing available"],
+    moq: "100 sets",
+    leadTime: "6–8 weeks",
+    slot: corporateSlots[0],
+  },
+  {
+    id: "team-building",
+    number: "02",
+    title: "Team Building Outdoor Kit",
+    summary: "Practical outdoor pieces selected for team programmes, events and shared activities.",
+    bullets: ["Handpicked outdoor & team bonding items", "Durable, practical & adventure-ready", "Custom logo printing available"],
+    moq: "100 sets",
+    leadTime: "6–8 weeks",
+    slot: corporateSlots[1],
+  },
+  {
+    id: "mini-luggage",
+    number: "03",
+    title: "Mini Luggage Travel Kit",
+    summary: "A compact luggage set with useful everyday travel essentials.",
+    bullets: ["Compact luggage with everyday travel must-haves", "Organized, lightweight & easy to carry", "Custom logo printing available"],
+    moq: "100 sets",
+    leadTime: "6–8 weeks",
+    slot: corporateSlots[2],
+  },
+  {
+    id: "notebook",
+    number: "04",
+    title: "A5 Notebook Gift Set",
+    summary: "A refined desk and travel gift set in an elegant presentation box.",
+    bullets: ["A5 notebook, pen & thermos bottle (300ml)", "Elegant gift box packaging", "Custom logo printing available"],
+    moq: "100 sets",
+    leadTime: "6–8 weeks",
+    slot: corporateSlots[3],
+  },
 ];
+
+function GiftCommercialDetails({ gift }: { gift: CorporateGiftSet }) {
+  return (
+    <dl className="gift-commercial">
+      <div><dt>MOQ</dt><dd>{gift.moq}</dd></div>
+      <div><dt>Lead time</dt><dd>{gift.leadTime}</dd></div>
+    </dl>
+  );
+}
 
 function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index: number | null; onChange: (index: number) => void; onClose: () => void; whatsappUrl: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -145,6 +139,7 @@ function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index:
           <h2 id="gift-dialog-title">{gift.title}</h2>
           <span>{gift.summary}</span>
           <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
+          <GiftCommercialDetails gift={gift} />
           <div className="gift-dialog__footer">
             <a className="button button--coral" href={whatsappUrl} target="_blank" rel="noreferrer">Enquire on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             <div className="gift-dialog__navigation">
@@ -159,24 +154,33 @@ function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index:
 }
 
 export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
+  const [activeIndex, setActiveIndex] = useState(0);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
 
   return (
     <>
       <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions">
-        {corporateGiftSets.map((gift, index) => (
-            <article key={gift.id} className="corporate-panel" role="listitem">
-              <button type="button" className="corporate-panel__activate" aria-label={`View details for ${gift.title}`} onClick={() => setDialogIndex(index)}>
+        {corporateGiftSets.map((gift, index) => {
+          const active = index === activeIndex;
+          const detailsId = `corporate-panel-details-${gift.id}`;
+          return (
+            <article key={gift.id} className={`corporate-panel${active ? " is-active" : ""}`} role="listitem">
+              <button type="button" className="corporate-panel__activate" aria-expanded={active} aria-controls={detailsId} onClick={() => setActiveIndex(index)}>
                 <ImageSlotVisual slot={gift.slot} className="corporate-panel__media" />
                 <span className="corporate-panel__scrim" aria-hidden="true" />
-                <span className="corporate-panel__content">
+                <span className="corporate-panel__heading">
                   <span>{gift.number}</span>
                   <strong>{gift.title}</strong>
-                  <span className="corporate-panel__link">View details <Expand aria-hidden="true" /></span>
                 </span>
               </button>
+              <div id={detailsId} className="corporate-panel__details" hidden={!active}>
+                <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
+                <GiftCommercialDetails gift={gift} />
+                <button type="button" className="corporate-panel__inspect" onClick={() => setDialogIndex(index)}>Inspect set <Expand aria-hidden="true" /></button>
+              </div>
             </article>
-        ))}
+          );
+        })}
       </div>
       <CorporateGiftDialog index={dialogIndex} onChange={setDialogIndex} onClose={() => setDialogIndex(null)} whatsappUrl={whatsappUrl} />
     </>

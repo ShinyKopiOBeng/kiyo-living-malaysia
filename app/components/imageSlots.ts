@@ -16,16 +16,15 @@ export type ImageSlot = {
 
 export const heroSlot: ImageSlot = {
   id: "HOME-HERO-01",
-  status: "temporary",
-  src: "/media/generated/hero-light/hero-landscape-1440.webp",
-  mobileSrc: "/media/generated/hero-light/hero-portrait-800.webp",
-  aspectRatio: "21 / 9",
+  status: "final",
+  src: "/images/kiyo/home-hero-airport.webp",
+  aspectRatio: "1916 / 821",
   fit: "cover",
-  focalPoint: "center center",
-  safeTextArea: "left lower third",
-  alt: "A traveller reaching towards a silver KIYO luggage case",
-  width: 1440,
-  height: 1080,
+  focalPoint: "68% center",
+  safeTextArea: "left 40%",
+  alt: "KIYO luggage and travellers in a bright airport terminal",
+  width: 1916,
+  height: 821,
 };
 
 export const aboutSlots = {
@@ -54,37 +53,6 @@ export const aboutSlots = {
     height: 921,
   },
 } satisfies Record<string, ImageSlot>;
-
-export const capabilitySlots = [
-  {
-    id: "CAPABILITY-LIVE-COMMERCE",
-    status: "placeholder",
-    aspectRatio: "4 / 5",
-    fit: "cover",
-    alt: "Live-commerce campaign visual placeholder",
-  },
-  {
-    id: "CAPABILITY-WHOLESALE",
-    status: "placeholder",
-    aspectRatio: "4 / 5",
-    fit: "cover",
-    alt: "Nationwide wholesale visual placeholder",
-  },
-  {
-    id: "CAPABILITY-CORPORATE",
-    status: "placeholder",
-    aspectRatio: "4 / 5",
-    fit: "cover",
-    alt: "Corporate gifting visual placeholder",
-  },
-  {
-    id: "CAPABILITY-UMRAH",
-    status: "placeholder",
-    aspectRatio: "4 / 5",
-    fit: "cover",
-    alt: "UMRAH programme visual placeholder",
-  },
-] satisfies ImageSlot[];
 
 export const productSlots = {
   overview: {
@@ -165,6 +133,18 @@ export const productSlots = {
     height: 810,
   },
 } satisfies Record<string, ImageSlot>;
+
+export const productCollectionSlot: ImageSlot = {
+  id: "PRODUCT-COLLECTION-HERO",
+  status: "final",
+  src: "/images/kiyo/product-collection-hero.webp",
+  aspectRatio: "1586 / 992",
+  fit: "contain",
+  focalPoint: "center center",
+  alt: "Premium navy KIYO luggage presented in a warm studio setting",
+  width: 1586,
+  height: 992,
+};
 
 export const corporateSlots = [
   ["GIFT-SET-01", "/images/kiyo/corporate-gift-travel-amenities.webp", "Black compact luggage with headphones, neck pillow, portable fan and travel pouch"],

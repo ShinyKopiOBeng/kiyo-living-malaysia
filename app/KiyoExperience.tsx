@@ -6,10 +6,10 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Gift, Handshake, Mail, MapPin, Menu, Smartphone, TrendingUp, Trophy, Truck, X } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaTiktok, FaWhatsapp, FaYoutube } from "react-icons/fa6";
 import { SiShopee } from "react-icons/si";
-import { CorporateGiftGallery, ProductInspector, UmrahServiceGallery } from "./components/KiyoInteractiveSections";
+import { CorporateGiftGallery, ProductCollectionOverview, UmrahServiceGallery } from "./components/KiyoInteractiveSections";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
 import { aboutSlots, heroSlot, warehouseSlots } from "./components/imageSlots";
 
@@ -26,11 +26,18 @@ const navigation = [
 
 const mobileNavigation = [["Home", "#home"], ...navigation, ["Contact", "#contact"]] as const;
 
-const capabilities = [
-  { number: "01", title: "Product Design", description: "Travel products shaped around practical details and considered presentation." },
-  { number: "02", title: "Nationwide Wholesale", description: "Retail and distribution support for partners across Malaysia." },
-  { number: "03", title: "Corporate Gifting", description: "Brand-ready travel sets for clients, teams and programmes." },
-  { number: "04", title: "UMRAH Programmes", description: "Coordinated luggage and agency-ready group travel sets." },
+const heroProofs = [
+  { title: "TOP 3", lines: ["TikTok Luggage", "Live Selling Brand"], icon: Trophy },
+  { title: "NATIONWIDE", lines: ["Wholesale", "Distribution"], icon: Truck },
+  { title: "PREMIUM", lines: ["Corporate", "Gifting Solutions"], icon: Gift },
+] as const;
+
+const businessPillars = [
+  { number: "01", title: "Viral TikTok Campaigns", description: "Powering brand growth through content, live engagement, and community.", icon: Smartphone },
+  { number: "02", title: "Nationwide Wholesale Distribution", description: "Strong supply chain and warehouse capacity across Malaysia for seamless delivery.", icon: Truck },
+  { number: "03", title: "Premium Corporate Gifting Solutions", description: "Customised premium gifts for businesses, events, and institutions.", icon: Gift },
+  { number: "04", title: "Live-Commerce Ecosystem", description: "Empowering hosts, affiliates and creators to grow together through live commerce.", icon: TrendingUp },
+  { number: "05", title: "Strategic Partnerships", description: "Collaborating with brands and organisations for long-term success and shared growth.", icon: Handshake },
 ] as const;
 
 const warehouseStories = [
@@ -202,10 +209,13 @@ export function KiyoExperience() {
       if (!reduceMotion) {
         gsap.timeline({ defaults: { ease: "power3.out" } })
           .fromTo(".hero__media", { scale: 1.025, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.05 })
-          .fromTo(".hero__copy > *", { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.72, stagger: 0.08 }, "<0.14");
+          .fromTo(".hero__copy > *", { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.72, stagger: 0.08 }, "<0.14")
+          .fromTo(".hero-proof", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.52, stagger: 0.08 }, "<0.16");
 
         gsap.fromTo(".about__copy > *", { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.72, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#about", start: "top 72%", once: true } });
         gsap.fromTo(".about__portrait", { x: 28, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9, ease: "power3.out", scrollTrigger: { trigger: "#about", start: "top 72%", once: true } });
+        gsap.fromTo(".business-pillar", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.58, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#glance", start: "top 72%", once: true } });
+        gsap.fromTo(".product-collection__layout > *", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.68, stagger: 0.1, ease: "power3.out", scrollTrigger: { trigger: "#products", start: "top 72%", once: true } });
         gsap.fromTo(".contact__copy > *", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.62, stagger: 0.065, ease: "power3.out", scrollTrigger: { trigger: "#contact", start: "top 72%", once: true } });
         gsap.fromTo(".location-card", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.55, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#location", start: "top 68%", once: true } });
       }
@@ -221,13 +231,25 @@ export function KiyoExperience() {
 
       <main id="main">
         <section id="home" className="hero chapter-screen">
+          <div className="hero__media-frame"><ImageSlotVisual slot={heroSlot} className="hero__media" priority /></div>
+          <div className="hero__scrim" aria-hidden="true" />
           <div className="hero__copy">
             <p className="eyebrow">Malaysian travel, thoughtfully made</p>
-            <h1>Designed for <span>your journey.</span></h1>
-            <p>Premium luggage, corporate gifting and UMRAH programmes—designed and delivered from Shah Alam.</p>
-            <a className="button button--coral" href="#about">Explore KIYO <ArrowRight aria-hidden="true" /></a>
+            <h1><span>Designed for</span><em>Your journey</em></h1>
+            <p>KIYO is a Malaysia-based premium brand specialising in travel, live-commerce, wholesale distribution, and corporate gifting solutions. We deliver quality, innovation, and reliability for every journey.</p>
+            <div className="hero__actions">
+              <a className="button button--coral" href="#about">Discover KIYO <ArrowRight aria-hidden="true" /></a>
+              <a className="hero__story-link" href="#about">Watch our story <ArrowRight aria-hidden="true" /></a>
+            </div>
           </div>
-          <div className="hero__media-frame"><ImageSlotVisual slot={heroSlot} className="hero__media" priority /></div>
+          <div className="hero__proofs" aria-label="KIYO business highlights">
+            {heroProofs.map(({ title, lines, icon: Icon }) => (
+              <article className="hero-proof" key={title}>
+                <span className="hero-proof__icon"><Icon aria-hidden="true" /></span>
+                <div><strong>{title}</strong><p>{lines[0]}<br />{lines[1]}</p></div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section id="about" className="about chapter-screen">
@@ -243,24 +265,33 @@ export function KiyoExperience() {
           <ImageSlotVisual slot={aboutSlots.samantha} className="about__portrait" />
         </section>
 
-        <section id="glance" className="capabilities chapter">
-          <header className="section-heading"><p className="eyebrow">What we do</p><h2>One brand. Four ways to move.</h2><p>Travel products and programmes built for customers, agencies and organisations across Malaysia.</p></header>
-          <div className="capability-grid">
-            {capabilities.map(({ number, title, description }) => (
-              <article className="capability-panel" key={title}>
-                <div className="capability-panel__content"><span>{number}</span><h3>{title}</h3><p>{description}</p></div>
+        <section id="glance" className="business-pillars chapter">
+          <header className="business-pillars__intro">
+            <p className="eyebrow">Our core</p>
+            <h2>Business<br />Pillars</h2>
+            <p>Five pillars. One mission. Delivering excellence at every touchpoint.</p>
+            <a href="#products">Explore our solutions <ArrowRight aria-hidden="true" /></a>
+          </header>
+          <div className="business-pillars__grid">
+            {businessPillars.map(({ number, title, description, icon: Icon }) => (
+              <article className="business-pillar" key={title}>
+                <span className="business-pillar__number">{number}</span>
+                <Icon aria-hidden="true" />
+                <h3>{title}</h3>
+                <span className="business-pillar__rule" aria-hidden="true" />
+                <p>{description}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section id="products" className="products chapter"><ProductInspector onShop={() => setShopOpen(true)} /></section>
+        <section id="products" className="products chapter"><ProductCollectionOverview onShop={() => setShopOpen(true)} /></section>
 
         <section id="corporate" className="corporate chapter">
           <header className="corporate__intro">
-            <p className="eyebrow">Corporate gifting</p>
-            <h2>Gift sets that travel further.</h2>
-            <p>Useful, brand-ready sets for clients, teams, events and executive gifting.</p>
+            <p className="eyebrow">Built for brands</p>
+            <h2><span>Corporate gifting</span> <em>solutions</em></h2>
+            <p>Custom logo printing, thoughtful event gifting, and premium brand experiences — designed to leave a lasting impression.</p>
             <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Enquire for corporate gifts <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
           </header>
           <CorporateGiftGallery whatsappUrl={WHATSAPP_URL} />
