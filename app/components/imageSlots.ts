@@ -17,8 +17,8 @@ export type ImageSlot = {
 export const heroSlot: ImageSlot = {
   id: "HOME-HERO-01",
   status: "temporary",
-  src: "/media/generated/hero-dark/hero-landscape-1440.webp",
-  mobileSrc: "/media/generated/hero-dark/hero-portrait-800.webp",
+  src: "/media/generated/hero-light/hero-landscape-1440.webp",
+  mobileSrc: "/media/generated/hero-light/hero-portrait-800.webp",
   aspectRatio: "21 / 9",
   fit: "cover",
   focalPoint: "center center",

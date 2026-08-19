@@ -93,16 +93,14 @@ type CorporateGiftSet = {
   title: string;
   summary: string;
   bullets: string[];
-  moq: string;
-  leadTime: string;
   slot: ImageSlot;
 };
 
 const corporateGiftSets: CorporateGiftSet[] = [
-  { id: "travel-amenities", number: "01", title: "Branded Luggage + Travel Amenities Set", summary: "A coordinated compact luggage and comfort set for clients, teams and travel programmes.", bullets: ["Travel essentials set", "Neck pillow, portable fan and headphones", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[0] },
-  { id: "team-building", number: "02", title: "Team Building Outdoor Kit", summary: "Practical outdoor pieces for team programmes, events and shared activities.", bullets: ["Activity-ready presentation", "Selected outdoor essentials", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[1] },
-  { id: "mini-luggage", number: "03", title: "Mini Luggage Travel Kit", summary: "A compact set combining mini luggage with useful everyday travel essentials.", bullets: ["Compact luggage format", "Everyday travel essentials", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[2] },
-  { id: "notebook", number: "04", title: "A5 Notebook Gift Set", summary: "A refined desk and travel set in a premium navy presentation box.", bullets: ["A5 notebook, pen and bottle", "Gift-box presentation", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[3] },
+  { id: "travel-amenities", number: "01", title: "Branded Luggage + Travel Amenities Set", summary: "A coordinated compact luggage and comfort set for clients, teams and travel programmes.", bullets: ["Travel essentials set", "Neck pillow, portable fan and headphones", "Custom logo printing available"], slot: corporateSlots[0] },
+  { id: "team-building", number: "02", title: "Team Building Outdoor Kit", summary: "Practical outdoor pieces for team programmes, events and shared activities.", bullets: ["Activity-ready presentation", "Selected outdoor essentials", "Custom logo printing available"], slot: corporateSlots[1] },
+  { id: "mini-luggage", number: "03", title: "Mini Luggage Travel Kit", summary: "A compact set combining mini luggage with useful everyday travel essentials.", bullets: ["Compact luggage format", "Everyday travel essentials", "Custom logo printing available"], slot: corporateSlots[2] },
+  { id: "notebook", number: "04", title: "A5 Notebook Gift Set", summary: "A refined desk and travel set in a premium navy presentation box.", bullets: ["A5 notebook, pen and bottle", "Gift-box presentation", "Custom logo printing available"], slot: corporateSlots[3] },
 ];
 
 function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index: number | null; onChange: (index: number) => void; onClose: () => void; whatsappUrl: string }) {
@@ -147,11 +145,12 @@ function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index:
           <h2 id="gift-dialog-title">{gift.title}</h2>
           <span>{gift.summary}</span>
           <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
-          <dl><div><dt>MOQ</dt><dd>{gift.moq}</dd></div><div><dt>Lead time</dt><dd>{gift.leadTime}</dd></div></dl>
-          <a className="button button--coral" href={whatsappUrl} target="_blank" rel="noreferrer">Enquire on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-          <div className="gift-dialog__navigation">
-            <button type="button" onClick={() => onChange(previous)} aria-label="Inspect previous gift set"><ArrowLeft aria-hidden="true" /></button>
-            <button type="button" onClick={() => onChange(next)} aria-label="Inspect next gift set"><ArrowRight aria-hidden="true" /></button>
+          <div className="gift-dialog__footer">
+            <a className="button button--coral" href={whatsappUrl} target="_blank" rel="noreferrer">Enquire on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+            <div className="gift-dialog__navigation">
+              <button type="button" onClick={() => onChange(previous)} aria-label="Inspect previous gift set"><ArrowLeft aria-hidden="true" /></button>
+              <button type="button" onClick={() => onChange(next)} aria-label="Inspect next gift set"><ArrowRight aria-hidden="true" /></button>
+            </div>
           </div>
         </div>
       </div>
@@ -160,28 +159,24 @@ function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index:
 }
 
 export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
 
   return (
     <>
       <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions">
-        {corporateGiftSets.map((gift, index) => {
-          const active = index === activeIndex;
-          return (
-            <article key={gift.id} className={`corporate-panel${active ? " is-active" : ""}`} role="listitem">
-              <button type="button" className="corporate-panel__activate" aria-expanded={active} aria-label={`${active ? "Selected" : "View"} ${gift.title}`} onClick={() => setActiveIndex(index)}>
+        {corporateGiftSets.map((gift, index) => (
+            <article key={gift.id} className="corporate-panel" role="listitem">
+              <button type="button" className="corporate-panel__activate" aria-label={`View details for ${gift.title}`} onClick={() => setDialogIndex(index)}>
                 <ImageSlotVisual slot={gift.slot} className="corporate-panel__media" />
                 <span className="corporate-panel__scrim" aria-hidden="true" />
+                <span className="corporate-panel__content">
+                  <span>{gift.number}</span>
+                  <strong>{gift.title}</strong>
+                  <span className="corporate-panel__link">View details <Expand aria-hidden="true" /></span>
+                </span>
               </button>
-              <div className="corporate-panel__content">
-                <span>{gift.number}</span>
-                <h3>{gift.title}</h3>
-                {active ? <><p>{gift.summary}</p><button type="button" onClick={() => setDialogIndex(index)}>Inspect set <Expand aria-hidden="true" /></button></> : null}
-              </div>
             </article>
-          );
-        })}
+        ))}
       </div>
       <CorporateGiftDialog index={dialogIndex} onChange={setDialogIndex} onClose={() => setDialogIndex(null)} whatsappUrl={whatsappUrl} />
     </>

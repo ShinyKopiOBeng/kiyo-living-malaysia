@@ -6,12 +6,12 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaTiktok, FaWhatsapp, FaYoutube } from "react-icons/fa6";
 import { SiShopee } from "react-icons/si";
 import { CorporateGiftGallery, ProductInspector, UmrahServiceGallery } from "./components/KiyoInteractiveSections";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
-import { aboutSlots, capabilitySlots, heroSlot, warehouseSlots } from "./components/imageSlots";
+import { aboutSlots, heroSlot, warehouseSlots } from "./components/imageSlots";
 
 const WHATSAPP_URL = "https://wa.me/60132767887?text=Hi%20KIYO%2C%20I%27m%20interested%20in%20your%20products%20or%20services.";
 
@@ -27,10 +27,10 @@ const navigation = [
 const mobileNavigation = [["Home", "#home"], ...navigation, ["Contact", "#contact"]] as const;
 
 const capabilities = [
-  { number: "01", title: "Live Commerce", description: "Campaigns, livestreams and social-first product discovery.", slot: capabilitySlots[0] },
-  { number: "02", title: "Nationwide Wholesale", description: "Retail and distribution support across Malaysia.", slot: capabilitySlots[1] },
-  { number: "03", title: "Corporate Gifting", description: "Brand-ready travel sets for teams, clients and programmes.", slot: capabilitySlots[2] },
-  { number: "04", title: "UMRAH Programmes", description: "Coordinated luggage and agency-ready travel sets.", slot: capabilitySlots[3] },
+  { number: "01", title: "Product Design", description: "Travel products shaped around practical details and considered presentation." },
+  { number: "02", title: "Nationwide Wholesale", description: "Retail and distribution support for partners across Malaysia." },
+  { number: "03", title: "Corporate Gifting", description: "Brand-ready travel sets for clients, teams and programmes." },
+  { number: "04", title: "UMRAH Programmes", description: "Coordinated luggage and agency-ready group travel sets." },
 ] as const;
 
 const warehouseStories = [
@@ -190,8 +190,6 @@ function SmartHeader({ onMenu, onShop, menuOpen }: { onMenu: () => void; onShop:
 
 export function KiyoExperience() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const locationRef = useRef<HTMLElement>(null);
-  const locationTrackRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
 
@@ -200,7 +198,6 @@ export function KiyoExperience() {
     if (!root) return;
     gsap.registerPlugin(ScrollTrigger);
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let cancelled = false;
     const context = gsap.context(() => {
       if (!reduceMotion) {
         gsap.timeline({ defaults: { ease: "power3.out" } })
@@ -209,33 +206,12 @@ export function KiyoExperience() {
 
         gsap.fromTo(".about__copy > *", { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.72, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#about", start: "top 72%", once: true } });
         gsap.fromTo(".about__portrait", { x: 28, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9, ease: "power3.out", scrollTrigger: { trigger: "#about", start: "top 72%", once: true } });
-        gsap.fromTo(".contact__inner > *", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.62, stagger: 0.065, ease: "power3.out", scrollTrigger: { trigger: "#contact", start: "top 72%", once: true } });
+        gsap.fromTo(".contact__copy > *", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.62, stagger: 0.065, ease: "power3.out", scrollTrigger: { trigger: "#contact", start: "top 72%", once: true } });
+        gsap.fromTo(".location-card", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.55, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#location", start: "top 68%", once: true } });
       }
     }, root);
-
-    const media = gsap.matchMedia();
-    media.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
-      const section = locationRef.current;
-      const track = locationTrackRef.current;
-      if (!section || !track) return;
-      const distance = () => Math.max(0, track.scrollWidth - section.clientWidth);
-      const tween = gsap.to(track, {
-        x: () => -distance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-        },
-      });
-      return () => { tween.scrollTrigger?.kill(); tween.kill(); };
-    });
-
-    document.fonts.ready.then(() => { if (!cancelled) ScrollTrigger.refresh(); });
-    return () => { cancelled = true; media.revert(); context.revert(); };
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+    return () => context.revert();
   }, []);
 
   return (
@@ -245,33 +221,33 @@ export function KiyoExperience() {
 
       <main id="main">
         <section id="home" className="hero chapter-screen">
-          <ImageSlotVisual slot={heroSlot} className="hero__media" priority />
-          <div className="hero__scrim" aria-hidden="true" />
           <div className="hero__copy">
-            <h1>Designed for every journey.<span>Built for business.</span></h1>
-            <p>Travel · Corporate Gifting · UMRAH Programmes</p>
-            <a className="button button--coral" href="#about">Explore KIYO <ArrowDown aria-hidden="true" /></a>
+            <p className="eyebrow">Malaysian travel, thoughtfully made</p>
+            <h1>Designed for <span>your journey.</span></h1>
+            <p>Premium luggage, corporate gifting and UMRAH programmes—designed and delivered from Shah Alam.</p>
+            <a className="button button--coral" href="#about">Explore KIYO <ArrowRight aria-hidden="true" /></a>
           </div>
-          <a className="hero__scroll-cue" href="#about" aria-label="Continue to About KIYO"><ArrowDown aria-hidden="true" /></a>
+          <div className="hero__media-frame"><ImageSlotVisual slot={heroSlot} className="hero__media" priority /></div>
         </section>
 
         <section id="about" className="about chapter-screen">
           <ImageSlotVisual slot={aboutSlots.warehouse} className="about__background" decorative />
           <div className="about__scrim" aria-hidden="true" />
           <div className="about__copy">
-            <p className="eyebrow">Behind KIYO</p>
-            <h2>Building a Malaysian travel & live-commerce brand.</h2>
-            <p>From live-commerce campaigns to nationwide wholesale distribution, corporate gifting and UMRAH-ready travel programmes.</p>
+            <p className="eyebrow">Who we are</p>
+            <h2>Building a Malaysian travel brand with reach.</h2>
+            <p>KIYO is a Malaysia-based travel lifestyle and live-commerce company with a passion for quality, innovation and meaningful connections.</p>
+            <p>From premium luggage and corporate gifting to wholesale distribution and UMRAH programmes, we help customers, agencies and partners move forward together.</p>
+            <blockquote>Empower journeys, elevate brands and create lasting impact through innovation and trust.</blockquote>
           </div>
           <ImageSlotVisual slot={aboutSlots.samantha} className="about__portrait" />
         </section>
 
         <section id="glance" className="capabilities chapter">
-          <header className="section-heading"><h2>KIYO at a glance.</h2><p>One Malaysian travel brand, built to serve customers, agencies and organisations at different scales.</p></header>
+          <header className="section-heading"><p className="eyebrow">What we do</p><h2>One brand. Four ways to move.</h2><p>Travel products and programmes built for customers, agencies and organisations across Malaysia.</p></header>
           <div className="capability-grid">
-            {capabilities.map(({ number, title, description, slot }) => (
+            {capabilities.map(({ number, title, description }) => (
               <article className="capability-panel" key={title}>
-                <ImageSlotVisual slot={slot} className="capability-panel__media" />
                 <div className="capability-panel__content"><span>{number}</span><h3>{title}</h3><p>{description}</p></div>
               </article>
             ))}
@@ -311,35 +287,43 @@ export function KiyoExperience() {
           </div>
         </section>
 
-        <section id="location" ref={locationRef} className="location chapter-screen">
+        <section id="location" className="location chapter">
           <header className="location__intro"><p>Shah Alam, Selangor</p><h2>Built to deliver across Malaysia.</h2><span>A working base for stock, quality checks, order preparation and client conversations.</span></header>
-          <div className="location__viewport">
-            <div className="location__track" ref={locationTrackRef}>
+          <div className="location__body">
+            <div className="location__mosaic">
               {warehouseSlots.map((slot, index) => (
-                <figure className={`location-card${index === 0 ? " location-card--wide" : ""}`} key={slot.id} data-sequence={index + 1}>
+                <figure className={`location-card location-card--${index + 1}`} key={slot.id} data-sequence={index + 1}>
                   <ImageSlotVisual slot={slot} className="location-card__media" />
-                  <figcaption><h3>{warehouseStories[index].title}</h3><p>{warehouseStories[index].description}</p></figcaption>
+                  <figcaption><span>0{index + 1}</span><h3>{warehouseStories[index].title}</h3></figcaption>
                 </figure>
               ))}
-              <aside className="location-card location-card--address">
+            </div>
+            <aside className="location__details">
                 <MapPin aria-hidden="true" />
                 <p>Visit by appointment</p>
-                <h3>Shah Alam,<br />Selangor,<br />Malaysia.</h3>
+                <h3>Shah Alam,<br />Selangor.</h3>
+                <span>{warehouseStories[0].description}</span>
                 <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">Arrange a conversation <ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-              </aside>
-            </div>
+            </aside>
           </div>
         </section>
 
-        <section id="contact" className="contact chapter-screen">
+        <section id="contact" className="contact chapter">
           <div className="contact__inner">
-            <p>Corporate gifts, UMRAH sets, custom branding and retail enquiries.</p>
-            <h2>Let&apos;s build your next journey together.</h2>
-            <div className="contact__actions">
-              <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Start on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-              <a className="button button--outline" href="mailto:hello@kiyo.com.my">hello@kiyo.com.my <Mail aria-hidden="true" /></a>
+            <div className="contact__copy">
+              <p className="eyebrow">Start a conversation</p>
+              <h2>Build your next journey with KIYO.</h2>
+              <span>Corporate gifts, UMRAH sets, custom branding and retail enquiries.</span>
+              <div className="contact__actions">
+                <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Start on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+                <a className="button button--outline" href="mailto:hello@kiyo.com.my">hello@kiyo.com.my <Mail aria-hidden="true" /></a>
+              </div>
+              <SocialLinks />
             </div>
-            <SocialLinks />
+            <div className="contact__visual">
+              <ImageSlotVisual slot={warehouseSlots[3]} className="contact__media" />
+              <div><MapPin aria-hidden="true" /><span>KIYO Living</span><strong>Shah Alam, Selangor</strong></div>
+            </div>
           </div>
         </section>
       </main>
