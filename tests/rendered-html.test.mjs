@@ -16,95 +16,126 @@ async function render() {
   );
 }
 
-test("server-renders the KIYO portfolio experience", async () => {
+test("server-renders the V4 KIYO portfolio experience", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
   assert.match(html, /<title>KIYO Living \| Luggage, Corporate Gifts &amp; UMRAH Travel Sets<\/title>/i);
-  assert.match(html, /Designed for every journey\./);
-  assert.match(html, /Built for business\./);
-  assert.match(html, /Home/);
-  assert.match(html, /About/);
-  assert.match(html, /Products/);
-  assert.match(html, /Corporate/);
-  assert.match(html, /Services/);
-  assert.match(html, /Location/);
-  assert.match(html, /Contact/);
-  assert.match(html, /Building a Malaysian travel &amp; live-commerce brand\./);
-  assert.match(html, /\/images\/kiyo\/samantha-warehouse\.webp/);
-  assert.match(html, /\/images\/kiyo\/samantha-founder\.webp/);
-  assert.doesNotMatch(html, /<figcaption><span>Founder<\/span><strong>Samantha Ng<\/strong><\/figcaption>/);
-  assert.doesNotMatch(html, /KIYO brand capabilities/);
-  assert.match(html, /aria-label="KIYO product inspector"/);
-  for (const label of ["Overview", "Colours", "Handle", "360 Wheels", "Security Lock", "Studio View", "Travel"]) {
+
+  for (const label of ["About", "At a Glance", "Products", "Corporate", "UMRAH", "Location", "Contact"]) {
     assert.match(html, new RegExp(`>${label}<`));
   }
-  assert.match(html, /\/images\/kiyo\/product-lock\.webp/);
-  assert.doesNotMatch(html, /Explore the lineup/);
-  assert.doesNotMatch(html, /product-inspector__rail-image/);
-  assert.doesNotMatch(html, /product-inspector__progress/);
-  for (const title of [
-    "Branded Luggage + Travel Amenities Set",
-    "Team Building Outdoor Kit",
-    "Mini Luggage Travel Kit",
-    "A5 Notebook Gift Set",
-  ]) {
+
+  assert.match(html, /Designed for every journey\./);
+  assert.match(html, /Built for business\./);
+  assert.match(html, /Travel · Corporate Gifting · UMRAH Programmes/);
+  assert.match(html, /Explore KIYO/);
+  assert.match(html, /data-image-slot="HOME-HERO-01"/);
+  assert.doesNotMatch(html, /Move to reveal|audience-marquee|torch-hint|hero-grid|hero-light\.webp/i);
+
+  assert.match(html, /Building a Malaysian travel &amp; live-commerce brand\./);
+  assert.match(html, /From live-commerce campaigns to nationwide wholesale distribution, corporate gifting and UMRAH-ready travel programmes\./);
+  assert.match(html, /data-image-slot="ABOUT-WAREHOUSE"/);
+  assert.match(html, /data-image-slot="ABOUT-SAMANTHA"/);
+  assert.doesNotMatch(html, /Founder Samantha Ng|founder badge|<figcaption><span>Founder/i);
+
+  for (const title of ["Live Commerce", "Nationwide Wholesale", "Corporate Gifting", "UMRAH Programmes"]) {
+    assert.match(html, new RegExp(`>${title}<`));
+  }
+  for (const slot of ["CAPABILITY-LIVE-COMMERCE", "CAPABILITY-WHOLESALE", "CAPABILITY-CORPORATE", "CAPABILITY-UMRAH"]) {
+    assert.match(html, new RegExp(`data-image-slot="${slot}"`));
+  }
+
+  assert.match(html, /aria-label="KIYO product inspector"/);
+  assert.match(html, /One design\. Every detail considered\./);
+  assert.match(html, /class="product-stage"/);
+  for (const label of ["Overview", "Colours", "Handle", "360 Wheels", "Security Lock", "Studio", "Travel"]) {
+    assert.match(html, new RegExp(`>${label}<`));
+  }
+  for (const slot of ["PRODUCT-OVERVIEW", "PRODUCT-COLOURS", "PRODUCT-HANDLE", "PRODUCT-WHEELS", "PRODUCT-SECURITY", "PRODUCT-STUDIO", "PRODUCT-TRAVEL"]) {
+    assert.match(html, new RegExp(`data-image-slot="${slot}"`));
+  }
+  assert.doesNotMatch(html, /product-inspector__rail|product-inspector__progress|product-inspector__rail-image/);
+
+  assert.match(html, /class="corporate-accordion"/);
+  assert.match(html, /Gift sets that travel further\./);
+  for (const title of ["Branded Luggage + Travel Amenities Set", "Team Building Outdoor Kit", "Mini Luggage Travel Kit", "A5 Notebook Gift Set"]) {
     assert.ok(html.includes(title));
   }
-  for (const asset of [
-    "corporate-gift-travel-amenities",
-    "corporate-gift-team-building",
-    "corporate-gift-mini-luggage",
-    "corporate-gift-notebook",
-  ]) {
-    assert.match(html, new RegExp(`/images/kiyo/${asset}\\.webp`));
+  for (const slot of ["GIFT-SET-01", "GIFT-SET-02", "GIFT-SET-03", "GIFT-SET-04"]) {
+    assert.match(html, new RegExp(`data-image-slot="${slot}"`));
   }
   assert.match(html, /Inspect set/);
-  assert.match(html, /\/images\/kiyo\/umrah-journey\.webp/);
-  assert.match(html, /\/images\/kiyo\/umrah-essentials\.webp/);
-  assert.match(html, /\/images\/kiyo\/umrah-custom\.webp/);
-  assert.match(html, /Custom agency logo/);
-  assert.match(html, /Agency customisation/);
+
+  assert.match(html, /A complete travel set for a meaningful journey\./);
+  assert.match(html, /Journey Set/);
+  assert.match(html, /Included Essentials/);
+  assert.match(html, /Custom Agency Branding/);
+  for (const slot of ["UMRAH-JOURNEY", "UMRAH-ESSENTIALS", "UMRAH-BRANDING"]) {
+    assert.match(html, new RegExp(`data-image-slot="${slot}"`));
+  }
+  for (const step of ["Select", "Brand", "Approve", "Deliver"]) {
+    assert.match(html, new RegExp(`>${step}`));
+  }
+
+  const warehouseSources = Array.from(html.matchAll(/\/images\/kiyo\/warehouse-(\d)\.webp/g), (match) => Number(match[1]));
+  assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
+  assert.ok(html.indexOf("Visit by appointment") > html.indexOf("/images/kiyo/warehouse-5.webp"));
+  assert.match(html, /Let&#x27;s build your next journey together\./);
   assert.match(html, /wa\.me\/60132767887/);
   assert.match(html, /shopee\.com\.my\/kiyoliving/);
   assert.match(html, /tiktok\.com\/@kiyoliving/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
-
-  const warehouseSources = Array.from(
-    html.matchAll(/\/images\/kiyo\/warehouse-(\d)\.webp/g),
-    (match) => Number(match[1]),
-  );
-  assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
-  assert.ok(html.indexOf("Visit by appointment") > html.indexOf("/images/kiyo/warehouse-5.webp"));
 });
 
-test("removes the disposable starter preview and keeps production metadata", async () => {
-  const [page, layout, packageJson] = await Promise.all([
+test("keeps the V4 image-slot and interaction architecture production-ready", async () => {
+  const [page, layout, packageJson, experience, interactions, slots, placeholder, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/KiyoExperience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/KiyoInteractiveSections.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/imageSlots.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/ImagePlaceholder.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /KiyoExperience/);
   assert.match(layout, /KIYO Living/);
-  assert.match(layout, /\/og\.png/);
   assert.match(layout, /application\/ld\+json/);
+  assert.match(slots, /status: ImageSlotStatus/);
+  assert.match(slots, /mobileSrc\?: string/);
+  assert.match(placeholder, /process\.env\.NODE_ENV !== "production"/);
+  assert.match(interactions, /<dialog/);
+  assert.match(interactions, /corporate-panel.*is-active/s);
+  assert.match(experience, /ScrollTrigger\.create/);
+  assert.match(experience, /start: "top top"/);
+  assert.doesNotMatch(experience, /window\.addEventListener\("scroll"/);
+  assert.doesNotMatch(experience, /Lenis|torch|audience-marquee/i);
+  assert.doesNotMatch(css, /\.hero-grid|\.torch-hint|\.product-inspector__rail/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
 });
 
-test("includes the approved KIYO production asset set", async () => {
+test("includes every approved KIYO production asset used by V4", async () => {
   const requiredAssets = [
     "../public/images/kiyo/samantha-founder.webp",
+    "../public/images/kiyo/samantha-warehouse.webp",
     "../public/images/kiyo/product-overview.webp",
     "../public/images/kiyo/product-lock.webp",
     "../public/images/kiyo/corporate-gift-travel-amenities.webp",
     "../public/images/kiyo/corporate-gift-team-building.webp",
     "../public/images/kiyo/corporate-gift-mini-luggage.webp",
     "../public/images/kiyo/corporate-gift-notebook.webp",
+    "../public/images/kiyo/umrah-journey.webp",
+    "../public/images/kiyo/umrah-essentials.webp",
     "../public/images/kiyo/umrah-custom.webp",
+    "../public/images/kiyo/warehouse-1.webp",
+    "../public/images/kiyo/warehouse-2.webp",
+    "../public/images/kiyo/warehouse-3.webp",
+    "../public/images/kiyo/warehouse-4.webp",
     "../public/images/kiyo/warehouse-5.webp",
   ];
 

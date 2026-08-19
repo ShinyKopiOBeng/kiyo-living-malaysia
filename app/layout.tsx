@@ -1,18 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, Manrope } from "next/font/google";
 import "./globals.css";
-
-const display = Barlow_Condensed({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const body = Manrope({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kiyo.com.my";
 
@@ -63,7 +50,7 @@ const organization = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-MY" className={`${display.variable} ${body.variable}`}>
+    <html lang="en-MY">
       <body>
         {children}
         <script

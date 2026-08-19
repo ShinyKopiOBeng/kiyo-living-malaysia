@@ -1,205 +1,87 @@
 "use client";
 
-/* Production images are pre-sized in public/images/kiyo for the static runtime. */
-/* eslint-disable @next/next/no-img-element */
-
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  Expand,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Expand, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
+import { ImageSlotVisual } from "./ImagePlaceholder";
+import { corporateSlots, productSlots, umrahSlots, type ImageSlot } from "./imageSlots";
 
 type ProductScene = {
-  id: string;
+  id: keyof typeof productSlots;
   label: string;
-  eyebrow: string;
   title: string;
   description: string;
-  image: string;
-  alt: string;
-  mode: "portrait" | "wide" | "square";
-  surface: string;
-  width: number;
-  height: number;
+  slot: ImageSlot;
 };
 
 const productScenes: ProductScene[] = [
-  {
-    id: "overview",
-    label: "Overview",
-    eyebrow: "Signature case",
-    title: "The KIYO silhouette",
-    description: "A clean front profile of KIYO's signature luggage design.",
-    image: "/images/kiyo/product-overview.webp",
-    alt: "Front view of KIYO's signature navy luggage case",
-    mode: "portrait",
-    surface: "#f8e8db",
-    width: 1000,
-    height: 1250,
-  },
-  {
-    id: "colours",
-    label: "Colours",
-    eyebrow: "Colour choice",
-    title: "One silhouette. Six colours.",
-    description: "Explore the curated colour choices available in the same luggage design.",
-    image: "/images/kiyo/product-colours.webp",
-    alt: "Six KIYO luggage colour choices shown side by side",
-    mode: "wide",
-    surface: "#efe9dd",
-    width: 1439,
-    height: 810,
-  },
-  {
-    id: "handle",
-    label: "Handle",
-    eyebrow: "Handle detail",
-    title: "Handle & top detail",
-    description: "Inspect the telescopic handle, top grip and upper luggage construction.",
-    image: "/images/kiyo/product-handle.webp",
-    alt: "Close view of the KIYO telescopic handle, top grip and upper case",
-    mode: "square",
-    surface: "#f8e8db",
-    width: 1100,
-    height: 1100,
-  },
-  {
-    id: "wheels",
-    label: "360 Wheels",
-    eyebrow: "Wheel detail",
-    title: "360° spinner wheels",
-    description: "A close-up look at the wheel system designed for smooth directional movement.",
-    image: "/images/kiyo/product-wheels.webp",
-    alt: "Close view of KIYO 360 degree spinner wheels",
-    mode: "square",
-    surface: "#f3e6dd",
-    width: 1100,
-    height: 1100,
-  },
-  {
-    id: "security",
-    label: "Security Lock",
-    eyebrow: "Security detail",
-    title: "Integrated travel lock",
-    description: "Inspect the integrated lock and zipper-pull security detail.",
-    image: "/images/kiyo/product-lock.webp",
-    alt: "Close view of the integrated KIYO luggage lock and zipper pulls",
-    mode: "square",
-    surface: "#171d2a",
-    width: 1100,
-    height: 1100,
-  },
-  {
-    id: "studio",
-    label: "Studio View",
-    eyebrow: "Studio profile",
-    title: "Studio profile",
-    description: "The same signature case presented as a clean design object.",
-    image: "/images/kiyo/product-studio.webp",
-    alt: "KIYO luggage case presented on a warm studio pedestal",
-    mode: "portrait",
-    surface: "#eee7dc",
-    width: 1000,
-    height: 1250,
-  },
-  {
-    id: "travel",
-    label: "Travel",
-    eyebrow: "Travel context",
-    title: "Travel ready",
-    description: "See the signature case in a bright airport environment.",
-    image: "/images/kiyo/product-airport.webp",
-    alt: "KIYO luggage case standing in a bright airport terminal",
-    mode: "wide",
-    surface: "#e5ebe8",
-    width: 1439,
-    height: 810,
-  },
+  { id: "overview", label: "Overview", title: "The KIYO silhouette", description: "A clean front profile with balanced proportions and a polished, travel-ready finish.", slot: productSlots.overview },
+  { id: "colours", label: "Colours", title: "One silhouette. Six colours.", description: "A considered palette for personal travel, teams and coordinated programmes.", slot: productSlots.colours },
+  { id: "handle", label: "Handle", title: "Handle and top detail", description: "A closer view of the telescopic handle, top grip and upper case construction.", slot: productSlots.handle },
+  { id: "wheels", label: "360 Wheels", title: "Smooth directional movement", description: "The spinner wheel system is designed to move easily through busy travel environments.", slot: productSlots.wheels },
+  { id: "security", label: "Security Lock", title: "Integrated travel security", description: "A close view of the lock and zipper-pull detail built into the case.", slot: productSlots.security },
+  { id: "studio", label: "Studio", title: "A clean studio profile", description: "The signature case presented as a focused design object without visual distraction.", slot: productSlots.studio },
+  { id: "travel", label: "Travel", title: "Ready for the journey", description: "The same KIYO case shown in the environment it was designed to move through.", slot: productSlots.travel },
 ];
 
 export function ProductInspector({ onShop }: { onShop: () => void }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [activeId, setActiveId] = useState(productScenes[0].id);
-  const activeIndex = productScenes.findIndex((scene) => scene.id === activeId);
-  const activeScene = productScenes[activeIndex];
+  const [activeId, setActiveId] = useState<ProductScene["id"]>("overview");
+  const activeScene = productScenes.find((scene) => scene.id === activeId) ?? productScenes[0];
+
+  const selectScene = (nextId: ProductScene["id"]) => {
+    if (nextId === activeId) return;
+    const root = rootRef.current;
+    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setActiveId(nextId);
+      return;
+    }
+    const current = root.querySelector<HTMLElement>(".product-stage__visual.is-active");
+    gsap.killTweensOf(current);
+    gsap.to(current, {
+      autoAlpha: 0,
+      scale: 1.015,
+      duration: 0.18,
+      ease: "power2.in",
+      onComplete: () => setActiveId(nextId),
+    });
+  };
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const context = gsap.context(() => {
-      gsap.killTweensOf(".product-inspector__image.is-active, .product-inspector__caption > *");
-      gsap.fromTo(
-        ".product-inspector__image.is-active",
-        { autoAlpha: 0, scale: 1.025, xPercent: 1.2 },
-        { autoAlpha: 1, scale: 1, xPercent: 0, duration: 0.48, ease: "power3.out" },
-      );
-      gsap.fromTo(
-        ".product-inspector__caption > *",
-        { autoAlpha: 0, y: 12 },
-        { autoAlpha: 1, y: 0, duration: 0.38, stagger: 0.045, ease: "power2.out" },
-      );
+      gsap.fromTo(".product-stage__visual.is-active", { autoAlpha: 0, scale: 0.985 }, { autoAlpha: 1, scale: 1, duration: 0.42, ease: "power3.out" });
+      gsap.fromTo(".product-inspector__detail > *", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.36, stagger: 0.04, ease: "power2.out" });
     }, root);
     return () => context.revert();
   }, [activeId]);
 
   return (
     <div ref={rootRef} className="product-inspector" aria-label="KIYO product inspector">
-      <div className="product-inspector__rail">
-        <div className="product-inspector__intro">
-          <p className="eyebrow eyebrow--teal">Luggage collection</p>
-          <h2>One design. A closer look.</h2>
-          <p>Explore the silhouette, colour choices and selected travel details of KIYO&apos;s signature case.</p>
-        </div>
-        <div className="product-inspector__selectors" role="group" aria-label="Choose a product view">
-          {productScenes.map((scene) => (
-            <button
-              key={scene.id}
-              type="button"
-              className={scene.id === activeId ? "is-active" : ""}
-              aria-pressed={scene.id === activeId}
-              onClick={() => setActiveId(scene.id)}
-            >
-              {scene.label}
-              <span aria-hidden="true">{scene.id === activeId ? "View selected" : "View"}</span>
-            </button>
-          ))}
-        </div>
-        <div className="product-inspector__retail">
-          <p>Looking for more KIYO styles?</p>
-          <button type="button" onClick={onShop}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
-        </div>
+      <header className="product-inspector__intro">
+        <p>KIYO signature luggage</p>
+        <h2>One design. Every detail considered.</h2>
+      </header>
+
+      <div className="product-stage" data-product-view={activeId}>
+        {productScenes.map((scene) => (
+          <ImageSlotVisual key={scene.id} slot={scene.slot} className={`product-stage__visual product-stage__visual--${scene.id}${scene.id === activeId ? " is-active" : ""}`} />
+        ))}
       </div>
 
-      <div
-        className="product-inspector__stage"
-        style={{ "--product-surface": activeScene.surface } as CSSProperties}
-      >
-        <div className={`product-inspector__media product-inspector__media--${activeScene.mode}`}>
-          {productScenes.map((scene) => (
-            <img
-              key={scene.id}
-              className={`product-inspector__image${scene.id === activeId ? " is-active" : ""}`}
-              src={scene.image}
-              alt={scene.id === activeId ? scene.alt : ""}
-              aria-hidden={scene.id !== activeId}
-              width={scene.width}
-              height={scene.height}
-              loading="lazy"
-              decoding="async"
-            />
-          ))}
-        </div>
-        <div className="product-inspector__caption" aria-live="polite">
-          <p>{activeScene.eyebrow}</p>
-          <h3>{activeScene.title}</h3>
-          <span>{activeScene.description}</span>
-        </div>
+      <div className="product-inspector__selectors" role="tablist" aria-label="Choose a product view">
+        {productScenes.map((scene) => (
+          <button key={scene.id} type="button" role="tab" aria-selected={scene.id === activeId} className={scene.id === activeId ? "is-active" : ""} onClick={() => selectScene(scene.id)}>
+            {scene.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="product-inspector__detail" aria-live="polite">
+        <div><h3>{activeScene.title}</h3><p>{activeScene.description}</p></div>
+        <button className="text-link" type="button" onClick={onShop}>Shop KIYO <ArrowUpRight aria-hidden="true" /></button>
       </div>
     </div>
   );
@@ -211,60 +93,19 @@ type CorporateGiftSet = {
   title: string;
   summary: string;
   bullets: string[];
-  image: string;
-  alt: string;
+  moq: string;
+  leadTime: string;
+  slot: ImageSlot;
 };
 
 const corporateGiftSets: CorporateGiftSet[] = [
-  {
-    id: "travel-amenities",
-    number: "01",
-    title: "Branded Luggage + Travel Amenities Set",
-    summary: "A coordinated compact luggage and comfort set for clients, teams and travel programmes.",
-    bullets: ["Travel essentials set", "Neck pillow, portable fan & headphones", "Custom logo printing available", "MOQ 100 sets", "Lead time 6 to 8 weeks"],
-    image: "/images/kiyo/corporate-gift-travel-amenities.webp",
-    alt: "Black compact luggage with headphones, neck pillow, portable fan and travel pouch",
-  },
-  {
-    id: "team-building",
-    number: "02",
-    title: "Team Building Outdoor Kit",
-    summary: "Practical outdoor pieces gathered for team programmes, events and shared activities.",
-    bullets: ["Handpicked outdoor & team-bonding items", "Practical, activity-ready presentation", "Custom logo printing available", "MOQ 100 sets", "Lead time 6 to 8 weeks"],
-    image: "/images/kiyo/corporate-gift-team-building.webp",
-    alt: "Corporate outdoor kit with camping chair, tote, umbrella, portable fan and blanket",
-  },
-  {
-    id: "mini-luggage",
-    number: "03",
-    title: "Mini Luggage Travel Kit",
-    summary: "A compact gift set combining mini luggage with useful everyday travel essentials.",
-    bullets: ["Compact luggage with everyday travel must-haves", "Organised and easy to present as a set", "Custom logo printing available", "MOQ 100 sets", "Lead time 6 to 8 weeks"],
-    image: "/images/kiyo/corporate-gift-mini-luggage.webp",
-    alt: "Pink mini luggage with headphones, neck pillow, portable fan and drawstring pouch",
-  },
-  {
-    id: "notebook",
-    number: "04",
-    title: "A5 Notebook Gift Set",
-    summary: "A refined desk and travel set in a premium navy presentation box.",
-    bullets: ["A5 notebook, pen & thermos bottle", "Elegant gift-box presentation", "Custom logo printing available", "MOQ 100 sets", "Lead time 6 to 8 weeks"],
-    image: "/images/kiyo/corporate-gift-notebook.webp",
-    alt: "Premium navy gift box with A5 notebook, pen and thermos bottle",
-  },
+  { id: "travel-amenities", number: "01", title: "Branded Luggage + Travel Amenities Set", summary: "A coordinated compact luggage and comfort set for clients, teams and travel programmes.", bullets: ["Travel essentials set", "Neck pillow, portable fan and headphones", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[0] },
+  { id: "team-building", number: "02", title: "Team Building Outdoor Kit", summary: "Practical outdoor pieces for team programmes, events and shared activities.", bullets: ["Activity-ready presentation", "Selected outdoor essentials", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[1] },
+  { id: "mini-luggage", number: "03", title: "Mini Luggage Travel Kit", summary: "A compact set combining mini luggage with useful everyday travel essentials.", bullets: ["Compact luggage format", "Everyday travel essentials", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[2] },
+  { id: "notebook", number: "04", title: "A5 Notebook Gift Set", summary: "A refined desk and travel set in a premium navy presentation box.", bullets: ["A5 notebook, pen and bottle", "Gift-box presentation", "Custom logo printing available"], moq: "100 sets", leadTime: "6 to 8 weeks", slot: corporateSlots[3] },
 ];
 
-function CorporateGiftDialog({
-  index,
-  onChange,
-  onClose,
-  whatsappUrl,
-}: {
-  index: number | null;
-  onChange: (index: number) => void;
-  onClose: () => void;
-  whatsappUrl: string;
-}) {
+function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index: number | null; onChange: (index: number) => void; onClose: () => void; whatsappUrl: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -273,20 +114,19 @@ function CorporateGiftDialog({
     if (index === null || !dialog) return;
     const opener = document.activeElement as HTMLElement | null;
     dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const context = reduceMotion
-      ? undefined
-      : gsap.context(() => {
-          gsap.timeline({ defaults: { ease: "power3.out" } })
-            .fromTo(".gift-dialog__backdrop", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 })
-            .fromTo(".gift-dialog__image", { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.5 }, "<")
-            .fromTo(".gift-dialog__details > *", { autoAlpha: 0, x: 18 }, { autoAlpha: 1, x: 0, duration: 0.36, stagger: 0.04 }, "<0.1");
-        }, dialog);
+    const context = reduceMotion ? undefined : gsap.context(() => {
+      gsap.timeline({ defaults: { ease: "power3.out" } })
+        .fromTo(".gift-dialog__surface", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.24 })
+        .fromTo(".gift-dialog__media", { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.46 }, "<")
+        .fromTo(".gift-dialog__details > *", { autoAlpha: 0, x: 16 }, { autoAlpha: 1, x: 0, duration: 0.34, stagger: 0.04 }, "<0.08");
+    }, dialog);
     return () => {
       context?.revert();
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
       if (dialog.open) dialog.close();
       opener?.focus();
     };
@@ -298,37 +138,21 @@ function CorporateGiftDialog({
   const next = (index + 1) % corporateGiftSets.length;
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="gift-dialog"
-      aria-labelledby="gift-dialog-title"
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
-      onClick={(event) => {
-        if (event.target === dialogRef.current) onClose();
-      }}
-    >
-      <div className="gift-dialog__backdrop" aria-hidden="true" />
-      <button ref={closeRef} type="button" className="gift-dialog__close" onClick={onClose} aria-label="Close gift inspection">
-        <X aria-hidden="true" />
-      </button>
-      <div className="gift-dialog__image">
-        <img src={gift.image} alt={gift.alt} width="1440" height="1080" />
-      </div>
-      <div className="gift-dialog__details">
-        <p>{gift.number} / Corporate gift set</p>
-        <h2 id="gift-dialog-title">{gift.title}</h2>
-        <span>{gift.summary}</span>
-        <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
-        <a className="button button--coral" href={whatsappUrl} target="_blank" rel="noreferrer">
-          Enquire on WhatsApp <FaWhatsapp aria-hidden="true" />
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
-        <div className="gift-dialog__navigation">
-          <button type="button" onClick={() => onChange(previous)} aria-label="Inspect previous gift set"><ArrowLeft aria-hidden="true" /></button>
-          <button type="button" onClick={() => onChange(next)} aria-label="Inspect next gift set"><ArrowRight aria-hidden="true" /></button>
+    <dialog ref={dialogRef} className="gift-dialog" aria-labelledby="gift-dialog-title" onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={(event) => { if (event.target === dialogRef.current) onClose(); }}>
+      <div className="gift-dialog__surface">
+        <button ref={closeRef} type="button" className="gift-dialog__close" onClick={onClose} aria-label="Close gift inspection"><X aria-hidden="true" /></button>
+        <ImageSlotVisual slot={gift.slot} className="gift-dialog__media" />
+        <div className="gift-dialog__details">
+          <p>Corporate gift set {gift.number}</p>
+          <h2 id="gift-dialog-title">{gift.title}</h2>
+          <span>{gift.summary}</span>
+          <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
+          <dl><div><dt>MOQ</dt><dd>{gift.moq}</dd></div><div><dt>Lead time</dt><dd>{gift.leadTime}</dd></div></dl>
+          <a className="button button--coral" href={whatsappUrl} target="_blank" rel="noreferrer">Enquire on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+          <div className="gift-dialog__navigation">
+            <button type="button" onClick={() => onChange(previous)} aria-label="Inspect previous gift set"><ArrowLeft aria-hidden="true" /></button>
+            <button type="button" onClick={() => onChange(next)} aria-label="Inspect next gift set"><ArrowRight aria-hidden="true" /></button>
+          </div>
         </div>
       </div>
     </dialog>
@@ -336,27 +160,24 @@ function CorporateGiftDialog({
 }
 
 export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
+  const [activeIndex, setActiveIndex] = useState(0);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
 
   return (
     <>
-      <div className="corporate-gallery" role="list" aria-label="Corporate gift solutions">
+      <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions">
         {corporateGiftSets.map((gift, index) => {
+          const active = index === activeIndex;
           return (
-            <article key={gift.id} className="corporate-card" role="listitem">
-              <button
-                type="button"
-                className="corporate-card__selector"
-                aria-label={`Inspect ${gift.title}`}
-                onClick={() => setDialogIndex(index)}
-              >
-                <img className="corporate-card__media" src={gift.image} alt={gift.alt} width="1440" height="1080" loading="lazy" decoding="async" />
+            <article key={gift.id} className={`corporate-panel${active ? " is-active" : ""}`} role="listitem">
+              <button type="button" className="corporate-panel__activate" aria-expanded={active} aria-label={`${active ? "Selected" : "View"} ${gift.title}`} onClick={() => setActiveIndex(index)}>
+                <ImageSlotVisual slot={gift.slot} className="corporate-panel__media" />
+                <span className="corporate-panel__scrim" aria-hidden="true" />
               </button>
-              <div className="corporate-card__detail">
-                <span className="corporate-card__number">{gift.number}</span>
+              <div className="corporate-panel__content">
+                <span>{gift.number}</span>
                 <h3>{gift.title}</h3>
-                <p>{gift.summary}</p>
-                <button type="button" onClick={() => setDialogIndex(index)}>Inspect set <Expand aria-hidden="true" /></button>
+                {active ? <><p>{gift.summary}</p><button type="button" onClick={() => setDialogIndex(index)}>Inspect set <Expand aria-hidden="true" /></button></> : null}
               </div>
             </article>
           );
@@ -367,40 +188,12 @@ export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
   );
 }
 
-type UmrahService = {
-  number: string;
-  label: string;
-  title: string;
-  description: string;
-  image: string;
-  alt: string;
-};
+type UmrahService = { label: string; title: string; description: string; slot: ImageSlot };
 
 const umrahServices: UmrahService[] = [
-  {
-    number: "01",
-    label: "Journey Set",
-    title: "Coordinated journey set",
-    description: "Suitable for agencies preparing a consistent luggage mix for jemaah and group travel.",
-    image: "/images/kiyo/umrah-journey.webp",
-    alt: "UMRAH traveller with a coordinated cream luggage set at an airport",
-  },
-  {
-    number: "02",
-    label: "Included Essentials",
-    title: "Optional travel essentials",
-    description: "Combine luggage with selected prayer or travel essentials for a more complete presentation.",
-    image: "/images/kiyo/umrah-essentials.webp",
-    alt: "Cream UMRAH luggage arranged with selected prayer and travel essentials",
-  },
-  {
-    number: "03",
-    label: "Custom Agency Branding",
-    title: "Custom agency logo",
-    description: "Add agency identity, logo application and coordinated presentation for a professional and exclusive programme.",
-    image: "/images/kiyo/umrah-custom.webp",
-    alt: "Cream UMRAH luggage with custom agency branding presentation",
-  },
+  { label: "Journey Set", title: "Coordinated journey set", description: "Coordinated luggage for jemaah and group travel.", slot: umrahSlots[0] },
+  { label: "Included Essentials", title: "Optional travel essentials", description: "Optional prayer and travel essentials for a more complete package.", slot: umrahSlots[1] },
+  { label: "Custom Agency Branding", title: "Custom agency identity", description: "Custom agency logo and coordinated identity for a more professional programme.", slot: umrahSlots[2] },
 ];
 
 export function UmrahServiceGallery() {
@@ -412,35 +205,24 @@ export function UmrahServiceGallery() {
     const root = rootRef.current;
     if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const context = gsap.context(() => {
-      gsap.fromTo(".umrah-service-gallery__detail > *", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.35, stagger: 0.05, ease: "power2.out" });
-      gsap.fromTo(".umrah-service-card.is-active img", { scale: 1.04 }, { scale: 1, duration: 0.5, ease: "power3.out" });
+      gsap.fromTo(".umrah-gallery__detail > *", { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.34, stagger: 0.045, ease: "power2.out" });
+      gsap.fromTo(".umrah-card.is-active .image-slot", { scale: 1.025 }, { scale: 1, duration: 0.45, ease: "power3.out" });
     }, root);
     return () => context.revert();
   }, [activeIndex]);
 
   return (
-    <div ref={rootRef} className="umrah-service-gallery">
-      <div className="umrah-service-gallery__cards" role="group" aria-label="UMRAH service components">
+    <div ref={rootRef} className="umrah-gallery">
+      <div className="umrah-gallery__cards" role="group" aria-label="UMRAH programme components">
         {umrahServices.map((service, index) => (
-          <button
-            type="button"
-            key={service.number}
-            className={`umrah-service-card${index === activeIndex ? " is-active" : ""}`}
-            aria-pressed={index === activeIndex}
-            onClick={() => setActiveIndex(index)}
-          >
-            <img src={service.image} alt={service.alt} width="900" height="1125" loading="lazy" decoding="async" />
-            <span aria-hidden="true" />
-            <small>{service.number}</small>
+          <button type="button" key={service.slot.id} className={`umrah-card${index === activeIndex ? " is-active" : ""}`} aria-pressed={index === activeIndex} onClick={() => setActiveIndex(index)}>
+            <ImageSlotVisual slot={service.slot} className="umrah-card__media" />
+            <span className="umrah-card__scrim" aria-hidden="true" />
             <strong>{service.label}</strong>
           </button>
         ))}
       </div>
-      <div className="umrah-service-gallery__detail" aria-live="polite">
-        <p>{active.number} / {active.label}</p>
-        <h3>{active.title}</h3>
-        <span>{active.description}</span>
-      </div>
+      <div className="umrah-gallery__detail" aria-live="polite"><h3>{active.title}</h3><p>{active.description}</p></div>
     </div>
   );
 }
