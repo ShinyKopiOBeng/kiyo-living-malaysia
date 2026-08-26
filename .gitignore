@@ -31,8 +31,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# vercel
+# build and deploy artefacts
 .vercel
+/.netlify/
+/.lighthouseci/
+/test-results/
+/playwright-report/
 
 # typescript
 next-env.d.ts
@@ -42,3 +46,8 @@ next-env.d.ts
 /outputs/
 /work/
 /.worktrees/
+
+# local tool and editor state
+/.vscode/
+/.codex/
+/.superpowers/

@@ -7,13 +7,12 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, ArrowUpRight, Check, Gift, Handshake, Mail, MapPin, Menu, Smartphone, TrendingUp, Trophy, Truck, X } from "lucide-react";
-import { FaFacebookF, FaInstagram, FaTiktok, FaWhatsapp, FaYoutube } from "react-icons/fa6";
+import { FaTiktok, FaWhatsapp } from "react-icons/fa6";
 import { SiShopee } from "react-icons/si";
 import { CorporateGiftGallery, ProductCollectionOverview, UmrahServiceGallery } from "./components/KiyoInteractiveSections";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
 import { aboutSlots, heroSlot, warehouseSlots } from "./components/imageSlots";
-
-const WHATSAPP_URL = "https://wa.me/60132767887?text=Hi%20KIYO%2C%20I%27m%20interested%20in%20your%20products%20or%20services.";
+import { SiteFooter, SocialLinks, WHATSAPP_URL } from "./components/SiteFooter";
 
 const navigation = [
   ["About", "#about"],
@@ -33,10 +32,10 @@ const heroProofs = [
 ] as const;
 
 const businessPillars = [
-  { number: "01", title: "Viral TikTok Campaigns", description: "Powering brand growth through content, live engagement, and community.", icon: Smartphone },
-  { number: "02", title: "Nationwide Wholesale Distribution", description: "Strong supply chain and warehouse capacity across Malaysia for seamless delivery.", icon: Truck },
-  { number: "03", title: "Premium Corporate Gifting Solutions", description: "Customised premium gifts for businesses, events, and institutions.", icon: Gift },
-  { number: "04", title: "Live-Commerce Ecosystem", description: "Empowering hosts, affiliates and creators to grow together through live commerce.", icon: TrendingUp },
+  { number: "01", title: "TikTok Campaigns", description: "Powering brand growth through content, live engagement, and community.", icon: Smartphone },
+  { number: "02", title: "Nationwide Distribution", description: "Strong supply chain and warehouse capacity across Malaysia for seamless delivery.", icon: Truck },
+  { number: "03", title: "Corporate Gifting", description: "Customised premium gifts for businesses, events, and institutions.", icon: Gift },
+  { number: "04", title: "Live Commerce", description: "Empowering hosts, affiliates and creators to grow together through live commerce.", icon: TrendingUp },
   { number: "05", title: "Strategic Partnerships", description: "Collaborating with brands and organisations for long-term success and shared growth.", icon: Handshake },
 ] as const;
 
@@ -47,13 +46,6 @@ const warehouseStories = [
   { title: "Team and client space", description: "A working environment for planning details and approvals together." },
   { title: "Packing and dispatch", description: "Final checks and coordinated preparation before every delivery." },
 ] as const;
-
-const socialLinks = [
-  { label: "Instagram", href: "https://www.instagram.com/kiyoliving_", icon: FaInstagram },
-  { label: "Facebook", href: "https://www.facebook.com/kiyoliving", icon: FaFacebookF },
-  { label: "TikTok", href: "https://www.tiktok.com/@kiyoliving", icon: FaTiktok },
-  { label: "YouTube", href: "https://www.youtube.com/@kiyoliving", icon: FaYoutube },
-];
 
 type DialogProps = { open: boolean; onClose: () => void };
 
@@ -95,44 +87,187 @@ function MenuDialog({ open, onClose }: DialogProps) {
   );
 }
 
-function ShopDialog({ open, onClose }: DialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+/* "hover" opens transiently and closes when the pointer leaves; "press" pins the
+   panel open until it is dismissed, which is the only mode touch devices use. */
+type ShopMode = "hover" | "press";
+
+function ShopFlyout({ open, mode, onClose, onHoverEnter, onHoverLeave }: { open: boolean; mode: ShopMode | null; onClose: () => void; onHoverEnter: () => void; onHoverLeave: () => void }) {
+  const panelRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!open || !dialog) return;
-    dialog.showModal();
-    dialog.querySelector<HTMLAnchorElement>("a")?.focus();
-    return () => { if (dialog.open) dialog.close(); };
-  }, [open]);
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKeyDown);
+    /* A tapped panel behaves like a sheet, so hold the page still behind it.
+       A hovered one is transient and must not disturb the scroll position. */
+    const lockScroll = mode === "press" && window.matchMedia("(max-width: 1023px)").matches;
+    const previousOverflow = document.body.style.overflow;
+    if (lockScroll) document.body.style.overflow = "hidden";
+    if (mode === "press") panelRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+
+    /* A pinned panel is dismissed by clicking away from it. On wide screens
+       there is no scrim to catch that click, so listen for it directly. */
+    const onOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (target?.closest(".shop-flyout") || target?.closest(".shop-trigger")) return;
+      onClose();
+    };
+    if (mode === "press") document.addEventListener("pointerdown", onOutsidePointerDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onOutsidePointerDown);
+      if (lockScroll) document.body.style.overflow = previousOverflow;
+    };
+  }, [open, mode, onClose]);
 
   return (
-    <dialog ref={dialogRef} className="shop-dialog" aria-labelledby="shop-dialog-title" onClick={(event) => { if (event.target === dialogRef.current) onClose(); }} onCancel={(event) => { event.preventDefault(); onClose(); }}>
-      <button className="shop-dialog__close icon-button" onClick={onClose} aria-label="Close shop options"><X aria-hidden="true" /></button>
-      <p>Shop KIYO</p>
-      <h2 id="shop-dialog-title">Choose your shopping platform.</h2>
-      <span>Browse current retail selections on KIYO&apos;s official stores.</span>
-      <div className="shop-dialog__links">
-        <a href="https://shopee.com.my/kiyoliving" target="_blank" rel="noreferrer"><SiShopee aria-hidden="true" /><span><strong>Shopee</strong><small>KIYO Living official store</small></span><ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-        <a href="https://www.tiktok.com/@kiyoliving" target="_blank" rel="noreferrer"><FaTiktok aria-hidden="true" /><span><strong>TikTok Shop</strong><small>Discover KIYO on TikTok</small></span><ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-      </div>
-    </dialog>
+    <>
+      <div className={`shop-scrim${open ? " is-open" : ""}${mode === "press" ? " is-dismissible" : ""}`} onClick={onClose} aria-hidden="true" />
+      <aside
+        ref={panelRef}
+        id="shop-flyout"
+        className={`shop-flyout${open ? " is-open" : ""}`}
+        data-shop-mode={mode ?? "closed"}
+        aria-label="Shop KIYO"
+        aria-hidden={!open}
+        onPointerEnter={(event) => { if (event.pointerType === "mouse") onHoverEnter(); }}
+        onPointerLeave={(event) => { if (event.pointerType === "mouse") onHoverLeave(); }}
+      >
+        <button className="shop-flyout__close icon-button" type="button" onClick={onClose} aria-label="Close shop menu"><X aria-hidden="true" /></button>
+        <p>Shop KIYO</p>
+        <h2>Choose your shopping platform.</h2>
+        <span>Browse current retail selections on KIYO&apos;s official stores.</span>
+        <div className="shop-flyout__links">
+          <a href="https://shopee.com.my/kiyoliving" target="_blank" rel="noreferrer"><SiShopee aria-hidden="true" /><span><strong>Shopee</strong><small>KIYO Living official store</small></span><ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+          <a href="https://www.tiktok.com/@kiyoliving" target="_blank" rel="noreferrer"><FaTiktok aria-hidden="true" /><span><strong>TikTok Shop</strong><small>Discover KIYO on TikTok</small></span><ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+        </div>
+      </aside>
+    </>
   );
 }
 
-function SocialLinks({ compact = false }: { compact?: boolean }) {
+/* The float is draggable, so a tap has to be told apart from a drag. Anything
+   under this many pixels of travel counts as a tap and opens the chat. */
+const DOCK_TAP_TOLERANCE = 6;
+const DOCK_INSET = 12;
+const DOCK_STORAGE_KEY = "kiyo:wa-dock";
+
+type DockPosition = { x: number; y: number };
+
+function clampToViewport(x: number, y: number, element: HTMLElement): DockPosition {
+  const { width, height } = element.getBoundingClientRect();
+  const maxX = Math.max(DOCK_INSET, window.innerWidth - width - DOCK_INSET);
+  const maxY = Math.max(DOCK_INSET, window.innerHeight - height - DOCK_INSET);
+  return { x: Math.min(Math.max(x, DOCK_INSET), maxX), y: Math.min(Math.max(y, DOCK_INSET), maxY) };
+}
+
+function WhatsAppDock({ hidden }: { hidden: boolean }) {
+  const dockRef = useRef<HTMLDivElement>(null);
+  const drag = useRef({ pointerId: -1, startX: 0, startY: 0, originX: 0, originY: 0, travel: 0 });
+  const [position, setPosition] = useState<DockPosition | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  /* Restore the last resting place, and keep it on-screen when the viewport
+     changes size under it. */
+  useEffect(() => {
+    const dock = dockRef.current;
+    if (!dock) return;
+    let stored: DockPosition | null = null;
+    try {
+      const raw = window.localStorage.getItem(DOCK_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && typeof parsed.x === "number" && typeof parsed.y === "number") stored = parsed;
+    } catch {
+      stored = null;
+    }
+    if (stored) setPosition(clampToViewport(stored.x, stored.y, dock));
+
+    const onResize = () => {
+      const element = dockRef.current;
+      if (!element) return;
+      setPosition((current) => (current ? clampToViewport(current.x, current.y, element) : current));
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  /* The pointer is captured on the anchor rather than the wrapper. Capturing on
+     an ancestor would retarget the follow-up `click` to that ancestor, and a
+     plain tap would stop opening the chat. */
+  const onPointerDown = (event: React.PointerEvent<HTMLAnchorElement>) => {
+    const dock = dockRef.current;
+    if (!dock || (event.pointerType === "mouse" && event.button !== 0)) return;
+    const rect = dock.getBoundingClientRect();
+    drag.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, originX: rect.left, originY: rect.top, travel: 0 };
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* Without capture the drag still works while the pointer stays on the button. */
+    }
+    setDragging(true);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLAnchorElement>) => {
+    const dock = dockRef.current;
+    if (!dock || drag.current.pointerId !== event.pointerId) return;
+    const dx = event.clientX - drag.current.startX;
+    const dy = event.clientY - drag.current.startY;
+    drag.current.travel = Math.max(drag.current.travel, Math.hypot(dx, dy));
+    setPosition(clampToViewport(drag.current.originX + dx, drag.current.originY + dy, dock));
+  };
+
+  const endDrag = (event: React.PointerEvent<HTMLAnchorElement>) => {
+    const dock = dockRef.current;
+    if (!dock || drag.current.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    drag.current.pointerId = -1;
+    setDragging(false);
+    if (drag.current.travel <= DOCK_TAP_TOLERANCE) return;
+    const rect = dock.getBoundingClientRect();
+    try {
+      window.localStorage.setItem(DOCK_STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+    } catch {
+      /* Private browsing modes throw on write; the float still works. */
+    }
+  };
+
   return (
-    <div className={`socials${compact ? " socials--compact" : ""}`} aria-label="KIYO social media">
-      {socialLinks.map(({ label, href, icon: Icon }) => (
-        <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={`${label} (opens in a new tab)`}><Icon aria-hidden="true" />{compact ? null : <span>{label}</span>}</a>
-      ))}
+    <div
+      ref={dockRef}
+      className={`whatsapp-dock${hidden ? " whatsapp-dock--hidden" : ""}${dragging ? " is-dragging" : ""}`}
+      style={position ? { left: `${position.x}px`, top: `${position.y}px`, right: "auto", bottom: "auto" } : undefined}
+    >
+      <a
+        className="whatsapp-float"
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat with KIYO on WhatsApp (opens in a new tab). Drag to reposition."
+        draggable={false}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClick={(event) => { if (drag.current.travel > DOCK_TAP_TOLERANCE) event.preventDefault(); }}
+      >
+        <FaWhatsapp aria-hidden="true" />
+      </a>
     </div>
   );
 }
 
 type HeaderMode = "hero" | "solid" | "hidden";
 
-function SmartHeader({ onMenu, onShop, menuOpen }: { onMenu: () => void; onShop: () => void; menuOpen: boolean }) {
+type ShopControls = {
+  shopOpen: boolean;
+  shopMode: ShopMode | null;
+  onShopOpen: (mode: ShopMode) => void;
+  onShopClose: () => void;
+  onShopHoverLeave: () => void;
+};
+
+function SmartHeader({ onMenu, menuOpen, shopOpen, shopMode, onShopOpen, onShopClose, onShopHoverLeave }: ShopControls & { onMenu: () => void; menuOpen: boolean }) {
   const [mode, setMode] = useState<HeaderMode>("hero");
 
   useEffect(() => {
@@ -188,7 +323,18 @@ function SmartHeader({ onMenu, onShop, menuOpen }: { onMenu: () => void; onShop:
         {navigation.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
       </nav>
       <div className="header-actions">
-        <button className="shop-trigger" type="button" onClick={onShop} aria-haspopup="dialog" aria-controls="shop-dialog">Shop <ArrowUpRight aria-hidden="true" /></button>
+        <button
+          className={`shop-trigger${shopOpen ? " is-open" : ""}`}
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="shop-flyout"
+          aria-expanded={shopOpen}
+          onClick={() => (shopOpen && shopMode === "press" ? onShopClose() : onShopOpen("press"))}
+          onPointerEnter={(event) => { if (event.pointerType === "mouse") onShopOpen("hover"); }}
+          onPointerLeave={(event) => { if (event.pointerType === "mouse") onShopHoverLeave(); }}
+        >
+          Shop <ArrowUpRight aria-hidden="true" />
+        </button>
         <button className="menu-trigger" type="button" onClick={onMenu} aria-label="Open menu" aria-haspopup="dialog" aria-controls="primary-menu" aria-expanded={menuOpen}><span>Menu</span><Menu aria-hidden="true" /></button>
       </div>
     </header>
@@ -199,6 +345,37 @@ export function KiyoExperience() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const [shopMode, setShopMode] = useState<ShopMode | null>(null);
+  const shopCloseTimer = useRef<number | null>(null);
+
+  const clearShopTimer = () => {
+    if (shopCloseTimer.current === null) return;
+    window.clearTimeout(shopCloseTimer.current);
+    shopCloseTimer.current = null;
+  };
+  const openShop = (nextMode: ShopMode) => {
+    clearShopTimer();
+    setShopMode(nextMode);
+    setShopOpen(true);
+  };
+  const closeShop = () => {
+    clearShopTimer();
+    setShopOpen(false);
+    setShopMode(null);
+  };
+  /* A short grace period so the pointer can cross the gap from the trigger to
+     the panel without the panel snapping shut underneath it. A pinned panel
+     ignores hover entirely. */
+  const scheduleShopClose = () => {
+    if (shopMode === "press") return;
+    clearShopTimer();
+    shopCloseTimer.current = window.setTimeout(() => {
+      setShopOpen(false);
+      setShopMode(null);
+    }, 220);
+  };
+
+  useEffect(() => clearShopTimer, []);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -227,7 +404,15 @@ export function KiyoExperience() {
   return (
     <div ref={rootRef} className="site-shell">
       <a className="skip-link" href="#main">Skip to content</a>
-      <SmartHeader onMenu={() => setMenuOpen(true)} onShop={() => setShopOpen(true)} menuOpen={menuOpen} />
+      <SmartHeader
+        onMenu={() => { closeShop(); setMenuOpen(true); }}
+        menuOpen={menuOpen}
+        shopOpen={shopOpen}
+        shopMode={shopMode}
+        onShopOpen={openShop}
+        onShopClose={closeShop}
+        onShopHoverLeave={scheduleShopClose}
+      />
 
       <main id="main">
         <section id="home" className="hero chapter-screen">
@@ -239,7 +424,7 @@ export function KiyoExperience() {
             <p>KIYO is a Malaysia-based premium brand specialising in travel, live-commerce, wholesale distribution, and corporate gifting solutions. We deliver quality, innovation, and reliability for every journey.</p>
             <div className="hero__actions">
               <a className="button button--coral" href="#about">Discover KIYO <ArrowRight aria-hidden="true" /></a>
-              <a className="hero__story-link" href="#about">Watch our story <ArrowRight aria-hidden="true" /></a>
+              <a className="hero__story-link" href="#corporate">Corporate gifting <ArrowRight aria-hidden="true" /></a>
             </div>
           </div>
           <div className="hero__proofs" aria-label="KIYO business highlights">
@@ -256,8 +441,7 @@ export function KiyoExperience() {
           <ImageSlotVisual slot={aboutSlots.warehouse} className="about__background" decorative />
           <div className="about__scrim" aria-hidden="true" />
           <div className="about__copy">
-            <p className="eyebrow">Who we are</p>
-            <h2>Building a Malaysian travel brand with reach.</h2>
+            <h2><span>A Malaysian</span> <em>travel brand</em></h2>
             <p>KIYO is a Malaysia-based travel lifestyle and live-commerce company with a passion for quality, innovation and meaningful connections.</p>
             <p>From premium luggage and corporate gifting to wholesale distribution and UMRAH programmes, we help customers, agencies and partners move forward together.</p>
             <blockquote>Empower journeys, elevate brands and create lasting impact through innovation and trust.</blockquote>
@@ -267,8 +451,7 @@ export function KiyoExperience() {
 
         <section id="glance" className="business-pillars chapter">
           <header className="business-pillars__intro">
-            <p className="eyebrow">Our core</p>
-            <h2>Business<br />Pillars</h2>
+            <h2><span>Business</span> <em>pillars</em></h2>
             <p>Five pillars. One mission. Delivering excellence at every touchpoint.</p>
             <a href="#products">Explore our solutions <ArrowRight aria-hidden="true" /></a>
           </header>
@@ -285,13 +468,12 @@ export function KiyoExperience() {
           </div>
         </section>
 
-        <section id="products" className="products chapter"><ProductCollectionOverview onShop={() => setShopOpen(true)} /></section>
+        <section id="products" className="products chapter"><ProductCollectionOverview onShop={() => openShop("press")} /></section>
 
         <section id="corporate" className="corporate chapter">
           <header className="corporate__intro">
-            <p className="eyebrow">Built for brands</p>
-            <h2><span>Corporate gifting</span> <em>solutions</em></h2>
-            <p>Custom logo printing, thoughtful event gifting, and premium brand experiences — designed to leave a lasting impression.</p>
+            <h2><span>Corporate</span> <em>gifting</em></h2>
+            <p>Custom logo printing, thoughtful event gifting, and premium brand experiences designed to leave a lasting impression.</p>
             <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Enquire for corporate gifts <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
           </header>
           <CorporateGiftGallery whatsappUrl={WHATSAPP_URL} />
@@ -301,7 +483,7 @@ export function KiyoExperience() {
           <div className="umrah__layout">
             <div className="umrah__copy">
               <p className="eyebrow">UMRAH programme</p>
-              <h2>A complete travel set for a meaningful journey.</h2>
+              <h2><span>The complete</span> <em>UMRAH set</em></h2>
               <p>Coordinate luggage, thoughtful travel essentials and agency branding for UMRAH groups with a calm, professional presentation.</p>
               <ul>
                 <li><Check aria-hidden="true" />Coordinated luggage sizes</li>
@@ -313,19 +495,16 @@ export function KiyoExperience() {
             </div>
             <UmrahServiceGallery />
           </div>
-          <div className="agency-process" aria-label="Agency customisation process">
-            {['Select', 'Brand', 'Approve', 'Deliver'].map((step, index) => <span key={step}>{step}{index < 3 ? <ArrowRight aria-hidden="true" /> : null}</span>)}
-          </div>
         </section>
 
         <section id="location" className="location chapter">
-          <header className="location__intro"><p>Shah Alam, Selangor</p><h2>Built to deliver across Malaysia.</h2><span>A working base for stock, quality checks, order preparation and client conversations.</span></header>
+          <header className="location__intro"><p>Shah Alam, Selangor</p><h2><span>Built to deliver</span> <em>across Malaysia</em></h2><span>A working base for stock, quality checks, order preparation and client conversations.</span></header>
           <div className="location__body">
             <div className="location__mosaic">
               {warehouseSlots.map((slot, index) => (
                 <figure className={`location-card location-card--${index + 1}`} key={slot.id} data-sequence={index + 1}>
                   <ImageSlotVisual slot={slot} className="location-card__media" />
-                  <figcaption><span>0{index + 1}</span><h3>{warehouseStories[index].title}</h3></figcaption>
+                  <figcaption><h3>{warehouseStories[index].title}</h3></figcaption>
                 </figure>
               ))}
             </div>
@@ -342,8 +521,7 @@ export function KiyoExperience() {
         <section id="contact" className="contact chapter">
           <div className="contact__inner">
             <div className="contact__copy">
-              <p className="eyebrow">Start a conversation</p>
-              <h2>Build your next journey with KIYO.</h2>
+              <h2><span>Start your</span> <em>next journey</em></h2>
               <span>Corporate gifts, UMRAH sets, custom branding and retail enquiries.</span>
               <div className="contact__actions">
                 <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Start on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
@@ -359,16 +537,17 @@ export function KiyoExperience() {
         </section>
       </main>
 
-      <footer className="site-footer">
-        <a className="brand brand--footer" href="#home" aria-label="Back to KIYO home"><img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" /></a>
-        <p>Practical travel, presented with purpose.</p>
-        <div className="footer-links"><a href="#products">Products</a><a href="#corporate">Corporate</a><a href="#services">UMRAH</a><a href="#location">Location</a></div>
-        <div className="footer-bottom"><span>© {new Date().getFullYear()} KIYO Living. All rights reserved.</span><SocialLinks compact /></div>
-      </footer>
+      <SiteFooter />
 
-      <a className={`whatsapp-float${menuOpen || shopOpen ? " whatsapp-float--hidden" : ""}`} href={WHATSAPP_URL} target="_blank" rel="noreferrer" aria-label="Chat with KIYO on WhatsApp (opens in a new tab)"><FaWhatsapp aria-hidden="true" /></a>
+      <WhatsAppDock hidden={menuOpen || shopOpen} />
       <MenuDialog open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <ShopDialog open={shopOpen} onClose={() => setShopOpen(false)} />
+      <ShopFlyout
+        open={shopOpen}
+        mode={shopMode}
+        onClose={closeShop}
+        onHoverEnter={clearShopTimer}
+        onHoverLeave={scheduleShopClose}
+      />
     </div>
   );
 }

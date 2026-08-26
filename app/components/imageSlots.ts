@@ -32,7 +32,7 @@ export const aboutSlots = {
     id: "ABOUT-WAREHOUSE",
     status: "final",
     src: "/images/kiyo/samantha-warehouse.webp",
-    aspectRatio: "16 / 9",
+    aspectRatio: "1047 / 941",
     fit: "cover",
     focalPoint: "center center",
     safeTextArea: "left third",
@@ -183,7 +183,7 @@ export const warehouseSlots = Array.from({ length: 5 }, (_, index) => ({
   id: `WAREHOUSE-${index + 1}`,
   status: "final" as const,
   src: `/images/kiyo/warehouse-${index + 1}.webp`,
-  aspectRatio: "16 / 10",
+  aspectRatio: "5 / 3",
   fit: "cover" as const,
   focalPoint: "center center",
   alt: [
@@ -194,5 +194,5 @@ export const warehouseSlots = Array.from({ length: 5 }, (_, index) => ({
     "KIYO's warehouse preparation and packing area",
   ][index],
   width: 1440,
-  height: 900,
+  height: 864,
 })) satisfies ImageSlot[];

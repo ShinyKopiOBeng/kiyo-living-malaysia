@@ -1,20 +1,31 @@
 @import "tailwindcss";
 
-:root {
-  --ink: #081b2b;
-  --ink-soft: #183144;
-  --paper: #f2f3ef;
-  --paper-deep: #e5e8e4;
-  --white: #fbfcfa;
-  --teal: #67b8bd;
-  --teal-dark: #277d84;
-  --coral: #ee5a43;
-  --line: rgb(8 27 43 / 0.16);
-  --page-padding: clamp(1rem, 4vw, 4.75rem);
-  --header-height: 4.5rem;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+/* Design tokens. Declaring the palette here is what makes Tailwind emit the
+   matching utilities, so `text-ink`, `bg-paper`, `border-line`, `fill-coral`
+   and `font-display` are all available to new markup without inventing a
+   second set of names. The hand-written rules below reach the same values
+   through the short `--ink` aliases in `:root`. */
+@theme {
+  --color-ink: #081b2b;
+  --color-ink-soft: #183144;
+  --color-paper: #f2f3ef;
+  --color-paper-deep: #e5e8e4;
+  --color-sand: #f2e8db;
+  --color-white: #fbfcfa;
+  --color-teal: #67b8bd;
+  --color-teal-dark: #277d84;
+  --color-coral: #ee5a43;
+  /* Brand coral sits at 3.1:1 on the light surfaces, below AA for label-sized
+     text. coral-deep is the same hue at 5.6:1+ and is used for small type. */
+  --color-coral-deep: #b03520;
+  --color-line: rgb(8 27 43 / 0.16);
+
   --font-display: "Arial Narrow", "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+  --page-padding: clamp(1rem, 4vw, 4.75rem);
 }
 
 * {
@@ -72,11 +83,6 @@ picture {
 
 .chapter-screen {
   min-height: 100svh;
-}
-
-.chapter {
-  min-height: 100svh;
-  padding: clamp(6rem, 10vw, 10rem) var(--page-padding);
 }
 
 .sr-only {
@@ -179,11 +185,6 @@ picture {
   text-transform: uppercase;
 }
 
-.section-heading {
-  max-width: 55rem;
-  margin-bottom: clamp(3rem, 6vw, 5.5rem);
-}
-
 .section-heading h2,
 .corporate__intro h2,
 .umrah__copy h2,
@@ -191,10 +192,8 @@ picture {
 .contact h2 {
   margin: 0;
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(3.6rem, 7.4vw, 7.5rem);
   font-weight: 500;
   letter-spacing: -0.045em;
-  line-height: 0.88;
 }
 
 .section-heading > p,
@@ -272,17 +271,10 @@ picture {
   gap: 2rem;
   padding: 0 var(--page-padding);
   border-bottom: 1px solid transparent;
-  transition: transform 320ms var(--ease-out), background-color 240ms ease, color 240ms ease, border-color 240ms ease;
-}
-
-.site-header--hero {
-  color: var(--white);
 }
 
 .site-header--solid,
 .site-header--hidden {
-  border-color: var(--line);
-  background: rgb(242 243 239 / 0.97);
   color: var(--ink);
 }
 
@@ -298,10 +290,6 @@ picture {
 .brand img {
   width: 100%;
   height: auto;
-}
-
-.site-header--hero .brand img {
-  filter: brightness(0) invert(1);
 }
 
 .desktop-navigation {
@@ -377,17 +365,6 @@ picture {
   display: none;
 }
 
-/* Hero */
-.hero {
-  position: relative;
-  display: flex;
-  min-height: 100svh;
-  align-items: flex-end;
-  overflow: hidden;
-  background: var(--ink);
-  color: var(--white);
-}
-
 .hero__media,
 .hero__scrim {
   position: absolute;
@@ -397,43 +374,13 @@ picture {
   aspect-ratio: auto;
 }
 
-.hero__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-}
-
-.hero__scrim {
-  z-index: 1;
-  background:
-    linear-gradient(90deg, rgb(4 15 25 / 0.8) 0%, rgb(4 15 25 / 0.44) 45%, transparent 76%),
-    linear-gradient(0deg, rgb(4 15 25 / 0.72) 0%, transparent 52%);
-}
-
-.hero__copy {
-  position: relative;
-  z-index: 2;
-  width: min(76rem, 83vw);
-  padding: 0 var(--page-padding) clamp(5.2rem, 9vh, 7.5rem);
-}
-
 .hero h1 {
-  max-width: 11ch;
-  margin: 0;
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(4.2rem, 8.2vw, 9rem);
-  font-weight: 500;
-  letter-spacing: -0.045em;
-  line-height: 0.84;
 }
 
 .hero h1 span {
-  display: block;
   margin-top: 0.55em;
-  color: var(--teal);
   font-family: var(--font-body), Arial, sans-serif;
-  font-size: 0.43em;
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1;
@@ -505,20 +452,16 @@ picture {
 
 .about__copy {
   position: absolute;
-  top: 50%;
   left: var(--page-padding);
   z-index: 3;
-  width: min(42rem, 45vw);
   transform: translateY(-50%);
 }
 
 .about__copy h2 {
   margin: 0;
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(4.1rem, 7.4vw, 8.6rem);
   font-weight: 500;
   letter-spacing: -0.045em;
-  line-height: 0.84;
 }
 
 .about__copy > p:last-child {
@@ -531,11 +474,8 @@ picture {
 
 .about__portrait {
   position: absolute;
-  right: clamp(1rem, 5vw, 6rem);
   bottom: 0;
   z-index: 2;
-  width: min(38vw, 40rem);
-  height: min(88svh, 58rem);
   aspect-ratio: auto;
   overflow: visible;
 }
@@ -547,28 +487,8 @@ picture {
   object-position: center bottom;
 }
 
-/* Corporate accordion */
-.corporate {
-  background: var(--paper-deep);
-}
-
 .corporate__intro {
   max-width: 56rem;
-  margin-bottom: clamp(3rem, 5vw, 5rem);
-}
-
-.corporate__intro h2 {
-  max-width: 8ch;
-}
-
-.corporate__intro .button {
-  margin-top: 1.8rem;
-}
-
-.corporate-accordion {
-  display: flex;
-  height: clamp(35rem, 66vh, 52rem);
-  gap: 0.75rem;
 }
 
 .corporate-panel {
@@ -581,40 +501,9 @@ picture {
   transition: flex 620ms var(--ease-out);
 }
 
-.corporate-panel.is-active {
-  flex: 3.15 1 0;
-}
-
-.corporate-panel__activate {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.corporate-panel__media,
-.corporate-panel__scrim {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-}
-
 .corporate-panel__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   object-position: center;
   filter: saturate(0.82);
-  transition: transform 700ms var(--ease-out), filter 300ms ease;
-}
-
-.corporate-panel__scrim {
-  background: linear-gradient(0deg, rgb(4 15 25 / 0.92), rgb(4 15 25 / 0.05) 66%);
 }
 
 .corporate-panel.is-active .corporate-panel__media img {
@@ -623,12 +512,9 @@ picture {
 }
 
 .corporate-panel__content {
-  position: absolute;
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 2;
-  padding: clamp(1.1rem, 2.1vw, 2.2rem);
   pointer-events: none;
 }
 
@@ -700,10 +586,6 @@ picture {
 
 .gift-dialog__surface {
   position: relative;
-  display: grid;
-  width: 100%;
-  height: 100%;
-  grid-template-columns: minmax(0, 68fr) minmax(20rem, 32fr);
   background: var(--paper);
 }
 
@@ -743,9 +625,6 @@ picture {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  justify-content: center;
-  overflow-y: auto;
-  padding: clamp(2.25rem, 4vw, 4.5rem);
 }
 
 .gift-dialog__details > p {
@@ -760,10 +639,8 @@ picture {
 .gift-dialog__details h2 {
   margin: 0;
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(2.8rem, 4vw, 4.7rem);
   font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 0.88;
 }
 
 .gift-dialog__details > span {
@@ -776,7 +653,6 @@ picture {
 .gift-dialog__details ul {
   display: grid;
   gap: 0.7rem;
-  margin: 1.6rem 0;
   padding: 0;
   list-style: none;
 }
@@ -826,7 +702,6 @@ picture {
 .gift-dialog__navigation {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1rem;
 }
 
 .gift-dialog__navigation button {
@@ -850,22 +725,6 @@ picture {
 
 .umrah__layout {
   display: grid;
-  min-height: 72vh;
-  grid-template-columns: minmax(20rem, 0.78fr) minmax(0, 1.35fr);
-  align-items: center;
-  gap: clamp(3rem, 7vw, 8rem);
-}
-
-.umrah__copy h2 {
-  max-width: 8ch;
-}
-
-.umrah__copy ul {
-  display: grid;
-  gap: 0.9rem;
-  margin: 1.8rem 0;
-  padding: 0;
-  list-style: none;
 }
 
 .umrah__copy li {
@@ -883,7 +742,6 @@ picture {
 
 .umrah-gallery__cards {
   display: flex;
-  height: clamp(32rem, 58vh, 43rem);
   gap: 0.7rem;
 }
 
@@ -908,10 +766,6 @@ picture {
   flex: 1.65 1 0;
 }
 
-.umrah-card:not(.is-active) {
-  opacity: 0.72;
-}
-
 .umrah-card__media,
 .umrah-card__scrim {
   position: absolute;
@@ -925,10 +779,6 @@ picture {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.umrah-card__scrim {
-  background: linear-gradient(0deg, rgb(4 15 25 / 0.86), transparent 54%);
 }
 
 .umrah-card strong {
@@ -946,11 +796,8 @@ picture {
 }
 
 .umrah-gallery__detail {
-  display: grid;
-  min-height: 6.5rem;
   grid-template-columns: minmax(12rem, 0.7fr) 1fr;
   gap: 2rem;
-  padding-top: 1.4rem;
 }
 
 .umrah-gallery__detail h3 {
@@ -969,48 +816,17 @@ picture {
   line-height: 1.6;
 }
 
-.agency-process {
-  display: grid;
-  margin-top: clamp(3rem, 6vw, 5rem);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-}
-
-.agency-process > span {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.25rem 1rem 0 0;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.agency-process svg {
-  width: 1rem;
-  color: var(--coral);
-}
-
 /* Warehouse */
 .location {
   position: relative;
-  min-height: 100svh;
-  overflow: hidden;
-  background: var(--paper-deep);
 }
 
 .location__intro {
-  display: flex;
-  min-height: 28svh;
   flex-direction: column;
   justify-content: flex-end;
-  padding: calc(var(--header-height) + 1rem) var(--page-padding) clamp(1.6rem, 3vh, 2.6rem);
 }
 
 .location__intro > p {
-  margin: 0 0 0.8rem;
   color: var(--teal-dark);
   font-size: 0.72rem;
   font-weight: 800;
@@ -1019,7 +835,6 @@ picture {
 }
 
 .location__intro h2 {
-  max-width: 10ch;
   font-size: clamp(3.5rem, 6vw, 6.5rem);
 }
 
@@ -1042,22 +857,12 @@ picture {
 }
 
 .location-card {
-  display: grid;
-  width: 52vw;
-  height: 100%;
   flex: 0 0 auto;
   grid-template-rows: minmax(0, 1fr) auto;
-  background: var(--paper);
 }
 
 .location-card--wide {
   width: 72vw;
-}
-
-.location-card__media {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
 }
 
 .location-card__media img {
@@ -1066,19 +871,9 @@ picture {
   object-fit: cover;
 }
 
-.location-card figcaption {
-  display: grid;
-  min-height: 6.4rem;
-  grid-template-columns: minmax(12rem, 0.7fr) 1fr;
-  gap: 2rem;
-  align-items: start;
-  padding: 1.25rem;
-}
-
 .location-card figcaption h3 {
   margin: 0;
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: 2rem;
   font-weight: 600;
   line-height: 0.95;
 }
@@ -1145,12 +940,8 @@ picture {
 /* Contact and footer */
 .contact {
   position: relative;
-  display: grid;
-  min-height: 100svh;
   place-items: center;
   overflow: hidden;
-  padding: var(--page-padding);
-  background: var(--paper);
 }
 
 .contact::before {
@@ -1169,8 +960,6 @@ picture {
 .contact__inner {
   position: relative;
   z-index: 1;
-  width: min(76rem, 90vw);
-  text-align: center;
 }
 
 .contact__inner > p {
@@ -1180,12 +969,6 @@ picture {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.contact h2 {
-  max-width: 10ch;
-  margin: 0 auto;
-  font-size: clamp(4.2rem, 8.5vw, 9rem);
 }
 
 .contact__actions {
@@ -1226,12 +1009,7 @@ picture {
 }
 
 .site-footer {
-  display: grid;
-  min-height: 21rem;
   grid-template-columns: 1fr 1fr;
-  align-content: start;
-  gap: 2rem;
-  padding: clamp(3rem, 6vw, 5.5rem) var(--page-padding) 2rem;
   background: var(--ink);
   color: var(--white);
 }
@@ -1250,27 +1028,8 @@ picture {
   text-align: right;
 }
 
-.footer-links {
-  display: flex;
-  grid-column: 1 / -1;
-  gap: 1.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgb(251 252 250 / 0.16);
-}
-
-.footer-links a {
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
 .footer-bottom {
-  display: flex;
   grid-column: 1 / -1;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  color: rgb(251 252 250 / 0.48);
-  font-size: 0.7rem;
 }
 
 .socials--compact {
@@ -1283,27 +1042,11 @@ picture {
 }
 
 .whatsapp-float {
-  position: fixed;
-  right: clamp(1rem, 2vw, 2rem);
-  bottom: clamp(1rem, 2vw, 2rem);
   z-index: 24;
-  display: grid;
-  width: 3.4rem;
-  height: 3.4rem;
-  place-items: center;
-  border: 1px solid rgb(8 27 43 / 0.18);
-  background: #20c76a;
-  color: var(--ink);
-  transition: transform 220ms var(--ease-out), opacity 180ms ease;
 }
 
 .whatsapp-float:hover {
   transform: translateY(-3px);
-}
-
-.whatsapp-float svg {
-  width: 1.45rem;
-  height: 1.45rem;
 }
 
 .whatsapp-float--hidden {
@@ -1383,84 +1126,6 @@ picture {
   right: var(--page-padding);
   bottom: 2rem;
   left: var(--page-padding);
-}
-
-.shop-dialog {
-  width: min(92vw, 38rem);
-  max-width: none;
-  border: 0;
-  padding: clamp(2rem, 5vw, 4rem);
-  background: var(--paper);
-  color: var(--ink);
-}
-
-.shop-dialog::backdrop {
-  background: rgb(4 15 25 / 0.78);
-}
-
-.shop-dialog__close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-}
-
-.shop-dialog > p {
-  margin: 0 0 1rem;
-  color: var(--coral);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.17em;
-  text-transform: uppercase;
-}
-
-.shop-dialog h2 {
-  margin: 0;
-  font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(2.8rem, 6vw, 4.8rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 0.9;
-}
-
-.shop-dialog > span {
-  display: block;
-  margin-top: 1.2rem;
-  color: rgb(8 27 43 / 0.64);
-  line-height: 1.6;
-}
-
-.shop-dialog__links {
-  display: grid;
-  gap: 0.65rem;
-  margin-top: 2rem;
-}
-
-.shop-dialog__links > a {
-  display: grid;
-  grid-template-columns: 2rem 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  border: 1px solid var(--line);
-  padding: 1rem;
-  transition: border-color 180ms ease, background-color 180ms ease;
-}
-
-.shop-dialog__links > a:hover {
-  border-color: var(--teal-dark);
-  background: rgb(103 184 189 / 0.08);
-}
-
-.shop-dialog__links > a > svg {
-  width: 1.2rem;
-}
-
-.shop-dialog__links span {
-  display: grid;
-  gap: 0.2rem;
-}
-
-.shop-dialog__links small {
-  color: rgb(8 27 43 / 0.56);
 }
 
 @media (max-width: 1279px) {
@@ -1791,16 +1456,6 @@ picture {
     gap: 0.6rem;
   }
 
-  .agency-process {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
-  }
-
-  .agency-process > span {
-    border-bottom: 1px solid var(--line);
-    padding: 1rem 0.5rem;
-  }
-
   .location__intro h2 {
     max-width: 8ch;
     font-size: clamp(3.2rem, 15vw, 5rem);
@@ -1859,11 +1514,6 @@ picture {
     text-align: left;
   }
 
-  .footer-links {
-    grid-column: 1;
-    flex-wrap: wrap;
-  }
-
   .footer-bottom {
     grid-column: 1;
     align-items: flex-start;
@@ -1909,12 +1559,6 @@ picture {
   .umrah-card.is-active {
     width: 78vw;
   }
-
-  .shop-dialog {
-    width: 100vw;
-    min-height: 100svh;
-    margin: 0;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1935,7 +1579,6 @@ picture {
 /* -------------------------------------------------------------------------- */
 /* V4.2 hybrid composition: live-site clarity with local responsive behaviour */
 /* -------------------------------------------------------------------------- */
-
 .chapter {
   min-height: auto;
   padding: clamp(5rem, 7vw, 7.5rem) var(--page-padding);
@@ -1955,67 +1598,26 @@ picture {
   line-height: 0.94;
 }
 
-/* Clean split hero */
-.site-header--hero {
-  border-color: var(--line);
-  background: rgb(242 243 239 / 0.96);
-  color: var(--ink);
-}
-
-.site-header--hero .brand img {
-  filter: none;
-}
-
 .hero {
-  display: grid;
-  min-height: 100svh;
-  grid-template-columns: minmax(26rem, 0.78fr) minmax(0, 1.22fr);
   align-items: stretch;
   padding-top: var(--header-height);
-  background: var(--paper);
   color: var(--ink);
 }
 
 .hero__copy {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  width: auto;
   max-width: none;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  padding: clamp(4rem, 7vw, 8rem) clamp(2.5rem, 5vw, 6rem) clamp(3rem, 5vw, 5rem) var(--page-padding);
 }
 
 .hero__copy .eyebrow {
   margin-bottom: clamp(1.25rem, 2vw, 2rem);
-  color: var(--teal-dark);
-}
-
-.hero h1 {
-  max-width: 12ch;
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(4.8rem, 7vw, 8.4rem);
-  font-weight: 500;
-  letter-spacing: -0.055em;
-  line-height: 0.86;
 }
 
 .hero h1 span {
   display: block;
   margin: 0;
-  color: var(--coral);
   font-size: 1em;
-}
-
-.hero__copy > p:not(.eyebrow) {
-  max-width: 31rem;
-  margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
-  color: rgb(8 27 43 / 0.7);
-  font-size: clamp(0.95rem, 1.15vw, 1.1rem);
-  line-height: 1.65;
 }
 
 .hero__copy .button {
@@ -2026,7 +1628,6 @@ picture {
   position: relative;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
 }
 
 .hero__media {
@@ -2034,14 +1635,6 @@ picture {
   inset: 0;
   width: 100%;
   height: 100%;
-  aspect-ratio: auto;
-}
-
-.hero__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 52% center;
 }
 
 /* Samantha story */
@@ -2081,12 +1674,6 @@ picture {
   height: 86svh;
 }
 
-/* Corporate gift card row */
-.corporate {
-  background: var(--ink);
-  color: var(--white);
-}
-
 .corporate__intro {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.45fr);
@@ -2110,69 +1697,15 @@ picture {
   grid-column: 2;
   align-self: end;
   margin: 0;
-  color: rgb(251 252 250 / 0.7);
-}
-
-.corporate__intro .button {
-  display: none;
 }
 
 .corporate-accordion {
-  display: grid;
-  width: 100%;
-  height: auto;
   min-height: 0;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.8rem;
-  overflow: visible;
-}
-
-.corporate-panel,
-.corporate-panel.is-active {
-  position: relative;
-  width: auto;
-  min-width: 0;
-  height: clamp(28rem, 52svh, 38rem);
-  flex: none;
-  background: var(--ink-soft);
 }
 
 .corporate-panel__activate {
-  position: relative;
   display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  padding: 0;
-  overflow: hidden;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-}
-
-.corporate-panel__media,
-.corporate-panel__scrim {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-}
-
-.corporate-panel__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 600ms var(--ease-out);
-}
-
-.corporate-panel__activate:hover .corporate-panel__media img,
-.corporate-panel__activate:focus-visible .corporate-panel__media img {
-  transform: scale(1.035);
-}
-
-.corporate-panel__scrim {
-  background: linear-gradient(0deg, rgb(4 15 25 / 0.88), rgb(4 15 25 / 0.04) 68%);
 }
 
 .corporate-panel__content {
@@ -2273,7 +1806,6 @@ picture {
 .umrah__layout {
   min-height: 0;
   grid-template-columns: minmax(22rem, 0.8fr) minmax(0, 1.35fr);
-  align-items: start;
   gap: clamp(3rem, 6vw, 7rem);
 }
 
@@ -2283,10 +1815,6 @@ picture {
 
 .umrah-gallery__cards {
   height: clamp(29rem, 52svh, 37rem);
-}
-
-.agency-process {
-  margin-top: clamp(2.5rem, 4vw, 4rem);
 }
 
 /* Warehouse mosaic */
@@ -2304,7 +1832,6 @@ picture {
   grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
   align-items: end;
   gap: 1rem 4rem;
-  padding: 0 0 clamp(2.5rem, 4vw, 4rem);
 }
 
 .location__intro > p,
@@ -2443,7 +1970,6 @@ picture {
   font-family: var(--font-display), Arial, sans-serif;
   font-size: clamp(3.2rem, 4.3vw, 5rem);
   font-weight: 500;
-  letter-spacing: -0.035em;
   line-height: 0.88;
 }
 
@@ -2918,12 +2444,10 @@ picture {
 /* V5 portfolio alignment */
 .hero {
   position: relative;
-  display: block;
   min-height: max(46rem, 100svh);
-  margin-bottom: 4.25rem;
   padding: 0;
   overflow: visible;
-  background: #f2e8db;
+  background: var(--sand);
 }
 
 .hero__media-frame,
@@ -2960,8 +2484,7 @@ picture {
   position: relative;
   z-index: 2;
   display: flex;
-  width: min(43rem, 43vw);
-  min-height: max(46rem, 100svh);
+  width: min(47rem, 46vw);
   justify-content: center;
   padding: calc(var(--header-height) + 3rem) 2rem 9rem var(--page-padding);
 }
@@ -2975,10 +2498,10 @@ picture {
   max-width: none;
   margin: 0;
   color: var(--ink);
-  font-size: clamp(4.75rem, 6.8vw, 8.2rem);
-  font-weight: 550;
-  letter-spacing: -0.055em;
-  line-height: 0.82;
+  font-size: clamp(3.9rem, 5.5vw, 6.9rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.84;
   text-transform: uppercase;
 }
 
@@ -3042,10 +2565,7 @@ picture {
 }
 
 .hero__proofs {
-  position: absolute;
-  right: var(--page-padding);
-  bottom: -4.25rem;
-  left: var(--page-padding);
+  position: relative;
   z-index: 3;
   display: grid;
   width: min(calc(100% - (var(--page-padding) * 2)), 78rem);
@@ -3097,7 +2617,6 @@ picture {
   margin: 0.45rem 0 0;
   color: rgb(8 27 43 / 0.66);
   font-size: 0.76rem;
-  font-weight: 720;
   line-height: 1.35;
 }
 
@@ -3127,7 +2646,6 @@ picture {
   margin: 1rem 0 0;
   color: var(--white);
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(3.7rem, 5vw, 5.8rem);
   font-weight: 520;
   letter-spacing: -0.05em;
   line-height: 0.84;
@@ -3168,7 +2686,6 @@ picture {
 .business-pillar {
   display: flex;
   min-width: 0;
-  min-height: 34rem;
   flex-direction: column;
   padding: clamp(1.2rem, 1.75vw, 2rem);
   border-right: 1px solid rgb(255 255 255 / 0.15);
@@ -3184,14 +2701,11 @@ picture {
 .business-pillar > svg {
   width: clamp(2rem, 2.5vw, 2.75rem);
   height: auto;
-  margin-top: auto;
   color: #72cbd0;
   stroke-width: 1.35;
 }
 
 .business-pillar h3 {
-  min-height: 6.5rem;
-  margin: 1.2rem 0 0;
   color: var(--white);
   font-family: var(--font-display), Arial, sans-serif;
   font-size: clamp(1.3rem, 1.55vw, 1.8rem);
@@ -3204,7 +2718,6 @@ picture {
 .business-pillar__rule {
   width: 2rem;
   height: 2px;
-  margin-top: 1rem;
   background: #72cbd0;
 }
 
@@ -3269,7 +2782,6 @@ picture {
 }
 
 .product-collection__layout {
-  display: grid;
   grid-template-columns: minmax(0, 1.72fr) minmax(19rem, 0.92fr);
   align-items: stretch;
   gap: clamp(1.5rem, 3vw, 3.25rem);
@@ -3281,7 +2793,6 @@ picture {
   align-self: start;
   aspect-ratio: 1586 / 992;
   overflow: hidden;
-  background: transparent;
 }
 
 .product-collection__hero img {
@@ -3291,19 +2802,8 @@ picture {
 }
 
 .product-collection__proof {
-  display: grid;
   min-width: 0;
-  grid-template-rows: auto minmax(12rem, 1fr) auto;
-  gap: 1.4rem;
-  border-left: 1px solid var(--line);
   padding-left: clamp(1.5rem, 3vw, 3rem);
-}
-
-.product-collection__proof-copy > svg {
-  width: 2.5rem;
-  height: auto;
-  color: var(--teal-dark);
-  stroke-width: 1.4;
 }
 
 .product-collection__proof-copy .eyebrow {
@@ -3311,22 +2811,10 @@ picture {
 }
 
 .product-collection__proof-copy h3 {
-  max-width: 11ch;
-  margin: 0.75rem 0 0;
   color: var(--ink);
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(2.25rem, 3vw, 3.5rem);
   font-weight: 590;
-  letter-spacing: -0.035em;
-  line-height: 0.92;
   text-transform: uppercase;
-}
-
-.product-collection__proof-copy > p:last-child {
-  margin: 1rem 0 0;
-  color: rgb(8 27 43 / 0.65);
-  font-size: 0.88rem;
-  line-height: 1.58;
 }
 
 .product-collection__showroom {
@@ -3348,7 +2836,6 @@ picture {
 }
 
 .corporate {
-  background: var(--paper);
   color: var(--ink);
 }
 
@@ -3375,7 +2862,6 @@ picture {
 .corporate__intro .button {
   display: inline-flex;
   grid-column: 2;
-  justify-self: start;
   border-color: var(--ink);
   color: var(--ink);
 }
@@ -3438,10 +2924,6 @@ picture {
   transform: scale(1.025);
 }
 
-.corporate-panel__scrim {
-  background: linear-gradient(0deg, rgb(4 15 25 / 0.94), rgb(4 15 25 / 0.04) 70%);
-}
-
 .corporate-panel__heading {
   position: absolute;
   right: 0;
@@ -3455,18 +2937,6 @@ picture {
   transition: transform 420ms var(--ease-out);
 }
 
-.corporate-panel.is-active .corporate-panel__heading {
-  bottom: auto;
-  transform: translateY(0);
-}
-
-.corporate-panel__heading > span {
-  color: var(--coral);
-  font-size: 0.66rem;
-  font-weight: 850;
-  letter-spacing: 0.14em;
-}
-
 .corporate-panel__heading strong {
   max-width: 13ch;
   font-family: var(--font-display), Arial, sans-serif;
@@ -3475,45 +2945,6 @@ picture {
   letter-spacing: -0.025em;
   line-height: 0.95;
   text-transform: uppercase;
-}
-
-.corporate-panel__details {
-  position: absolute;
-  right: clamp(1rem, 2vw, 1.6rem);
-  bottom: clamp(1rem, 2vw, 1.6rem);
-  left: clamp(1rem, 2vw, 1.6rem);
-  z-index: 3;
-  padding: clamp(1.1rem, 1.8vw, 1.6rem);
-  background: rgb(4 15 25 / 0.94);
-  color: var(--white);
-  backdrop-filter: blur(0.5rem);
-}
-
-.corporate-panel__details[hidden] {
-  display: none;
-}
-
-.corporate-panel__details ul {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.corporate-panel__details li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-  color: rgb(251 252 250 / 0.8);
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
-.corporate-panel__details li svg {
-  width: 0.9rem;
-  flex: 0 0 auto;
-  color: #72cbd0;
 }
 
 .gift-commercial {
@@ -3540,28 +2971,6 @@ picture {
   color: var(--white);
   font-size: 0.85rem;
   font-weight: 800;
-}
-
-.corporate-panel__inspect {
-  display: inline-flex;
-  min-height: 2.75rem;
-  margin-top: 1rem;
-  align-items: center;
-  gap: 0.45rem;
-  border: 0;
-  border-bottom: 1px solid rgb(255 255 255 / 0.55);
-  padding: 0;
-  background: transparent;
-  color: var(--white);
-  cursor: pointer;
-  font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.corporate-panel__inspect svg {
-  width: 0.95rem;
 }
 
 .gift-dialog .gift-commercial {
@@ -3827,13 +3236,6 @@ picture {
     height: min(68svh, 34rem);
   }
 
-  .corporate-panel__details {
-    position: relative;
-    inset: auto;
-    background: var(--ink);
-    backdrop-filter: none;
-  }
-
   .corporate-panel.is-active .corporate-panel__heading {
     top: auto;
     bottom: 0;
@@ -3856,5 +3258,1680 @@ picture {
   .product-collection__intro h2,
   .business-pillars__intro h2 {
     font-size: clamp(2.9rem, 13vw, 3.7rem);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* V6 refinement: seam repair, one heading system, AA contrast, layout fixes    */
+/* -------------------------------------------------------------------------- */
+:root {
+  /* Short aliases onto the Tailwind theme above, so every existing
+     `var(--ink)` keeps working and the palette has one source of truth. */
+  --ink: var(--color-ink);
+  --ink-soft: var(--color-ink-soft);
+  --paper: var(--color-paper);
+  --paper-deep: var(--color-paper-deep);
+  --sand: var(--color-sand);
+  --white: var(--color-white);
+  --teal: var(--color-teal);
+  --teal-dark: var(--color-teal-dark);
+  --coral: var(--color-coral);
+  --coral-deep: var(--color-coral-deep);
+  --line: var(--color-line);
+
+  /* Not theme tokens: `--page-padding` is re-declared per breakpoint, which
+     `@theme` does not model, and the rest are layout metrics rather than
+     values Tailwind should generate utilities for. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --header-height: 4.5rem;
+  --section-space: clamp(5rem, 7vw, 7.5rem);
+}
+
+/* The fixed header would otherwise cover the top of every anchored section. */
+section[id] {
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+/* One vertical rhythm for every chapter. */
+.chapter,
+.location {
+  padding-top: var(--section-space);
+  padding-bottom: var(--section-space);
+}
+
+/* Corporate gift card row */
+/* Corporate accordion */
+/* Products, corporate and UMRAH previously ran as three identical paper
+surfaces in a row; lifting corporate to white gives the middle of the page
+a readable beat without leaving the light theme. */
+.corporate {
+  background: var(--white);
+}
+
+/* One condensed-caps display scale for every section heading. */
+.section-heading h2,
+.about__copy h2,
+.business-pillars__intro h2,
+.product-collection__intro h2,
+.corporate__intro h2,
+.umrah__copy h2,
+.location__intro h2,
+.contact h2 {
+  max-width: none;
+  margin: 0;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: clamp(3.4rem, 5vw, 5.9rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+.about__copy h2 span,
+.about__copy h2 em,
+.business-pillars__intro h2 span,
+.business-pillars__intro h2 em,
+.product-collection__intro h2 span,
+.product-collection__intro h2 em,
+.corporate__intro h2 span,
+.corporate__intro h2 em,
+.umrah__copy h2 span,
+.umrah__copy h2 em,
+.location__intro h2 span,
+.location__intro h2 em,
+.contact h2 span,
+.contact h2 em {
+  display: block;
+  font: inherit;
+}
+
+.about__copy h2 em,
+.business-pillars__intro h2 em,
+.product-collection__intro h2 em,
+.corporate__intro h2 em,
+.umrah__copy h2 em,
+.location__intro h2 em,
+.contact h2 em {
+  color: var(--coral);
+}
+
+/* The pillars headline lives in a narrow rail, so it needs its own scale. */
+.business-pillars__intro h2 {
+  font-size: clamp(3rem, 4.1vw, 4.8rem);
+}
+
+/* Section headers stack: headline, then body. No floating right-hand
+explainer paragraph detached from the heading it belongs to. */
+.product-collection__intro,
+.corporate__intro,
+.location__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 62rem;
+}
+
+/* These carried `align-self: end` from the old two-column headers, which in a
+column flex container pushed them off the headline's left edge. */
+.product-collection__intro > p:last-child,
+.corporate__intro > p:not(.eyebrow),
+.location__intro > span,
+.umrah-gallery__detail p {
+  max-width: 46rem;
+  margin: 1.35rem 0 0;
+  align-self: flex-start;
+  color: rgb(8 27 43 / 0.68);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.corporate__intro .button {
+  justify-self: start;
+  margin-top: 1.85rem;
+}
+
+.location__intro {
+  padding: 0 0 clamp(2.5rem, 4vw, 4rem);
+}
+
+.location__intro > p {
+  margin: 0 0 1.1rem;
+}
+
+/* The active card already carries the label; the panel below only needs to
+add the detail it does not repeat. */
+.umrah-gallery__detail {
+  display: block;
+  min-height: 0;
+}
+
+.umrah-gallery__detail p {
+  margin-top: 0;
+}
+
+/* Accent lock: coral family for every label, deepened on light surfaces. */
+.eyebrow,
+.hero__copy .eyebrow,
+.location__intro > p {
+  color: var(--coral-deep);
+}
+
+.about__copy .eyebrow,
+.business-pillar__number,
+.location__details > p,
+.location-card figcaption span {
+  color: var(--coral);
+}
+
+/* Display sub-headings share the section headings' condensed-caps treatment;
+image captions stay sentence case. */
+.location__details h3 {
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+/* Weight lock. The display stack ships 400/700 only, so the arbitrary
+520-850 values resolved inconsistently between headings. */
+.business-pillar h3,
+.corporate-panel__heading strong,
+.product-collection__proof-copy h3,
+.location__details h3,
+.location-card figcaption h3,
+.umrah-card strong,
+.gift-dialog__details h2,
+.shop-flyout h2 {
+  font-weight: 700;
+}
+
+.hero__story-link,
+.business-pillar__number,
+.business-pillars__intro > a,
+.gift-commercial dt {
+  font-weight: 800;
+}
+
+.hero-proof p {
+  font-weight: 500;
+}
+
+/* Pillars: the icon was pushed by auto margins, so icons and titles landed at
+a different height in every column. Number and icon now sit on a fixed
+band at the top and only the rule plus body are bottom-aligned. */
+.business-pillar {
+  min-height: 21rem;
+  justify-content: flex-start;
+}
+
+.business-pillar > svg {
+  margin-top: 2.25rem;
+}
+
+/* Fixed title band so the hairline rules line up straight across the row. */
+.business-pillar h3 {
+  min-height: 3.6rem;
+  margin: 1.1rem 0 0;
+}
+
+.business-pillar__rule {
+  margin-top: 1.35rem;
+}
+
+.business-pillar p {
+  margin-top: 0.9rem;
+}
+
+/* The product cut-out ships on a warm cream ground. Tinting the frame to
+match turns `contain` letterboxing into an intentional panel. */
+.product-collection__hero {
+  background: var(--sand);
+}
+
+/* The active gift panel pins its heading to the top of the image, where a
+bottom-only scrim left white text sitting on bare highlights. */
+.corporate-panel__scrim {
+  background: linear-gradient(
+    180deg,
+    rgb(4 15 25 / 0.74) 0%,
+    rgb(4 15 25 / 0.12) 30%,
+    rgb(4 15 25 / 0.05) 52%,
+    rgb(4 15 25 / 0.92) 100%
+  );
+}
+
+.corporate-panel.is-active .corporate-panel__heading {
+  transform: translateY(0);
+  top: 0;
+  bottom: auto;
+}
+
+/* Dimming inactive UMRAH cards with opacity also washed out their scrim and
+left the labels illegible. Dim the photograph instead, keep the scrim. */
+.umrah-card:not(.is-active) {
+  opacity: 1;
+}
+
+.umrah-card__scrim {
+  background: linear-gradient(0deg, rgb(4 15 25 / 0.92) 0%, rgb(4 15 25 / 0.45) 32%, transparent 62%);
+}
+
+.umrah-card:not(.is-active) .umrah-card__media img {
+  filter: saturate(0.92) brightness(0.86);
+  transition: filter 320ms ease;
+}
+
+@media (max-width: 1023px) {
+  .business-pillar,
+  .business-pillar:last-child {
+    min-height: 19rem;
+  }
+
+  /* The mosaic replaced a full-bleed scroller, so the section needs its page
+  padding back at this breakpoint. */
+  .location {
+    padding-right: var(--page-padding);
+    padding-left: var(--page-padding);
+  }
+}
+
+@media (max-width: 767px) {
+  .chapter,
+  .location {
+    padding-top: 5.5rem;
+    padding-bottom: 5.5rem;
+  }
+
+  .section-heading h2,
+  .about__copy h2,
+  .product-collection__intro h2,
+  .corporate__intro h2,
+  .umrah__copy h2,
+  .location__intro h2,
+  .contact h2 {
+    font-size: clamp(3rem, 12.5vw, 4.4rem);
+  }
+
+  .business-pillars__intro h2 {
+    font-size: clamp(2.9rem, 12vw, 4rem);
+  }
+
+  .business-pillar,
+  .business-pillar:last-child {
+    min-height: 17rem;
+  }
+
+  .product-collection__intro > p:last-child,
+  .corporate__intro > p:not(.eyebrow),
+  .location__intro > span,
+  .umrah-gallery__detail p {
+    font-size: 0.98rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* V7 refinement: hero containment, single-composition mobile hero, clean gift */
+/* covers, completed footer, draggable WhatsApp dock, blending header          */
+/* -------------------------------------------------------------------------- */
+/* --- Header: blends with the hero, resolves to a bar once past it --------- */
+.site-header {
+  transition: transform 320ms var(--ease-out), background-color 260ms ease,
+    color 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
+}
+
+/* Clean split hero */
+.site-header--hero {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* A veil rather than a bar. Absolutely positioned so it stays out of the
+header grid flow, and behind the header content but inside its stacking
+context, so it never paints over the page. */
+.site-header--hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgb(249 246 239 / 0.7) 0%, rgb(249 246 239 / 0.28) 58%, transparent 100%);
+  pointer-events: none;
+}
+
+.site-header--hero .brand img {
+  filter: none;
+}
+
+.site-header--solid,
+.site-header--hidden {
+  border-color: var(--line);
+  background: rgb(242 243 239 / 0.94);
+  -webkit-backdrop-filter: saturate(160%) blur(0.75rem);
+  backdrop-filter: saturate(160%) blur(0.75rem);
+  box-shadow: 0 0.5rem 1.75rem rgb(8 27 43 / 0.07);
+}
+
+/* Hero */
+/* --- Hero: the proof bar belongs inside the section ----------------------- */
+/* One full-width column: the copy overlays the photograph rather than sitting
+in a split, and the proof bar spans the section. The earlier two-column
+template would otherwise still apply and squeeze both into the left track. */
+.hero {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hero__copy {
+  grid-row: 1;
+  min-height: 0;
+  padding-bottom: clamp(1.5rem, 3vw, 3rem);
+}
+
+/* The bar used to be absolutely positioned below the hero's lower edge, which
+pushed it across the hero and about seam. It is now the hero's second row. */
+.hero__proofs {
+  grid-row: 2;
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* --- Corporate: clean covers, hover to expand, click to open -------------- */
+.corporate-panel__heading,
+.corporate-panel.is-active .corporate-panel__heading {
+  top: auto;
+  bottom: 0;
+  gap: 1rem;
+  justify-items: start;
+}
+
+/* The expanded panel has room for the full name on two lines instead of four. */
+.corporate-panel.is-active .corporate-panel__heading strong {
+  max-width: 22ch;
+}
+
+.corporate-panel__cta {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgb(251 252 250 / 0.6);
+  padding: 0 0.95rem;
+  color: var(--white);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(0.45rem);
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out),
+    background-color 200ms ease, color 200ms ease;
+}
+
+.corporate-panel__cta svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.corporate-panel.is-active .corporate-panel__cta,
+.corporate-panel__activate:focus-visible .corporate-panel__cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.corporate-panel__activate:hover .corporate-panel__cta {
+  border-color: var(--white);
+  background: var(--white);
+  color: var(--ink);
+}
+
+/* Without a pointer there is nothing to hover, so every set sits open. */
+@media (hover: none) {
+  .corporate-panel,
+  .corporate-panel.is-active {
+    flex: 1 1 0;
+  }
+
+  .corporate-panel__cta {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- UMRAH: one rhythm now that the process strip is gone ----------------- */
+.umrah__layout {
+  align-items: stretch;
+}
+
+.umrah__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.umrah__copy > * {
+  margin: 0;
+}
+
+.umrah__copy ul {
+  list-style: none;
+  display: grid;
+  gap: 1.15rem;
+  margin: 0;
+  padding: 0;
+}
+
+.umrah__copy .button {
+  margin-top: 0.35rem;
+}
+
+.umrah-gallery {
+  display: flex;
+  flex-direction: column;
+}
+
+.umrah-gallery__cards {
+  flex: 1 1 auto;
+}
+
+.umrah-gallery__detail {
+  padding-top: 1.25rem;
+}
+
+/* --- Footer -------------------------------------------------------------- */
+/* The bottom padding clears the floating WhatsApp button in its default
+corner, so the legal row is never sitting underneath it. */
+.site-footer {
+  align-content: start;
+  display: block;
+  min-height: 0;
+  gap: 0;
+  padding: clamp(3.5rem, 6vw, 5.5rem) var(--page-padding) clamp(5rem, 6vw, 6rem);
+}
+
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) repeat(3, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 3.5rem);
+  padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
+}
+
+.footer-brand {
+  display: grid;
+  align-content: start;
+  gap: 1.35rem;
+}
+
+.footer-brand p {
+  max-width: 26rem;
+  margin: 0;
+  color: rgb(251 252 250 / 0.62);
+  font-size: 0.86rem;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.footer-brand .socials--compact {
+  justify-content: flex-start;
+}
+
+.footer-column {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.footer-column h2 {
+  margin: 0 0 0.4rem;
+  color: rgb(251 252 250 / 0.5);
+  font-family: var(--font-body), Arial, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.footer-column a {
+  color: rgb(251 252 250 / 0.84);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  transition: color 180ms ease;
+}
+
+.footer-column a:hover,
+.footer-column a:focus-visible {
+  color: var(--white);
+}
+
+.footer-column address {
+  margin: 0;
+  color: rgb(251 252 250 / 0.62);
+  font-size: 0.86rem;
+  font-style: normal;
+  line-height: 1.7;
+}
+
+.footer-column__external {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.footer-column__external svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  flex-wrap: wrap;
+  border-top: 1px solid rgb(251 252 250 / 0.16);
+  padding-top: 1.75rem;
+  color: rgb(251 252 250 / 0.48);
+  font-size: 0.72rem;
+}
+
+.footer-legal {
+  display: flex;
+  gap: 0.6rem 1.65rem;
+  flex-wrap: wrap;
+}
+
+.footer-legal a {
+  color: rgb(251 252 250 / 0.62);
+  font-weight: 700;
+  transition: color 180ms ease;
+}
+
+.footer-legal a:hover,
+.footer-legal a:focus-visible {
+  color: var(--white);
+}
+
+/* --- WhatsApp dock: round, draggable ------------------------------------- */
+.whatsapp-dock {
+  position: fixed;
+  right: clamp(1rem, 2vw, 2rem);
+  bottom: clamp(1rem, 2vw, 2rem);
+  z-index: 24;
+  cursor: grab;
+  /* Dragging must not scroll the page underneath. */
+  touch-action: none;
+  transition: opacity 180ms ease;
+}
+
+.whatsapp-dock.is-dragging {
+  cursor: grabbing;
+}
+
+.whatsapp-dock--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.whatsapp-float {
+  transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 0.75rem 1.75rem rgb(8 27 43 / 0.28);
+  color: #ffffff;
+  background: #25d366;
+  border-radius: 50%;
+  border: 0;
+  place-items: center;
+  height: 3.5rem;
+  width: 3.5rem;
+  display: grid;
+  bottom: auto;
+  right: auto;
+  position: static;
+  /* The anchor is what receives the drag, so it carries touch-action too. */
+  cursor: inherit;
+  touch-action: none;
+}
+
+.whatsapp-float svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  pointer-events: none;
+}
+
+.whatsapp-dock:not(.is-dragging) .whatsapp-float:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1rem 2.25rem rgb(8 27 43 / 0.34);
+}
+
+.whatsapp-dock.is-dragging .whatsapp-float {
+  transform: scale(1.06);
+  box-shadow: 0 1.15rem 2.5rem rgb(8 27 43 / 0.36);
+}
+
+/* --- Legal document pages ------------------------------------------------ */
+.legal-shell {
+  background: var(--paper);
+}
+
+.legal-header {
+  display: flex;
+  min-height: var(--header-height);
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0 var(--page-padding);
+  background: var(--white);
+}
+
+.legal-header .brand {
+  width: clamp(6.8rem, 9vw, 9rem);
+}
+
+.legal-header__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.legal-header__back svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.legal-page {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(3.5rem, 7vw, 6.5rem) var(--page-padding) clamp(4rem, 8vw, 7rem);
+}
+
+.legal-page p.legal-page__eyebrow {
+  margin: 0 0 0.9rem;
+  color: var(--coral-deep);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.legal-page h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: clamp(2.8rem, 6vw, 4.4rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.legal-page p.legal-page__updated {
+  margin: 1.25rem 0 0;
+  color: rgb(8 27 43 / 0.55);
+  font-size: 0.8rem;
+}
+
+.legal-page p.legal-page__lede {
+  margin: 2rem 0 0;
+  border-top: 1px solid var(--line);
+  padding-top: 2rem;
+  color: rgb(8 27 43 / 0.72);
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.legal-page h2 {
+  margin: 2.75rem 0 0.85rem;
+  color: var(--ink);
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.legal-page p,
+.legal-page li {
+  color: rgb(8 27 43 / 0.72);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.legal-page p {
+  margin: 0 0 0.95rem;
+}
+
+.legal-page ul {
+  margin: 0 0 0.95rem;
+  padding-left: 1.15rem;
+}
+
+.legal-page li {
+  margin-bottom: 0.5rem;
+}
+
+.legal-page a {
+  border-bottom: 1px solid rgb(8 27 43 / 0.3);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.legal-page a:hover {
+  border-color: var(--ink);
+}
+
+.legal-page p.legal-page__note {
+  margin: 2.75rem 0 0;
+  border-left: 2px solid var(--coral);
+  padding: 0.25rem 0 0.25rem 1.15rem;
+  color: rgb(8 27 43 / 0.65);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+/* --- V7 responsive ------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .hero__proofs {
+    width: calc(100% - (var(--page-padding) * 2));
+  }
+
+  .hero-proof {
+    gap: 0.75rem;
+    padding: 1.05rem 0.9rem;
+  }
+
+  .hero-proof__icon {
+    width: 2.6rem;
+  }
+
+  .hero-proof strong {
+    font-size: clamp(1.3rem, 3vw, 1.85rem);
+  }
+
+  .hero-proof p {
+    font-size: 0.7rem;
+  }
+
+  /* The accordion becomes a grid below this width, so no panel expands and
+  every cover needs to carry its own affordance. */
+  .corporate-panel__cta {
+    opacity: 1;
+    transform: none;
+  }
+
+  .site-footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  /* The hero was splitting into an image band above a paper copy block. It is
+  one overlaid composition again, with the proof bar as its closing row. */
+  .hero {
+    display: grid;
+    min-height: 100svh;
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding-top: 0;
+    overflow: hidden;
+  }
+
+  .hero__media-frame,
+  .hero__media,
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__media img {
+    object-position: 64% center;
+  }
+
+  .hero__scrim {
+    display: block;
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      rgb(249 246 239 / 0.97) 0%,
+      rgb(249 246 239 / 0.93) 40%,
+      rgb(249 246 239 / 0.6) 64%,
+      rgb(249 246 239 / 0.14) 86%,
+      transparent 100%
+    );
+  }
+
+  .hero__copy {
+    grid-row: 1;
+    width: 100%;
+    min-height: 0;
+    justify-content: flex-start;
+    padding: calc(var(--header-height) + 1.6rem) var(--page-padding) 1.5rem;
+    background: transparent;
+  }
+
+  .hero h1 {
+    max-width: 11ch;
+    font-size: clamp(2.85rem, 12.5vw, 4.2rem);
+  }
+
+  .hero__copy .eyebrow {
+    margin-bottom: 1rem;
+  }
+
+  .hero__copy > p:not(.eyebrow) {
+    max-width: 27rem;
+    margin-top: 1.1rem;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .hero__actions {
+    margin-top: 1.35rem;
+    align-items: center;
+    flex-direction: row;
+    gap: 0.85rem 1.35rem;
+  }
+
+  /* Three compact tiles keep the bar inside the hero instead of adding three
+  stacked rows below it. */
+  .hero__proofs {
+    position: relative;
+    inset: auto;
+    grid-row: 2;
+    width: calc(100% - (var(--page-padding) * 2));
+    min-height: 0;
+    margin: 0 auto 1.4rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid var(--line);
+    box-shadow: 0 0.9rem 2.25rem rgb(8 27 43 / 0.14);
+  }
+
+  .hero-proof {
+    gap: 0.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding: 0.9rem 0.5rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    text-align: center;
+  }
+
+  .hero-proof:last-child {
+    border-right: 0;
+  }
+
+  .hero-proof__icon {
+    width: 2.1rem;
+  }
+
+  .hero-proof__icon svg {
+    width: 1.05rem;
+  }
+
+  .hero-proof strong {
+    font-size: 1.02rem;
+  }
+
+  .hero-proof p {
+    margin-top: 0.2rem;
+    font-size: 0.62rem;
+    line-height: 1.3;
+  }
+
+  /* About: copy first, founder centred beneath it, grounded on the section
+  edge. No fixed height and no negative offsets, so no dark side strip. */
+  .about {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    padding: 5.5rem 0 0;
+  }
+
+  /* `relative`, not `static`: both of these carry a z-index that has to keep
+  winning against the absolutely positioned scrim above the photograph. */
+  .about__copy {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 100%;
+    padding: 0 var(--page-padding);
+    transform: none;
+  }
+
+  .about__scrim {
+    background: linear-gradient(
+      180deg,
+      rgb(4 15 25 / 0.93) 0%,
+      rgb(4 15 25 / 0.88) 44%,
+      rgb(4 15 25 / 0.62) 66%,
+      rgb(4 15 25 / 0.74) 100%
+    );
+  }
+
+  .about__portrait {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: min(76vw, 23rem);
+    height: auto;
+    margin: 2.5rem auto 0;
+    align-self: center;
+    aspect-ratio: 2 / 3;
+  }
+
+  .about__portrait img {
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .site-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+
+  .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .whatsapp-float {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .whatsapp-float svg {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero h1 {
+    font-size: clamp(2.6rem, 12.5vw, 3.5rem);
+  }
+
+  .hero__copy > p:not(.eyebrow) {
+    font-size: 0.84rem;
+  }
+
+  .hero-proof strong {
+    font-size: 0.92rem;
+  }
+
+  .hero-proof p {
+    font-size: 0.58rem;
+  }
+
+  .about {
+    min-height: 0;
+  }
+
+  .about__portrait {
+    right: auto;
+    width: min(82vw, 21rem);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* V8: UMRAH cards visible at every width, Shop flyout from the right edge      */
+/* -------------------------------------------------------------------------- */
+/* --- UMRAH gallery -------------------------------------------------------- */
+/* Below 1200px the row previously either collapsed the two inactive cards into
+118-174px strips, or (under 768px) became a hidden-scrollbar swipe carousel
+with cards 2 and 3 parked off-screen. Both become an even grid instead, so
+every card is fully visible and legible without a gesture. */
+@media (max-width: 1199px) {
+  .umrah__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .umrah-gallery__cards {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.55rem, 1.4vw, 0.9rem);
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  /* The source photographs are 900x1125, i.e. exactly 4 / 5. Any other frame
+  ratio makes `cover` throw away part of the picture, so the card matches. */
+  .umrah-card,
+  .umrah-card.is-active {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    flex: 0 1 auto;
+    aspect-ratio: 4 / 5;
+    scroll-snap-align: none;
+  }
+
+  /* Every card is the same size now, so the selected one needs a marker of its
+  own to tie it to the caption underneath. */
+  .umrah-card.is-active::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 3;
+    height: 3px;
+    background: var(--coral);
+  }
+
+  .umrah-card strong {
+    right: 0.85rem;
+    bottom: 0.85rem;
+    left: 0.85rem;
+    font-size: clamp(0.95rem, 2vw, 1.5rem);
+  }
+}
+
+@media (max-width: 639px) {
+  /* At phone widths three columns would be 112px thumbnails, so the row becomes
+  a stack: full-width imagery, all three still on the page. */
+  .umrah-gallery__cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .umrah-card,
+  .umrah-card.is-active {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+  }
+
+  .umrah-card strong {
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    font-size: 1.55rem;
+  }
+}
+
+/* --- Shop flyout ---------------------------------------------------------- */
+.shop-trigger {
+  position: relative;
+  padding: 0 0.15rem;
+}
+
+/* The underline grows from the right, mirroring the direction the panel
+arrives from. */
+.shop-trigger::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0.55rem;
+  left: 0;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: right;
+  background: var(--coral);
+  transition: transform 300ms var(--ease-out);
+}
+
+.shop-trigger:hover::after,
+.shop-trigger:focus-visible::after,
+.shop-trigger.is-open::after {
+  transform: scaleX(1);
+  transform-origin: right;
+}
+
+.shop-trigger.is-open svg {
+  transform: translate(2px, -2px);
+}
+
+/* Touch and tablet only. On a wide screen the flyout is a light hover panel,
+and a full-viewport scrim would sit above the header and steal the pointer
+the moment the panel was pinned, closing it again. */
+.shop-scrim {
+  display: none;
+  position: fixed;
+  top: var(--header-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 38;
+  background: rgb(4 15 25 / 0.42);
+  opacity: 0;
+  /* A hover-opened panel must never swallow the pointer, or leaving the trigger
+  would be impossible. Only a tapped panel arms the scrim. */
+  pointer-events: none;
+  transition: opacity 320ms var(--ease-out);
+}
+
+.shop-scrim.is-open {
+  opacity: 1;
+}
+
+.shop-scrim.is-open.is-dismissible {
+  pointer-events: auto;
+}
+
+/* The panel starts below the header rather than over it. A full-height drawer
+covers the Shop trigger the instant it opens, which swallows the click that
+should pin it and leaves no way to toggle it back shut. */
+.shop-flyout {
+  position: fixed;
+  top: var(--header-height);
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  width: min(27rem, 92vw);
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2rem, 3.5vw, 3.25rem);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: -1.5rem 0 4rem rgb(8 27 43 / 0.22);
+  overflow-y: auto;
+  /* Wheeling over the panel must not scroll the page behind it, which would
+  let the header slide away and leave a gap above the panel. */
+  overscroll-behavior: contain;
+  transform: translateX(100%);
+  /* `visibility` keeps the closed panel out of the tab order, and is delayed on
+  the way out so the slide is still visible while it plays. */
+  visibility: hidden;
+  transition: transform 420ms var(--ease-out), visibility 0s linear 420ms;
+}
+
+.shop-flyout.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 420ms var(--ease-out), visibility 0s;
+}
+
+.shop-flyout > * {
+  opacity: 0;
+  transform: translateX(1.25rem);
+  transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out);
+}
+
+.shop-flyout.is-open > * {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* A short cascade so the panel reads as arriving rather than appearing. */
+.shop-flyout.is-open > p {
+  transition-delay: 120ms;
+}
+
+.shop-flyout.is-open > h2 {
+  transition-delay: 165ms;
+}
+
+.shop-flyout.is-open > span {
+  transition-delay: 210ms;
+}
+
+.shop-flyout.is-open > .shop-flyout__links {
+  transition-delay: 255ms;
+}
+
+.shop-flyout__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.shop-flyout > p {
+  margin: 0 0 1rem;
+  color: var(--coral-deep);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.shop-flyout h2 {
+  margin: 0;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: clamp(2.1rem, 3vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+}
+
+.shop-flyout > span {
+  display: block;
+  margin-top: 1rem;
+  color: rgb(8 27 43 / 0.64);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.shop-flyout__links {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.85rem;
+}
+
+.shop-flyout__links > a {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid var(--line);
+  padding: 0.95rem 1rem;
+  background: var(--white);
+  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms var(--ease-out);
+}
+
+.shop-flyout__links > a:hover {
+  border-color: var(--teal-dark);
+  background: rgb(103 184 189 / 0.1);
+  transform: translateX(-3px);
+}
+
+.shop-flyout__links > a > svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.shop-flyout__links span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.shop-flyout__links strong {
+  font-size: 0.98rem;
+}
+
+.shop-flyout__links small {
+  color: rgb(8 27 43 / 0.56);
+  font-size: 0.78rem;
+}
+
+/* The trigger was hidden below 1024px, which left no way to reach the stores on
+a tablet or phone at all. It stays in the header at every width. */
+@media (max-width: 1023px) {
+  .shop-scrim {
+    display: block;
+  }
+
+  .shop-trigger {
+    display: inline-flex;
+  }
+
+  .header-actions {
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .shop-flyout {
+    width: min(21rem, 86vw);
+    padding: 2rem 1.5rem;
+  }
+
+  .shop-flyout h2 {
+    font-size: 1.95rem;
+  }
+
+  .shop-trigger {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .shop-flyout {
+    width: 88vw;
+  }
+
+  /* The brand mark plus two controls is tight here; the arrow carries the
+  "opens a panel" meaning on its own. */
+  .shop-trigger {
+    gap: 0.3rem;
+    font-size: 0.66rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-flyout,
+  .shop-flyout.is-open,
+  .shop-flyout > *,
+  .shop-flyout.is-open > *,
+  .shop-scrim,
+  .shop-trigger::after {
+    transition-duration: 1ms;
+    transition-delay: 0s;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* V9: products carousel on one seamless studio sweep                          */
+/* -------------------------------------------------------------------------- */
+.product-collection__layout {
+  display: none;
+}
+
+.product-carousel {
+  --slide-width: clamp(15rem, 24vw, 25rem);
+  --slide-gap: clamp(1rem, 2.2vw, 2.75rem);
+  position: relative;
+  /* Full-bleed, so the studio band runs edge to edge the way it does on a
+  product-led storefront rather than sitting inside the page gutter. */
+  width: 100vw;
+  margin: clamp(2.5rem, 4vw, 4rem) calc(50% - 50vw) 0;
+}
+
+.product-carousel__viewport {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The source sweep is a 1983x793 PNG with a centre vignette, so tiling it would
+band the row bright-dark-bright. These stops are sampled from that file and
+redrawn as a gradient: identical tone, seamless at any width, no download.
+It covers only the media band, so the name and swatches sit on the page. */
+.product-carousel__viewport::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  /* A touch taller than the media so a strip of floor shows under the wheels
+  instead of the products ending flush with the band. */
+  height: calc(var(--slide-width) * 1.09);
+  background: linear-gradient(
+    180deg,
+    #e6e6e5 0%,
+    #f0efef 15%,
+    #f7f7f7 32%,
+    #f8f8f8 46%,
+    #f1f1f1 60%,
+    #eaeaea 72%,
+    #f5f4f4 76%,
+    #f9f9f9 81%,
+    #ededed 91%,
+    #e6e6e6 100%
+  );
+  pointer-events: none;
+}
+
+.product-carousel__track {
+  display: flex;
+  width: max-content;
+  align-items: flex-start;
+  gap: var(--slide-gap);
+  padding: 0 calc(var(--slide-gap) / 2);
+  touch-action: pan-y;
+  will-change: transform;
+}
+
+.product-slide {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: var(--slide-width);
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.product-slide__media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.product-slide__view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Every shot was re-canvassed so its base sits on the same line; contain
+  keeps that alignment intact at any slide size. */
+  object-position: center bottom;
+  transition: opacity 420ms var(--ease-out);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.product-slide__view--angle {
+  opacity: 0;
+}
+
+.product-slide__media:hover .product-slide__view--front,
+.product-slide__media:focus-visible .product-slide__view--front {
+  opacity: 0;
+}
+
+.product-slide__media:hover .product-slide__view--angle,
+.product-slide__media:focus-visible .product-slide__view--angle {
+  opacity: 1;
+}
+
+.product-slide__meta {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.5rem calc(var(--slide-gap) / 2) 0;
+}
+
+.product-slide__meta h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.product-slide__meta p {
+  margin: 0;
+  color: rgb(8 27 43 / 0.6);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.product-slide__swatches {
+  display: flex;
+  margin-top: 0.35rem;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.product-swatch {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid rgb(8 27 43 / 0.22);
+  border-radius: 50%;
+  padding: 0;
+  background: var(--swatch);
+  cursor: pointer;
+  /* White and silver would otherwise vanish against the page. */
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out), border-color 180ms ease;
+}
+
+.product-swatch:hover {
+  transform: scale(1.12);
+}
+
+.product-swatch.is-active {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px var(--white), 0 0 0 3px var(--ink);
+}
+
+.product-carousel__arrow {
+  position: absolute;
+  top: calc(var(--slide-width) * 0.545);
+  z-index: 3;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  opacity: 0;
+  box-shadow: 0 0.5rem 1.5rem rgb(8 27 43 / 0.14);
+  transition: opacity 260ms var(--ease-out), background-color 200ms ease, color 200ms ease;
+}
+
+.product-carousel__arrow--prev {
+  left: clamp(0.75rem, 2vw, 2rem);
+}
+
+.product-carousel__arrow--next {
+  right: clamp(0.75rem, 2vw, 2rem);
+}
+
+.product-carousel__arrow svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.product-carousel__viewport:hover .product-carousel__arrow,
+.product-carousel__viewport:focus-within .product-carousel__arrow {
+  opacity: 1;
+}
+
+.product-carousel__arrow:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+/* Nothing to hover on a touch screen, so the arrows stay put. */
+@media (hover: none) {
+  .product-carousel__arrow {
+    opacity: 1;
+  }
+}
+
+/* The proof band closes the section under the carousel. */
+.product-collection__proof {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  flex-wrap: wrap;
+  margin-top: clamp(3rem, 5vw, 4.5rem);
+  border-top: 1px solid var(--line);
+  border-left: 0;
+  padding: clamp(2rem, 3vw, 2.75rem) 0 0;
+  grid-template-columns: none;
+  grid-template-rows: none;
+}
+
+.product-collection__proof-copy {
+  display: grid;
+  max-width: 46rem;
+  gap: 0.6rem;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  column-gap: 1.15rem;
+}
+
+.product-collection__proof-copy > svg {
+  stroke-width: 1.4;
+  width: 1.85rem;
+  height: 1.85rem;
+  grid-row: 1 / span 2;
+  margin: 0;
+  color: var(--teal-dark);
+}
+
+.product-collection__proof-copy h3 {
+  max-width: none;
+  margin: 0;
+  align-self: center;
+  font-size: clamp(1.35rem, 1.9vw, 1.95rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.product-collection__proof-copy > p:last-child {
+  margin: 0;
+  grid-column: 2;
+  color: rgb(8 27 43 / 0.66);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.product-collection__proof .button {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-carousel__arrow {
+    opacity: 1;
+  }
+
+  .product-slide__view {
+    transition-duration: 1ms;
+  }
+}
+
+@media (max-width: 1023px) {
+  .product-carousel {
+    --slide-width: clamp(13rem, 34vw, 19rem);
+    --slide-gap: clamp(0.85rem, 2vw, 1.75rem);
+  }
+
+  .product-carousel__arrow {
+    width: 2.6rem;
+    height: 2.6rem;
+    /* Width, not just `(hover: none)`. If a device somehow reports hover
+    support with no pointer to hover, the arrows must not be unreachable. */
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .product-carousel {
+    --slide-width: min(62vw, 17rem);
+    --slide-gap: 0.85rem;
+  }
+
+  .product-slide__meta {
+    padding-top: 1.1rem;
+  }
+
+  .product-slide__meta h3 {
+    font-size: 0.9rem;
+  }
+
+  .product-slide__meta p {
+    font-size: 0.74rem;
+  }
+
+  .product-carousel__arrow {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .product-collection__proof {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

@@ -5,31 +5,27 @@ import { gsap } from "gsap";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Expand, ShoppingBag, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { ImageSlotVisual } from "./ImagePlaceholder";
-import { corporateSlots, productCollectionSlot, umrahSlots, warehouseSlots, type ImageSlot } from "./imageSlots";
+import { ProductCarousel } from "./ProductCarousel";
+import { corporateSlots, umrahSlots, type ImageSlot } from "./imageSlots";
 
 export function ProductCollectionOverview({ onShop }: { onShop: () => void }) {
   return (
     <div className="product-collection" aria-label="KIYO premium luggage collection">
       <header className="product-collection__intro">
-        <p className="eyebrow">KIYO travel collection</p>
         <h2><span>Premium luggage</span> <em>collection</em></h2>
         <p>Curated travel solutions designed for style, durability, and every journey.</p>
       </header>
 
-      <div className="product-collection__layout">
-        <ImageSlotVisual slot={productCollectionSlot} className="product-collection__hero" />
+      <ProductCarousel onShop={onShop} />
 
-        <aside className="product-collection__proof">
-          <div className="product-collection__proof-copy">
-            <ShoppingBag aria-hidden="true" />
-            <p className="eyebrow">Retail and distribution</p>
-            <h3>Retail &amp; Wholesale Ready</h3>
-            <p>From individual travellers to global partners, KIYO delivers premium quality, reliable supply, and exceptional value.</p>
-          </div>
-          <ImageSlotVisual slot={warehouseSlots[2]} className="product-collection__showroom" />
-          <button className="button button--ink" type="button" onClick={onShop}>Explore products <ArrowUpRight aria-hidden="true" /></button>
-        </aside>
-      </div>
+      <aside className="product-collection__proof">
+        <div className="product-collection__proof-copy">
+          <ShoppingBag aria-hidden="true" />
+          <h3>Retail &amp; wholesale ready</h3>
+          <p>From individual travellers to global partners, KIYO delivers premium quality, reliable supply, and exceptional value.</p>
+        </div>
+        <button className="button button--ink" type="button" onClick={onShop}>Explore products <ArrowUpRight aria-hidden="true" /></button>
+      </aside>
     </div>
   );
 }
@@ -53,7 +49,7 @@ const corporateGiftSets: CorporateGiftSet[] = [
     summary: "A coordinated premium travel set for clients, teams and group programmes.",
     bullets: ["Premium mini luggage with travel essentials", "Neck pillow, wireless fan & headphones", "Custom logo printing available"],
     moq: "100 sets",
-    leadTime: "6–8 weeks",
+    leadTime: "6-8 weeks",
     slot: corporateSlots[0],
   },
   {
@@ -63,7 +59,7 @@ const corporateGiftSets: CorporateGiftSet[] = [
     summary: "Practical outdoor pieces selected for team programmes, events and shared activities.",
     bullets: ["Handpicked outdoor & team bonding items", "Durable, practical & adventure-ready", "Custom logo printing available"],
     moq: "100 sets",
-    leadTime: "6–8 weeks",
+    leadTime: "6-8 weeks",
     slot: corporateSlots[1],
   },
   {
@@ -73,7 +69,7 @@ const corporateGiftSets: CorporateGiftSet[] = [
     summary: "A compact luggage set with useful everyday travel essentials.",
     bullets: ["Compact luggage with everyday travel must-haves", "Organized, lightweight & easy to carry", "Custom logo printing available"],
     moq: "100 sets",
-    leadTime: "6–8 weeks",
+    leadTime: "6-8 weeks",
     slot: corporateSlots[2],
   },
   {
@@ -83,7 +79,7 @@ const corporateGiftSets: CorporateGiftSet[] = [
     summary: "A refined desk and travel gift set in an elegant presentation box.",
     bullets: ["A5 notebook, pen & thermos bottle (300ml)", "Elegant gift box packaging", "Custom logo printing available"],
     moq: "100 sets",
-    leadTime: "6–8 weeks",
+    leadTime: "6-8 weeks",
     slot: corporateSlots[3],
   },
 ];
@@ -154,45 +150,49 @@ function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index:
 }
 
 export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
+  /* Hover (or keyboard focus) widens a panel; the click opens the dialog.
+     The cover itself stays clean: set name and a "See details" affordance. */
   const [activeIndex, setActiveIndex] = useState(0);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
 
   return (
     <>
       <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions">
-        {corporateGiftSets.map((gift, index) => {
-          const active = index === activeIndex;
-          const detailsId = `corporate-panel-details-${gift.id}`;
-          return (
-            <article key={gift.id} className={`corporate-panel${active ? " is-active" : ""}`} role="listitem">
-              <button type="button" className="corporate-panel__activate" aria-expanded={active} aria-controls={detailsId} onClick={() => setActiveIndex(index)}>
-                <ImageSlotVisual slot={gift.slot} className="corporate-panel__media" />
-                <span className="corporate-panel__scrim" aria-hidden="true" />
-                <span className="corporate-panel__heading">
-                  <span>{gift.number}</span>
-                  <strong>{gift.title}</strong>
-                </span>
-              </button>
-              <div id={detailsId} className="corporate-panel__details" hidden={!active}>
-                <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
-                <GiftCommercialDetails gift={gift} />
-                <button type="button" className="corporate-panel__inspect" onClick={() => setDialogIndex(index)}>Inspect set <Expand aria-hidden="true" /></button>
-              </div>
-            </article>
-          );
-        })}
+        {corporateGiftSets.map((gift, index) => (
+          <article
+            key={gift.id}
+            className={`corporate-panel${index === activeIndex ? " is-active" : ""}`}
+            role="listitem"
+            onMouseEnter={() => setActiveIndex(index)}
+          >
+            <button
+              type="button"
+              className="corporate-panel__activate"
+              aria-haspopup="dialog"
+              onFocus={() => setActiveIndex(index)}
+              onClick={() => setDialogIndex(index)}
+            >
+              <ImageSlotVisual slot={gift.slot} className="corporate-panel__media" />
+              <span className="corporate-panel__scrim" aria-hidden="true" />
+              <span className="corporate-panel__heading">
+                <strong>{gift.title}</strong>
+                <span className="corporate-panel__cta">See details <Expand aria-hidden="true" /></span>
+              </span>
+            </button>
+          </article>
+        ))}
       </div>
       <CorporateGiftDialog index={dialogIndex} onChange={setDialogIndex} onClose={() => setDialogIndex(null)} whatsappUrl={whatsappUrl} />
     </>
   );
 }
 
-type UmrahService = { label: string; title: string; description: string; slot: ImageSlot };
+type UmrahService = { label: string; description: string; slot: ImageSlot };
 
 const umrahServices: UmrahService[] = [
-  { label: "Journey Set", title: "Coordinated journey set", description: "Coordinated luggage for jemaah and group travel.", slot: umrahSlots[0] },
-  { label: "Included Essentials", title: "Optional travel essentials", description: "Optional prayer and travel essentials for a more complete package.", slot: umrahSlots[1] },
-  { label: "Custom Agency Branding", title: "Custom agency identity", description: "Custom agency logo and coordinated identity for a more professional programme.", slot: umrahSlots[2] },
+  { label: "Journey set", description: "Coordinated luggage sizes for jemaah and group travel.", slot: umrahSlots[0] },
+  { label: "Essentials", description: "Optional prayer and travel essentials for a more complete package.", slot: umrahSlots[1] },
+  { label: "Agency branding", description: "Custom agency logo and coordinated identity for a more professional programme.", slot: umrahSlots[2] },
 ];
 
 export function UmrahServiceGallery() {
@@ -221,7 +221,7 @@ export function UmrahServiceGallery() {
           </button>
         ))}
       </div>
-      <div className="umrah-gallery__detail" aria-live="polite"><h3>{active.title}</h3><p>{active.description}</p></div>
+      <div className="umrah-gallery__detail" aria-live="polite"><p>{active.description}</p></div>
     </div>
   );
 }
