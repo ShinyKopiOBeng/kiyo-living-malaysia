@@ -37,6 +37,29 @@ npm test          # builds, then runs the SSR assertions
 - Native `<dialog>` for the mobile menu and the corporate gift inspector
 - Lucide React and React Icons for interface and social marks
 
+## Deploying
+
+The default build (`npm run build`) targets **Cloudflare Workers** and emits
+`dist/server/index.js` plus `dist/client/`. Deploy it with `npx vinext deploy`.
+
+For a static host such as Vercel, `npm run build:static` pre-renders every route
+and merges the HTML with the assets into one servable folder:
+
+```
+dist/static/
+  index.html                    /
+  terms/index.html              /terms
+  privacy/index.html            /privacy
+  shipping-returns/index.html   /shipping-returns
+  404.html
+  assets/  images/  media/
+```
+
+`vercel.json` already points Vercel at that command and folder with the
+framework preset disabled, so no dashboard configuration is needed. Vercel would
+otherwise detect `next` in the dependencies, apply its Next.js preset, and fail
+looking for a `.next` directory that this build never produces.
+
 ## Routes
 
 | Path | Contents |
