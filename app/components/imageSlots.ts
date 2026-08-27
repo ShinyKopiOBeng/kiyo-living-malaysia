@@ -36,7 +36,7 @@ export const aboutSlots = {
     fit: "cover",
     focalPoint: "center center",
     safeTextArea: "left third",
-    alt: "KIYO warehouse and showroom in Shah Alam at sunset",
+    alt: "KIYO warehouse and showroom in Kajang at sunset",
     width: 1047,
     height: 941,
   },
@@ -187,7 +187,7 @@ export const warehouseSlots = Array.from({ length: 5 }, (_, index) => ({
   fit: "cover" as const,
   focalPoint: "center center",
   alt: [
-    "The exterior of KIYO's Shah Alam warehouse and showroom",
+    "The exterior of KIYO's Kajang warehouse and showroom",
     "Organised luggage stock in KIYO's warehouse",
     "KIYO's luggage showroom with product displays",
     "A KIYO office and client discussion space",

@@ -17,7 +17,7 @@ export default function TermsPage() {
       <h2>1. Who we are</h2>
       <p>
         KIYO Living (&quot;KIYO&quot;, &quot;we&quot;, &quot;us&quot;) is a travel lifestyle and live-commerce business
-        based in Shah Alam, Selangor, Malaysia. We supply luggage and travel goods through retail marketplaces, wholesale
+        based in Kajang, Selangor, Malaysia. We supply luggage and travel goods through retail marketplaces, wholesale
         distribution, corporate gifting programmes and UMRAH travel sets.
       </p>
 
@@ -115,7 +115,7 @@ export default function TermsPage() {
 
       <h2>14. Contact</h2>
       <p>
-        KIYO Living, Shah Alam, Selangor, Malaysia. Email <a href="mailto:hello@kiyo.com.my">hello@kiyo.com.my</a> or
+        KIYO Living, Kajang, Selangor, Malaysia. Email <a href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com</a> or
         message us on WhatsApp at +60 13-276 7887.
       </p>
     </LegalShell>

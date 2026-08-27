@@ -27,7 +27,7 @@ export function LegalShell({ eyebrow, title, lede, children }: { eyebrow: string
         <p className="legal-page__lede">{lede}</p>
         {children}
         <p className="legal-page__note">
-          Questions about this document? Write to <a href="mailto:hello@kiyo.com.my">hello@kiyo.com.my</a> and we will
+          Questions about this document? Write to <a href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com</a> and we will
           come back to you.
         </p>
       </main>

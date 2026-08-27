@@ -16,8 +16,8 @@ export default function PrivacyPage() {
     >
       <h2>1. Who is responsible for your data</h2>
       <p>
-        KIYO Living, Shah Alam, Selangor, Malaysia, is the data user for personal data collected through this website and
-        through our sales channels. You can reach us at <a href="mailto:hello@kiyo.com.my">hello@kiyo.com.my</a>.
+        KIYO Living, Kajang, Selangor, Malaysia, is the data user for personal data collected through this website and
+        through our sales channels. You can reach us at <a href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com</a>.
       </p>
 
       <h2>2. What we collect</h2>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
         <li>Limit how we process your data in certain circumstances.</li>
       </ul>
       <p>
-        Write to <a href="mailto:hello@kiyo.com.my">hello@kiyo.com.my</a> and we will respond within 21 days. We may ask
+        Write to <a href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com</a> and we will respond within 21 days. We may ask
         you to confirm your identity before acting on a request.
       </p>
 

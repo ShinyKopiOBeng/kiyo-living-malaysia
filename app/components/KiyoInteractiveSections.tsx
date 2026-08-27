@@ -2,27 +2,46 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Expand, ShoppingBag, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Backpack, Check, Expand, Luggage, ShieldCheck, ShoppingBag, Tag, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { ImageSlotVisual } from "./ImagePlaceholder";
 import { ProductCarousel } from "./ProductCarousel";
 import { corporateSlots, umrahSlots, type ImageSlot } from "./imageSlots";
 
+/* The catalogue is luggage, bags and accessories, so the section says so
+   rather than leading on luggage alone. Copy is KIYO's own. */
+const productCategories = [
+  { title: "Cabin & Check-in Luggage", description: "Stylish, lightweight, and engineered for smooth travel anywhere.", icon: Luggage },
+  { title: "Bags & Backpacks", description: "Business, commuter and weekender styles built for daily carry.", icon: Backpack },
+  { title: "Travel Accessories", description: "Smart, functional essentials that keep you organised on the go.", icon: Tag },
+  { title: "Durable Everyday Travel", description: "Built with premium materials for long-lasting performance you can trust.", icon: ShieldCheck },
+] as const;
+
 export function ProductCollectionOverview({ onShop }: { onShop: () => void }) {
   return (
-    <div className="product-collection" aria-label="KIYO premium luggage collection">
+    <div className="product-collection" aria-label="KIYO travel and lifestyle collection">
       <header className="product-collection__intro">
-        <h2><span>Premium luggage</span> <em>collection</em></h2>
-        <p>Curated travel solutions designed for style, durability, and every journey.</p>
+        <h2><span>Travel &amp; lifestyle</span> <em>collection</em></h2>
+        <p>Luggage, bags and travel accessories, curated for style, durability, and every journey.</p>
       </header>
 
       <ProductCarousel onShop={onShop} />
+
+      <div className="product-categories">
+        {productCategories.map(({ title, description, icon: Icon }) => (
+          <article className="product-category" key={title}>
+            <span className="product-category__icon"><Icon aria-hidden="true" /></span>
+            <h3>{title}</h3>
+            <p>{description}</p>
+          </article>
+        ))}
+      </div>
 
       <aside className="product-collection__proof">
         <div className="product-collection__proof-copy">
           <ShoppingBag aria-hidden="true" />
           <h3>Retail &amp; wholesale ready</h3>
-          <p>From individual travellers to global partners, KIYO delivers premium quality, reliable supply, and exceptional value.</p>
+          <p>From individual travellers to global partners, KIYO delivers premium quality, reliable supply, and exceptional value. We manufacture, design and wholesale our own range, and add custom logo branding for businesses, travel agencies and corporations.</p>
         </div>
         <button className="button button--ink" type="button" onClick={onShop}>Explore products <ArrowUpRight aria-hidden="true" /></button>
       </aside>

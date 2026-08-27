@@ -36,27 +36,37 @@ test("server-renders the V5 KIYO portfolio alignment experience", async () => {
   assert.match(html, /CORPORATE GIFTING/i);
   assert.match(html, /data-image-slot="HOME-HERO-01"/);
   assert.match(html, /\/images\/kiyo\/home-hero-airport\.webp/i);
-  for (const proof of ["TOP 3", "NATIONWIDE", "PREMIUM", "TikTok Luggage", "Wholesale", "Gifting Solutions"]) {
-    assert.match(html, new RegExp(proof, "i"));
+  for (const proof of ["TOP 3", "TSP OFFICIAL", "EST. 2022", "NATIONWIDE", "TikTok Shop", "SSM 202201026207"]) {
+    assert.ok(html.includes(proof), `hero proof bar is missing ${proof}`);
   }
+  // Two claims from the deck are unsubstantiated and must stay off the site.
+  assert.doesNotMatch(html, /MILLION-RINGGIT|Live Hosts Trained/i);
+  // No invented client names anywhere.
+  assert.doesNotMatch(html, /Wanderlust Travel|Corp Solutions Malaysia|Nexus University|Urban Haul|Global Escapes|Prime Events/i);
   assert.doesNotMatch(html, /Move to reveal|audience-marquee|torch-hint|hero-grid/i);
 
-  assert.match(html, /<span>A Malaysian<\/span> <em>travel brand<\/em>/);
-  assert.match(html, /Malaysia-based travel lifestyle and live-commerce company/);
-  assert.match(html, /Empower journeys, elevate brands and create lasting impact/);
+  assert.match(html, /<span>A Malaysian travel<\/span> <em>and live-commerce brand<\/em>/);
+  assert.match(html, /KIYO Living Sdn\. Bhd\. is a Malaysia-based travel and live-commerce brand/);
+  assert.match(html, /Samantha Ng<\/strong><span>Founder, KIYO Living<\/span>/);
+  assert.match(html, /To empower journeys, elevate brands and create lasting impact/);
   assert.match(html, /data-image-slot="ABOUT-WAREHOUSE"/);
   assert.match(html, /data-image-slot="ABOUT-SAMANTHA"/);
   assert.doesNotMatch(html, /Founder Samantha Ng|founder badge|<figcaption><span>Founder/i);
 
   assert.match(html, /<h2><span>Business<\/span> <em>pillars<\/em><\/h2>/i);
-  for (const title of ["TikTok Campaigns", "Nationwide Distribution", "Corporate Gifting", "Live Commerce", "Strategic Partnerships"]) {
+  for (const title of ["Viral TikTok Campaigns", "Nationwide Wholesale Distribution", "Premium Corporate Gifting Solutions", "Live-Commerce Ecosystem", "Strategic Partnerships"]) {
     assert.match(html, new RegExp(title, "i"));
   }
   assert.doesNotMatch(html, /<h3>UMRAH Programmes<\/h3>/i);
   assert.doesNotMatch(html, /data-image-slot="CAPABILITY-/);
 
-  assert.match(html, /PREMIUM LUGGAGE/i);
+  assert.match(html, /TRAVEL &amp; LIFESTYLE/i);
   assert.match(html, /COLLECTION/i);
+  // Scoped to the heading: "premium luggage" is still fair copy elsewhere.
+  assert.doesNotMatch(html, /<span>Premium luggage<\/span>/i);
+  for (const category of ["Cabin &amp; Check-in Luggage", "Bags &amp; Backpacks", "Travel Accessories", "Durable Everyday Travel"]) {
+    assert.ok(html.includes(category), `products is missing the ${category} card`);
+  }
   assert.match(html, /RETAIL &amp; WHOLESALE READY/i);
   assert.match(html, /EXPLORE PRODUCTS/i);
   assert.doesNotMatch(html, /aria-label="KIYO product inspector"|class="product-stage"|>360 Wheels<|>Security Lock</i);
@@ -100,11 +110,20 @@ test("server-renders the V5 KIYO portfolio alignment experience", async () => {
     assert.match(html, new RegExp(`data-image-slot="${slot}"`));
   }
   assert.doesNotMatch(html, /agency-process/);
+  assert.match(html, /How an agency order runs/);
+  for (const step of ["Consult", "Brand", "Approve", "Deliver"]) {
+    assert.ok(html.includes(`<strong>${step}</strong>`), `UMRAH process is missing ${step}`);
+  }
 
   const locationHtml = html.slice(html.indexOf('<section id="location"'), html.indexOf('<section id="contact"'));
   const warehouseSources = Array.from(locationHtml.matchAll(/\/images\/kiyo\/warehouse-(\d)\.webp/g), (match) => Number(match[1]));
   assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
-  assert.ok(html.indexOf("Visit by appointment") > html.indexOf("/images/kiyo/warehouse-5.webp"));
+  assert.ok(locationHtml.indexOf("Warehouse Inventory") > locationHtml.indexOf("/images/kiyo/warehouse-5.webp"));
+  for (const capability of ["Warehouse Inventory", "Nationwide Fulfilment", "Product Sourcing", "Live-Commerce Support"]) {
+    assert.ok(html.includes(capability), `location is missing the ${capability} card`);
+  }
+  assert.match(html, /<span>Built for scale<\/span> <em>across Malaysia<\/em>/);
+  assert.doesNotMatch(html, /Visit by appointment/);
   assert.match(html, /<span>Start your<\/span> <em>next journey<\/em>/);
   assert.match(html, /wa\.me\/60132767887/);
   assert.match(html, /shopee\.com\.my\/kiyoliving/);
@@ -116,7 +135,13 @@ test("server-renders the V5 KIYO portfolio alignment experience", async () => {
   for (const heading of ["Explore", "Services", "Contact"]) {
     assert.match(html, new RegExp(`<h2>${heading}</h2>`));
   }
-  assert.match(html, /hello@kiyo\.com\.my/);
+  assert.match(html, /kiyoliving88@gmail\.com/);
+  assert.doesNotMatch(html, /hello@kiyo\.com\.my/);
+  // The registered address is in Kajang. Shah Alam was inherited from a mockup.
+  assert.match(html, /No\. 16, Jalan SC 1/);
+  assert.match(html, /43000 Kajang, Selangor/);
+  assert.doesNotMatch(html, /Shah Alam/);
+  assert.match(html, /Company No\. 202201026207 \(1471904-T\)/);
   assert.match(html, /\+60 13-276 7887/);
   for (const [label, href] of [["Terms &amp; Conditions", "/terms"], ["Privacy Policy", "/privacy"], ["Shipping &amp; Returns", "/shipping-returns"]]) {
     assert.match(html, new RegExp(`href="${href}"[^>]*>${label}<`));
@@ -134,8 +159,8 @@ test("server-renders the V5 KIYO portfolio alignment experience", async () => {
   // Typography house rule: hyphens only, no em or en dashes in visible copy.
   assert.doesNotMatch(html, /[–—]/);
 
-  // Eyebrows are rationed to three across the eight chapters.
-  assert.equal((html.match(/class="eyebrow"/g) ?? []).length, 2);
+  // Eyebrows: hero, Who we are, Our core, UMRAH programme.
+  assert.equal((html.match(/class="eyebrow"/g) ?? []).length, 4);
 });
 
 test("keeps the V5 portfolio architecture production-ready", async () => {

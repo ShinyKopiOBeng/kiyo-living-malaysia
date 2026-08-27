@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, ArrowUpRight, Check, Gift, Handshake, Mail, MapPin, Menu, Smartphone, TrendingUp, Trophy, Truck, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BadgeCheck, Check, ClipboardCheck, Clock, Gift, Handshake, Mail, MapPin, MessageSquare, Menu, Palette, ShieldCheck, ShoppingCart, Smartphone, TrendingUp, Trophy, Truck, Video, Warehouse, X } from "lucide-react";
 import { FaTiktok, FaWhatsapp } from "react-icons/fa6";
 import { SiShopee } from "react-icons/si";
 import { CorporateGiftGallery, ProductCollectionOverview, UmrahServiceGallery } from "./components/KiyoInteractiveSections";
@@ -25,22 +25,42 @@ const navigation = [
 
 const mobileNavigation = [["Home", "#home"], ...navigation, ["Contact", "#contact"]] as const;
 
+/* Every tile here has to be checkable. Two claims from the live-commerce deck
+   were left out on purpose because nothing substantiates them yet. */
 const heroProofs = [
   { title: "TOP 3", lines: ["TikTok Luggage", "Live Selling Brand"], icon: Trophy },
+  { title: "TSP OFFICIAL", lines: ["TikTok Shop", "Partner"], icon: BadgeCheck },
+  { title: "EST. 2022", lines: ["SSM 202201026207", "Kajang, Selangor"], icon: ShieldCheck },
   { title: "NATIONWIDE", lines: ["Wholesale", "Distribution"], icon: Truck },
-  { title: "PREMIUM", lines: ["Corporate", "Gifting Solutions"], icon: Gift },
 ] as const;
 
 const businessPillars = [
-  { number: "01", title: "TikTok Campaigns", description: "Powering brand growth through content, live engagement, and community.", icon: Smartphone },
-  { number: "02", title: "Nationwide Distribution", description: "Strong supply chain and warehouse capacity across Malaysia for seamless delivery.", icon: Truck },
-  { number: "03", title: "Corporate Gifting", description: "Customised premium gifts for businesses, events, and institutions.", icon: Gift },
-  { number: "04", title: "Live Commerce", description: "Empowering hosts, affiliates and creators to grow together through live commerce.", icon: TrendingUp },
+  { number: "01", title: "Viral TikTok Campaigns", description: "Powering brand growth through content, live engagement, and community.", icon: Smartphone },
+  { number: "02", title: "Nationwide Wholesale Distribution", description: "Strong supply chain and warehouse capacity across Malaysia for seamless delivery.", icon: Truck },
+  { number: "03", title: "Premium Corporate Gifting Solutions", description: "Customised premium gifts for businesses, events, and institutions.", icon: Gift },
+  { number: "04", title: "Live-Commerce Ecosystem", description: "Empowering hosts, affiliates and creators to grow together through live commerce.", icon: TrendingUp },
   { number: "05", title: "Strategic Partnerships", description: "Collaborating with brands and organisations for long-term success and shared growth.", icon: Handshake },
 ] as const;
 
+/* Operations detail for the location chapter, from KIYO's own wholesale and
+   partnership material. */
+const operationsCapabilities = [
+  { title: "Warehouse Inventory", description: "Ready stock with structured warehouse capacity.", icon: Warehouse },
+  { title: "Nationwide Fulfilment", description: "Efficient distribution network across Malaysia.", icon: Truck },
+  { title: "Product Sourcing", description: "Curated products, competitive pricing, trusted quality.", icon: ShoppingCart },
+  { title: "Live-Commerce Support", description: "Built for TikTok Shop and live-commerce operations.", icon: Video },
+] as const;
+
+/* How an agency order actually runs, for the UMRAH chapter. */
+const umrahProcess = [
+  { step: "01", title: "Consult", description: "We size the programme, confirm quantities and agree the pieces.", icon: MessageSquare },
+  { step: "02", title: "Brand", description: "Your agency logo and identity applied across the coordinated set.", icon: Palette },
+  { step: "03", title: "Approve", description: "A physical sample signed off before the full run begins.", icon: ClipboardCheck },
+  { step: "04", title: "Deliver", description: "Packed, checked and delivered to your office or departure point.", icon: Truck },
+] as const;
+
 const warehouseStories = [
-  { title: "Warehouse exterior", description: "Our Shah Alam base for stock, showroom visits and operations." },
+  { title: "Warehouse exterior", description: "Our Kajang base for stock, showroom visits and operations." },
   { title: "Organised stock", description: "Prepared inventory for retail, programme and corporate requirements." },
   { title: "Product showroom", description: "A focused place to review luggage, finishes and gift-set direction." },
   { title: "Team and client space", description: "A working environment for planning details and approvals together." },
@@ -441,16 +461,21 @@ export function KiyoExperience() {
           <ImageSlotVisual slot={aboutSlots.warehouse} className="about__background" decorative />
           <div className="about__scrim" aria-hidden="true" />
           <div className="about__copy">
-            <h2><span>A Malaysian</span> <em>travel brand</em></h2>
-            <p>KIYO is a Malaysia-based travel lifestyle and live-commerce company with a passion for quality, innovation and meaningful connections.</p>
-            <p>From premium luggage and corporate gifting to wholesale distribution and UMRAH programmes, we help customers, agencies and partners move forward together.</p>
-            <blockquote>Empower journeys, elevate brands and create lasting impact through innovation and trust.</blockquote>
+            <p className="eyebrow">Who we are</p>
+            <h2><span>A Malaysian travel</span> <em>and live-commerce brand</em></h2>
+            <p>KIYO Living Sdn. Bhd. is a Malaysia-based travel and live-commerce brand, founded in 2022 and operating from our own warehouse and showroom in Kajang, Selangor.</p>
+            <p>We design, manufacture and wholesale premium luggage, bags and travel accessories, and we add custom logo branding for businesses, travel agencies and corporations. From retail and wholesale distribution to corporate gifting and UMRAH programmes, we help customers, agencies and partners move forward together.</p>
+            <figure className="about__quote">
+              <blockquote>To empower journeys, elevate brands and create lasting impact through innovation and trust.</blockquote>
+              <figcaption><strong>Samantha Ng</strong><span>Founder, KIYO Living</span></figcaption>
+            </figure>
           </div>
           <ImageSlotVisual slot={aboutSlots.samantha} className="about__portrait" />
         </section>
 
         <section id="glance" className="business-pillars chapter">
           <header className="business-pillars__intro">
+            <p className="eyebrow">Our core</p>
             <h2><span>Business</span> <em>pillars</em></h2>
             <p>Five pillars. One mission. Delivering excellence at every touchpoint.</p>
             <a href="#products">Explore our solutions <ArrowRight aria-hidden="true" /></a>
@@ -495,10 +520,24 @@ export function KiyoExperience() {
             </div>
             <UmrahServiceGallery />
           </div>
+
+          <div className="umrah__process">
+            <h3>How an agency order runs</h3>
+            <ol>
+              {umrahProcess.map(({ step, title, description, icon: Icon }) => (
+                <li key={step}>
+                  <span className="umrah__process-step">{step}</span>
+                  <Icon aria-hidden="true" />
+                  <strong>{title}</strong>
+                  <p>{description}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
 
         <section id="location" className="location chapter">
-          <header className="location__intro"><p>Shah Alam, Selangor</p><h2><span>Built to deliver</span> <em>across Malaysia</em></h2><span>A working base for stock, quality checks, order preparation and client conversations.</span></header>
+          <header className="location__intro"><p>Operations, warehouse and distribution</p><h2><span>Built for scale</span> <em>across Malaysia</em></h2><span>KIYO&apos;s end-to-end operations ensure ready stock, efficient fulfilment and reliable delivery, so you can scale with confidence. From warehouse to doorstep, we power businesses nationwide.</span></header>
           <div className="location__body">
             <div className="location__mosaic">
               {warehouseSlots.map((slot, index) => (
@@ -509,11 +548,27 @@ export function KiyoExperience() {
               ))}
             </div>
             <aside className="location__details">
-                <MapPin aria-hidden="true" />
-                <p>Visit by appointment</p>
-                <h3>Shah Alam,<br />Selangor.</h3>
-                <span>{warehouseStories[0].description}</span>
-                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">Arrange a conversation <ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+              <div className="operations-grid">
+                {operationsCapabilities.map(({ title, description, icon: Icon }) => (
+                  <article className="operations-card" key={title}>
+                    <Icon aria-hidden="true" />
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                  </article>
+                ))}
+              </div>
+              <dl className="location-facts">
+                <div>
+                  <dt><MapPin aria-hidden="true" />Warehouse and showroom</dt>
+                  <dd>No. 16, Jalan SC 1,<br />Pusat Perindustrian Sungai Chua,<br />43000 Kajang, Selangor.</dd>
+                </div>
+                <div>
+                  <dt><Clock aria-hidden="true" />Opening hours</dt>
+                  <dd>Monday to Saturday, 9:00am to 6:00pm.<br />Showroom visits by appointment.</dd>
+                </div>
+              </dl>
+              <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Partner with KIYO <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+              <p className="location__assurance"><ShieldCheck aria-hidden="true" />Reliable. Scalable. Nationwide.</p>
             </aside>
           </div>
         </section>
@@ -525,13 +580,13 @@ export function KiyoExperience() {
               <span>Corporate gifts, UMRAH sets, custom branding and retail enquiries.</span>
               <div className="contact__actions">
                 <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Start on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-                <a className="button button--outline" href="mailto:hello@kiyo.com.my">hello@kiyo.com.my <Mail aria-hidden="true" /></a>
+                <a className="button button--outline" href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com <Mail aria-hidden="true" /></a>
               </div>
               <SocialLinks />
             </div>
             <div className="contact__visual">
               <ImageSlotVisual slot={warehouseSlots[3]} className="contact__media" />
-              <div><MapPin aria-hidden="true" /><span>KIYO Living</span><strong>Shah Alam, Selangor</strong></div>
+              <div><MapPin aria-hidden="true" /><span>KIYO Living</span><strong>Kajang, Selangor</strong></div>
             </div>
           </div>
         </section>

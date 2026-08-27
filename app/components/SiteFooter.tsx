@@ -71,13 +71,15 @@ export function SiteFooter({ standalone = false }: { standalone?: boolean }) {
         <div className="footer-column footer-column--contact">
           <h2>Contact</h2>
           <address>
-            KIYO Living
+            KIYO Living Sdn. Bhd.
             <br />
-            Shah Alam, Selangor
+            No. 16, Jalan SC 1,
             <br />
-            Malaysia
+            Pusat Perindustrian Sungai Chua,
+            <br />
+            43000 Kajang, Selangor.
           </address>
-          <a href="mailto:hello@kiyo.com.my">hello@kiyo.com.my</a>
+          <a href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com</a>
           <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
             {WHATSAPP_NUMBER}
             <span className="sr-only"> on WhatsApp (opens in a new tab)</span>
@@ -94,7 +96,11 @@ export function SiteFooter({ standalone = false }: { standalone?: boolean }) {
       </div>
 
       <div className="footer-bottom">
-        <span>© {new Date().getFullYear()} KIYO Living. All rights reserved.</span>
+        <span>
+          © {new Date().getFullYear()} KIYO Living Sdn. Bhd. All rights reserved.
+          <br />
+          Company No. 202201026207 (1471904-T)
+        </span>
         <nav className="footer-legal" aria-label="Legal">
           {legalLinks.map(([label, href]) => (
             <a key={href} href={href}>{label}</a>

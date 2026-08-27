@@ -37,7 +37,7 @@ export default function ShippingReturnsPage() {
       <p>
         Retail shipping is charged at checkout on the marketplace you order from. For wholesale, corporate and UMRAH
         orders, delivery is quoted separately based on volume, weight and destination. Bulk orders can be collected from
-        our Shah Alam warehouse by prior appointment at no delivery cost.
+        our Kajang warehouse by prior appointment at no delivery cost.
       </p>
 
       <h2>4. Tracking and receipt</h2>
@@ -84,7 +84,7 @@ export default function ShippingReturnsPage() {
       <h2>9. How to start a return or claim</h2>
       <p>
         Message us on WhatsApp at +60 13-276 7887 or email{" "}
-        <a href="mailto:hello@kiyo.com.my">hello@kiyo.com.my</a> with your order reference, what went wrong and
+        <a href="mailto:kiyoliving88@gmail.com">kiyoliving88@gmail.com</a> with your order reference, what went wrong and
         photographs. We will confirm the return address and next steps before you send anything back. Please do not
         return goods without confirming with us first.
       </p>

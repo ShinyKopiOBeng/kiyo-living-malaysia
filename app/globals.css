@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 /* Design tokens. Declaring the palette here is what makes Tailwind emit the
-   matching utilities, so `text-ink`, `bg-paper`, `border-line`, `fill-coral`
-   and `font-display` are all available to new markup without inventing a
-   second set of names. The hand-written rules below reach the same values
-   through the short `--ink` aliases in `:root`. */
+matching utilities, so `text-ink`, `bg-paper`, `border-line`, `fill-coral`
+and `font-display` are all available to new markup without inventing a
+second set of names. The hand-written rules below reach the same values
+through the short `--ink` aliases in `:root`. */
 @theme {
   --color-ink: #081b2b;
   --color-ink-soft: #183144;
@@ -654,7 +654,6 @@ picture {
   display: grid;
   gap: 0.7rem;
   padding: 0;
-  list-style: none;
 }
 
 .gift-dialog__details li {
@@ -1786,6 +1785,7 @@ picture {
 }
 
 .gift-dialog__details ul {
+  list-style: none;
   margin: 1.35rem 0;
 }
 
@@ -2571,7 +2571,7 @@ picture {
   width: min(calc(100% - (var(--page-padding) * 2)), 78rem);
   min-height: 8.5rem;
   margin: 0 auto;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   border: 1px solid var(--line);
   background: var(--white);
   box-shadow: 0 1.5rem 3.5rem rgb(8 27 43 / 0.12);
@@ -2702,7 +2702,6 @@ picture {
   width: clamp(2rem, 2.5vw, 2.75rem);
   height: auto;
   color: #72cbd0;
-  stroke-width: 1.35;
 }
 
 .business-pillar h3 {
@@ -3266,7 +3265,7 @@ picture {
 /* -------------------------------------------------------------------------- */
 :root {
   /* Short aliases onto the Tailwind theme above, so every existing
-     `var(--ink)` keeps working and the palette has one source of truth. */
+  `var(--ink)` keeps working and the palette has one source of truth. */
   --ink: var(--color-ink);
   --ink-soft: var(--color-ink-soft);
   --paper: var(--color-paper);
@@ -3278,10 +3277,9 @@ picture {
   --coral: var(--color-coral);
   --coral-deep: var(--color-coral-deep);
   --line: var(--color-line);
-
   /* Not theme tokens: `--page-padding` is re-declared per breakpoint, which
-     `@theme` does not model, and the rest are layout metrics rather than
-     values Tailwind should generate utilities for. */
+  `@theme` does not model, and the rest are layout metrics rather than
+  values Tailwind should generate utilities for. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --header-height: 4.5rem;
   --section-space: clamp(5rem, 7vw, 7.5rem);
@@ -3464,6 +3462,7 @@ band at the top and only the rule plus body are bottom-aligned. */
 }
 
 .business-pillar > svg {
+  stroke-width: 1.35;
   margin-top: 2.25rem;
 }
 
@@ -4154,7 +4153,7 @@ corner, so the legal row is never sitting underneath it. */
     width: calc(100% - (var(--page-padding) * 2));
     min-height: 0;
     margin: 0 auto 1.4rem;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     border: 1px solid var(--line);
     box-shadow: 0 0.9rem 2.25rem rgb(8 27 43 / 0.14);
   }
@@ -4933,5 +4932,312 @@ It covers only the media band, so the name and swatches sit on the page. */
   .product-collection__proof {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* V10: real company detail. Founder quote, product categories, operations      */
+/* capability grid, UMRAH process.                                              */
+/* -------------------------------------------------------------------------- */
+/* --- About: the mission line is Samantha's, so it is attributed ----------- */
+.about__quote {
+  margin: 1.5rem 0 0;
+  border-left: 2px solid var(--coral);
+  padding-left: 1.15rem;
+}
+
+.about__quote blockquote {
+  margin: 0;
+  max-width: 35rem;
+  color: var(--white);
+  font-size: clamp(0.95rem, 1.05vw, 1.1rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.about__quote blockquote::before {
+  content: open-quote;
+}
+
+.about__quote blockquote::after {
+  content: close-quote;
+}
+
+.about__quote figcaption {
+  display: flex;
+  margin-top: 0.85rem;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.about__quote figcaption strong {
+  color: var(--white);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.about__quote figcaption span {
+  color: rgb(251 252 250 / 0.62);
+  font-size: 0.78rem;
+}
+
+/* --- Products: what the catalogue actually covers ------------------------- */
+.product-categories {
+  display: grid;
+  margin-top: clamp(2.5rem, 4vw, 3.5rem);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.product-category {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  border: 1px solid var(--line);
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  background: var(--white);
+}
+
+.product-category__icon {
+  display: grid;
+  width: 2.75rem;
+  aspect-ratio: 1;
+  place-items: center;
+  background: rgb(103 184 189 / 0.14);
+  color: var(--teal-dark);
+}
+
+.product-category__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.product-category h3 {
+  margin: 0.35rem 0 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.product-category p {
+  margin: 0;
+  color: rgb(8 27 43 / 0.66);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+/* --- Location: operations capability, replacing the thin address card ---- */
+/* The aside this sits in is a narrow rail, so two across would give each card
+about 140px and wrap every label. One column, icon beside the text. */
+.operations-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.6rem;
+}
+
+.operations-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.9rem;
+  row-gap: 0.25rem;
+  border: 1px solid var(--line);
+  padding: 0.95rem 1.1rem;
+  background: var(--white);
+}
+
+.operations-card > svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  grid-row: 1 / span 2;
+  margin-top: 0.15rem;
+  color: var(--teal-dark);
+}
+
+.operations-card h3 {
+  margin: 0;
+  grid-column: 2;
+  color: var(--ink);
+  font-family: var(--font-body), Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-transform: none;
+}
+
+.operations-card p {
+  margin: 0;
+  grid-column: 2;
+  color: rgb(8 27 43 / 0.64);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.location-facts {
+  display: grid;
+  margin: 1.5rem 0 0;
+  gap: 1.1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+
+.location-facts > div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.location-facts dt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--coral-deep);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.location-facts dt svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.location-facts dd {
+  margin: 0;
+  color: rgb(8 27 43 / 0.72);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.location__assurance {
+  display: flex;
+  margin: 1.1rem 0 0;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgb(8 27 43 / 0.6);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.location__assurance svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--teal-dark);
+}
+
+/* --- UMRAH: how an agency order actually runs ---------------------------- */
+.umrah__process {
+  margin-top: clamp(3rem, 5vw, 4.5rem);
+  border-top: 1px solid var(--line);
+  padding-top: clamp(2rem, 3vw, 3rem);
+}
+
+.umrah__process h3 {
+  margin: 0 0 clamp(1.5rem, 2.5vw, 2.25rem);
+  color: var(--ink);
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.umrah__process ol {
+  display: grid;
+  margin: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.umrah__process li {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  border-top: 2px solid var(--teal);
+  padding-top: 1.15rem;
+}
+
+.umrah__process-step {
+  color: var(--coral-deep);
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.umrah__process li > svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--teal-dark);
+}
+
+.umrah__process li strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.umrah__process li p {
+  margin: 0;
+  color: rgb(8 27 43 / 0.64);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* --- V10 responsive ------------------------------------------------------ */
+@media (max-width: 1023px) {
+  .product-categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .umrah__process ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .product-categories {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .operations-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .umrah__process ol {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .about__quote {
+    margin-top: 1.25rem;
+  }
+}
+
+/* The fourth proof tile removes the right-hand border that used to close the
+row, and at tablet widths four across is too tight to read. */
+@media (max-width: 1199px) {
+  .hero__proofs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-proof:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .hero-proof:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
   }
 }

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "KIYO Living | Luggage, Corporate Gifts & UMRAH Travel Sets",
   description:
-    "KIYO Living creates practical luggage, branded corporate gifts, custom travel sets, and UMRAH solutions from Shah Alam, Malaysia.",
+    "KIYO Living creates practical luggage, branded corporate gifts, custom travel sets, and UMRAH solutions from Kajang, Selangor, Malaysia.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "KIYO Living | Designed for every journey. Built for business.",
@@ -30,15 +30,23 @@ export const metadata: Metadata = {
 const organization = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "KIYO Living",
+  name: "KIYO Living Sdn. Bhd.",
+  legalName: "KIYO LIVING SDN. BHD.",
+  /* SSM registration, incorporated 19 July 2022. */
+  identifier: "202201026207",
+  foundingDate: "2022-07-19",
   url: siteUrl,
-  email: "hello@kiyo.com.my",
+  email: "kiyoliving88@gmail.com",
+  telephone: "+60132767887",
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Shah Alam",
+    streetAddress: "No. 16, Jalan SC 1, Pusat Perindustrian Sungai Chua",
+    addressLocality: "Kajang",
     addressRegion: "Selangor",
+    postalCode: "43000",
     addressCountry: "MY",
   },
+  openingHours: "Mo-Sa 09:00-18:00",
   sameAs: [
     "https://shopee.com.my/kiyoliving",
     "https://www.tiktok.com/@kiyoliving",

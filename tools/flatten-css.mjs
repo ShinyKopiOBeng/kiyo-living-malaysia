@@ -32,6 +32,10 @@ const FILE = "app/globals.css";
 const check = process.argv.includes("--check");
 const stats = { deadDropped: 0, lifted: 0, rulesRemoved: 0 };
 
+/* At-rules whose bodies are declarations rather than rules. Their contents
+   are preserved byte for byte. */
+const DECLARATION_AT_RULES = ["@theme", "@font-face", "@property", "@page", "@counter-style", "@color-profile", "@view-transition"];
+
 /* ---------------------------------------------------------------- parsing -- */
 
 /** Walk a block, skipping strings and comments so braces inside them never split a rule. */
@@ -143,9 +147,22 @@ function parseNodes(css) {
         continue;
       }
       const end = findBlockEnd(css, brace);
+      const prelude = css.slice(i, brace).trim().replace(/\s+/g, " ");
+
+      /* Some at-rules hold declarations, not rules. Parsing them as rule
+         containers finds no nested braces and silently empties them, which is
+         how an earlier version wiped the whole Tailwind @theme block. Keep
+         them verbatim. */
+      if (DECLARATION_AT_RULES.some((name) => prelude.startsWith(name))) {
+        nodes.push({ type: "verbatim", text: css.slice(i, end + 1), comment: pendingComment });
+        pendingComment = "";
+        i = end + 1;
+        continue;
+      }
+
       nodes.push({
         type: "at-block",
-        prelude: css.slice(i, brace).trim().replace(/\s+/g, " "),
+        prelude,
         children: parseNodes(css.slice(brace + 1, end)),
         comment: pendingComment,
       });
@@ -181,6 +198,9 @@ function declaredProperties(node, into = new Set()) {
     for (const declaration of node.declarations) into.add(declarationProperty(declaration.text));
   } else if (node.type === "at-block") {
     for (const child of node.children) declaredProperties(child, into);
+  } else if (node.type === "verbatim") {
+    /* Opaque, but it still declares properties that must block a lift. */
+    for (const match of node.text.matchAll(/(?:^|[;{])\s*(-{0,2}[a-zA-Z][\w-]*)\s*:/g)) into.add(match[1]);
   }
   return into;
 }
@@ -272,6 +292,10 @@ function renderRule(rule, pad = "") {
 
 function renderNode(node, pad = "") {
   if (node.type === "rule") return renderRule(node, pad);
+  if (node.type === "verbatim") {
+    return (node.comment ? `${indentComment(node.comment, pad)}
+` : "") + node.text;
+  }
   if (node.type === "at-statement") return (node.comment ? `${indentComment(node.comment, pad)}\n` : "") + pad + node.text;
   const inner = node.children.map((child) => renderNode(child, `${pad}  `)).join("\n\n");
   return (node.comment ? `${indentComment(node.comment, pad)}\n` : "") + `${pad}${node.prelude} {\n${inner}\n${pad}}`;
