@@ -119,6 +119,7 @@ picture {
 }
 
 .button {
+  border-radius: var(--radius-pill);
   display: inline-flex;
   min-height: 3.35rem;
   align-items: center;
@@ -427,6 +428,22 @@ picture {
   color: var(--white);
 }
 
+/* The portrait was declared 11 times across breakpoints with `right` set to
+nine different values, from -4.8rem to +5rem. At 1440 that left an 83px dark
+strip beside Samantha: 57.6px of offset plus 25px of `contain` letterbox,
+because the box aspect did not match the image. Matching the image's own
+608x921 removes the letterbox at every size, and right:0 removes the offset. */
+.about__portrait {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: auto;
+  height: min(86svh, 46rem);
+  aspect-ratio: 608 / 921;
+  overflow: visible;
+}
+
 .about__background,
 .about__scrim {
   position: absolute;
@@ -470,14 +487,6 @@ picture {
   color: rgb(251 252 250 / 0.76);
   font-size: clamp(1rem, 1.35vw, 1.2rem);
   line-height: 1.65;
-}
-
-.about__portrait {
-  position: absolute;
-  bottom: 0;
-  z-index: 2;
-  aspect-ratio: auto;
-  overflow: visible;
 }
 
 .about__portrait img {
@@ -585,6 +594,7 @@ picture {
 }
 
 .gift-dialog__surface {
+  border-radius: var(--radius-card);
   position: relative;
   background: var(--paper);
 }
@@ -1055,6 +1065,7 @@ picture {
 
 /* Dialogs */
 .icon-button {
+  border-radius: var(--radius-pill);
   display: grid;
   width: 2.9rem;
   height: 2.9rem;
@@ -1144,11 +1155,6 @@ picture {
     width: min(42rem, 52vw);
   }
 
-  .about__portrait {
-    right: 0;
-    width: min(42vw, 34rem);
-  }
-
   .corporate-panel.is-active {
     flex-grow: 2.7;
   }
@@ -1191,12 +1197,6 @@ picture {
 
   .about__copy h2 {
     font-size: clamp(4rem, 10vw, 7rem);
-  }
-
-  .about__portrait {
-    right: 1vw;
-    width: min(51vw, 31rem);
-    height: 69svh;
   }
 
   .corporate-accordion {
@@ -1391,12 +1391,6 @@ picture {
     line-height: 1.55;
   }
 
-  .about__portrait {
-    right: -4rem;
-    width: min(92vw, 29rem);
-    height: 62svh;
-  }
-
   .corporate__intro h2 {
     max-width: 7ch;
   }
@@ -1542,11 +1536,6 @@ picture {
     font-size: clamp(3.15rem, 15.5vw, 4.25rem);
   }
 
-  .about__portrait {
-    right: -4.8rem;
-    width: 100vw;
-  }
-
   .corporate-panel,
   .corporate-panel.is-active,
   .location-card,
@@ -1665,12 +1654,6 @@ picture {
   font-size: clamp(0.9rem, 1vw, 1.02rem);
   font-weight: 700;
   line-height: 1.5;
-}
-
-.about__portrait {
-  right: clamp(1rem, 4vw, 5rem);
-  width: min(39vw, 37rem);
-  height: 86svh;
 }
 
 .corporate__intro {
@@ -1973,13 +1956,6 @@ picture {
   line-height: 0.88;
 }
 
-.location__details > span {
-  margin-top: 1.5rem;
-  color: rgb(251 252 250 / 0.66);
-  font-size: 0.88rem;
-  line-height: 1.6;
-}
-
 .location__details a {
   display: inline-flex;
   align-items: center;
@@ -2107,11 +2083,6 @@ picture {
     width: min(39rem, 54vw);
   }
 
-  .about__portrait {
-    right: -1rem;
-    width: min(43vw, 34rem);
-  }
-
   .location__body {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2166,10 +2137,6 @@ picture {
   .about__copy h2 {
     max-width: 10ch;
     font-size: clamp(3.7rem, 7.8vw, 5.4rem);
-  }
-
-  .about__portrait {
-    width: min(48vw, 31rem);
   }
 
   .corporate-accordion {
@@ -2274,12 +2241,6 @@ picture {
   .about__copy blockquote {
     max-width: 24rem;
     font-size: 0.84rem;
-  }
-
-  .about__portrait {
-    right: -3.5rem;
-    width: min(84vw, 30rem);
-    height: 55svh;
   }
 
   .corporate__intro {
@@ -2434,11 +2395,6 @@ picture {
   .about__copy h2 {
     font-size: clamp(2.9rem, 13.2vw, 3.8rem);
   }
-
-  .about__portrait {
-    right: -4.5rem;
-    width: 96vw;
-  }
 }
 
 /* V5 portfolio alignment */
@@ -2565,6 +2521,8 @@ picture {
 }
 
 .hero__proofs {
+  border-radius: var(--radius-card);
+  overflow: hidden;
   position: relative;
   z-index: 3;
   display: grid;
@@ -2581,9 +2539,9 @@ picture {
   display: grid;
   min-width: 0;
   grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 1.1rem;
-  padding: 1.35rem clamp(1.2rem, 2vw, 2rem);
+  align-items: start;
+  gap: 0.9rem;
+  padding: 1.35rem clamp(1rem, 1.6vw, 1.6rem);
   border-right: 1px solid var(--line);
 }
 
@@ -2592,32 +2550,37 @@ picture {
 }
 
 .hero-proof__icon {
+  border-radius: var(--radius-tile);
   display: grid;
-  width: 3.35rem;
+  width: 2.75rem;
   aspect-ratio: 1;
   place-items: center;
-  background: var(--teal-dark);
-  color: var(--white);
+  /* Same tint and glyph colour as .product-category__icon, so the two icon
+  families read as one system. */
+  background: rgb(103 184 189 / 0.14);
+  color: var(--teal-dark);
 }
 
 .hero-proof__icon svg {
-  width: 1.45rem;
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .hero-proof strong {
   display: block;
   color: var(--ink);
   font-family: var(--font-display), Arial, sans-serif;
-  font-size: clamp(1.7rem, 2.2vw, 2.45rem);
-  letter-spacing: -0.025em;
-  line-height: 0.9;
+  font-size: clamp(1.1rem, 1.45vw, 1.5rem);
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  white-space: nowrap;
 }
 
 .hero-proof p {
-  margin: 0.45rem 0 0;
+  margin: 0.3rem 0 0;
   color: rgb(8 27 43 / 0.66);
-  font-size: 0.76rem;
-  line-height: 1.35;
+  font-size: 0.74rem;
+  line-height: 1.4;
 }
 
 .business-pillars {
@@ -2778,12 +2741,6 @@ picture {
   color: rgb(8 27 43 / 0.66);
   font-size: 0.98rem;
   line-height: 1.62;
-}
-
-.product-collection__layout {
-  grid-template-columns: minmax(0, 1.72fr) minmax(19rem, 0.92fr);
-  align-items: stretch;
-  gap: clamp(1.5rem, 3vw, 3.25rem);
 }
 
 .product-collection__hero {
@@ -3067,10 +3024,6 @@ picture {
   }
 
   .product-collection__intro,
-  .product-collection__layout {
-    grid-template-columns: 1fr;
-  }
-
   .product-collection__intro > p:last-child {
     grid-row: auto;
     grid-column: 1;
@@ -3283,6 +3236,12 @@ picture {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --header-height: 4.5rem;
   --section-space: clamp(5rem, 7vw, 7.5rem);
+  /* One radius scale. Cards and buttons are soft; photographs, the studio band
+  and the image mosaic stay square, because rounding them fights the
+  editorial crop. */
+  --radius-card: 1rem;
+  --radius-tile: 0.75rem;
+  --radius-pill: 999px;
 }
 
 /* The fixed header would otherwise cover the top of every anchored section. */
@@ -3651,6 +3610,7 @@ pushed it across the hero and about seam. It is now the hero's second row. */
 }
 
 .corporate-panel__cta {
+  border-radius: var(--radius-pill);
   display: inline-flex;
   min-height: 2.5rem;
   align-items: center;
@@ -4222,15 +4182,17 @@ corner, so the legal row is never sitting underneath it. */
     );
   }
 
+  /* Phones: she sits centred under the copy rather than beside it, still on
+  her own aspect so nothing letterboxes. */
   .about__portrait {
-    position: relative;
+    position: static;
     right: auto;
     bottom: auto;
     width: min(76vw, 23rem);
     height: auto;
     margin: 2.5rem auto 0;
     align-self: center;
-    aspect-ratio: 2 / 3;
+    aspect-ratio: 608 / 921;
   }
 
   .about__portrait img {
@@ -4279,11 +4241,6 @@ corner, so the legal row is never sitting underneath it. */
 
   .about {
     min-height: 0;
-  }
-
-  .about__portrait {
-    right: auto;
-    width: min(82vw, 21rem);
   }
 }
 
@@ -4429,6 +4386,7 @@ the moment the panel was pinned, closing it again. */
 covers the Shop trigger the instant it opens, which swallows the click that
 should pin it and leaves no way to toggle it back shut. */
 .shop-flyout {
+  border-radius: var(--radius-card);
   position: fixed;
   top: var(--header-height);
   right: 0;
@@ -4620,10 +4578,6 @@ a tablet or phone at all. It stays in the header at every width. */
 /* -------------------------------------------------------------------------- */
 /* V9: products carousel on one seamless studio sweep                          */
 /* -------------------------------------------------------------------------- */
-.product-collection__layout {
-  display: none;
-}
-
 .product-carousel {
   --slide-width: clamp(15rem, 24vw, 25rem);
   --slide-gap: clamp(1rem, 2.2vw, 2.75rem);
@@ -4993,6 +4947,7 @@ It covers only the media band, so the name and swatches sit on the page. */
 }
 
 .product-category {
+  border-radius: var(--radius-card);
   display: grid;
   align-content: start;
   gap: 0.65rem;
@@ -5002,6 +4957,7 @@ It covers only the media band, so the name and swatches sit on the page. */
 }
 
 .product-category__icon {
+  border-radius: var(--radius-tile);
   display: grid;
   width: 2.75rem;
   aspect-ratio: 1;
@@ -5031,24 +4987,8 @@ It covers only the media band, so the name and swatches sit on the page. */
   line-height: 1.55;
 }
 
-/* --- Location: operations capability, replacing the thin address card ---- */
-/* The aside this sits in is a narrow rail, so two across would give each card
-about 140px and wrap every label. One column, icon beside the text. */
-.operations-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.6rem;
-}
-
 .operations-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
-  column-gap: 0.9rem;
-  row-gap: 0.25rem;
-  border: 1px solid var(--line);
-  padding: 0.95rem 1.1rem;
-  background: var(--white);
 }
 
 .operations-card > svg {
@@ -5060,8 +5000,6 @@ about 140px and wrap every label. One column, icon beside the text. */
 }
 
 .operations-card h3 {
-  margin: 0;
-  grid-column: 2;
   color: var(--ink);
   font-family: var(--font-body), Arial, sans-serif;
   font-size: 0.85rem;
@@ -5073,7 +5011,6 @@ about 140px and wrap every label. One column, icon beside the text. */
 
 .operations-card p {
   margin: 0;
-  grid-column: 2;
   color: rgb(8 27 43 / 0.64);
   font-size: 0.78rem;
   line-height: 1.5;
@@ -5163,8 +5100,6 @@ about 140px and wrap every label. One column, icon beside the text. */
   display: grid;
   align-content: start;
   gap: 0.55rem;
-  border-top: 2px solid var(--teal);
-  padding-top: 1.15rem;
 }
 
 .umrah__process-step {
@@ -5239,5 +5174,248 @@ row, and at tablet widths four across is too tight to read. */
 
   .hero-proof:nth-child(-n + 2) {
     border-bottom: 1px solid var(--line);
+  }
+}
+
+/* --- Location: operations capability, replacing the thin address card ---- */
+/* The aside this sits in is a narrow rail, so two across would give each card
+about 140px and wrap every label. One column, icon beside the text. */
+/* -------------------------------------------------------------------------- */
+/* V11: rounded card system, operations row, simplified location rail,          */
+/* animated UMRAH scenes, one scroll-reveal system.                             */
+/* -------------------------------------------------------------------------- */
+/* --- Operations row, now above the mosaic -------------------------------- */
+.operations-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  margin-bottom: clamp(2rem, 3.5vw, 3rem);
+}
+
+.operations-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  row-gap: 0.25rem;
+  column-gap: 0.9rem;
+  border-radius: var(--radius-card);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.55rem;
+  padding: clamp(1.15rem, 1.8vw, 1.6rem);
+}
+
+.operations-card__icon {
+  display: grid;
+  width: 2.75rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: var(--radius-tile);
+  background: rgb(103 184 189 / 0.14);
+  color: var(--teal-dark);
+}
+
+.operations-card__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.operations-card h3 {
+  margin: 0.3rem 0 0;
+  grid-column: auto;
+}
+
+.operations-card p {
+  grid-column: auto;
+}
+
+/* --- Location rail: the address, and nothing else ------------------------ */
+.location__details address {
+  margin: 1.15rem 0 0;
+  color: rgb(251 252 250 / 0.78);
+  font-size: 0.92rem;
+  font-style: normal;
+  line-height: 1.65;
+}
+
+.location__details > span {
+  display: flex;
+  margin-top: 1.15rem;
+  align-items: flex-start;
+  gap: 0.55rem;
+  color: rgb(251 252 250 / 0.6);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.location__details > span svg {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--teal);
+}
+
+/* --- UMRAH process scenes ------------------------------------------------ */
+.umrah__process li {
+  padding-top: 1.15rem;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--teal);
+  padding: 1.25rem;
+  background: var(--white);
+  cursor: default;
+  transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out);
+}
+
+.umrah__process li:hover,
+.umrah__process li:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 1rem 2.25rem rgb(8 27 43 / 0.1);
+}
+
+.umrah__process-scene {
+  width: 100%;
+  margin: 0.35rem 0 0.15rem;
+  border-radius: var(--radius-tile);
+  background: rgb(103 184 189 / 0.09);
+  aspect-ratio: 4 / 3;
+}
+
+.umrah__process-scene svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Scene primitives. Colours come from the brand tokens so the scenes cannot
+drift away from the rest of the page. */
+.scene-fill-soft {
+  fill: rgb(103 184 189 / 0.22);
+}
+
+.scene-fill-strong {
+  fill: var(--teal-dark);
+}
+
+.scene-shell {
+  fill: rgb(103 184 189 / 0.3);
+}
+
+.scene-line {
+  fill: rgb(8 27 43 / 0.34);
+}
+
+.scene-line-invert {
+  fill: rgb(251 252 250 / 0.8);
+  stroke: rgb(251 252 250 / 0.8);
+  stroke-width: 0;
+}
+
+.scene-dot {
+  fill: var(--teal-dark);
+}
+
+.scene-road {
+  fill: rgb(8 27 43 / 0.16);
+}
+
+.scene-mark {
+  fill: var(--coral);
+}
+
+.scene-seal {
+  fill: var(--coral);
+}
+
+.scene-outline {
+  fill: none;
+  stroke: var(--teal-dark);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* The draw-on effect animates stroke-dashoffset, so every stroke needs a
+  dash pattern long enough to cover its own path. */
+  stroke-dasharray: 300;
+}
+
+.scene-wheel {
+  fill: var(--ink);
+  stroke: var(--teal-dark);
+  stroke-width: 2;
+}
+
+.scene-tick,
+.scene-tick-invert {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 20;
+}
+
+.scene-tick {
+  stroke: var(--teal-dark);
+}
+
+.scene-tick-invert {
+  stroke: var(--white);
+}
+
+.scene-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.scene-chip--a {
+  fill: var(--ink);
+}
+
+.scene-chip--b {
+  fill: var(--teal);
+}
+
+.scene-chip--c {
+  fill: var(--coral);
+}
+
+/* --- Scroll reveals ------------------------------------------------------ */
+/* Only opacity and transform are ever touched, so a reveal can never shift
+the page while it plays. GSAP sets the from-state at runtime; this is the
+no-JS and reduced-motion resting state, which must be fully visible. */
+[data-reveal],
+[data-reveal-group] > * {
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-group] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}
+
+/* --- V11 responsive ------------------------------------------------------ */
+@media (max-width: 1023px) {
+  .operations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .umrah__process-scene {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 767px) {
+  .operations-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .location__details address {
+    font-size: 0.88rem;
   }
 }

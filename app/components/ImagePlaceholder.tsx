@@ -15,6 +15,10 @@ type ImageSlotVisualProps = {
   loading?: "eager" | "lazy";
   priority?: boolean;
   decorative?: boolean;
+  /* Opts the rendered element into the page's scroll-reveal system. The
+     component builds its own <picture>, so this has to be forwarded
+     explicitly or it would be silently dropped. */
+  "data-reveal"?: "up" | "left" | "right" | "scale";
 };
 
 function slotStyle(slot: ImageSlot): SlotStyle {
@@ -54,6 +58,7 @@ export function ImageSlotVisual({
   loading = "lazy",
   priority = false,
   decorative = false,
+  "data-reveal": reveal,
 }: ImageSlotVisualProps) {
   if (slot.status === "placeholder" || !slot.src) {
     return <ImagePlaceholder slot={slot} className={className} />;
@@ -65,6 +70,7 @@ export function ImageSlotVisual({
       style={slotStyle(slot)}
       data-image-slot={slot.id}
       data-image-status={slot.status}
+      data-reveal={reveal}
     >
       {slot.mobileSrc ? <source media="(max-width: 767px)" srcSet={slot.mobileSrc} /> : null}
       <img

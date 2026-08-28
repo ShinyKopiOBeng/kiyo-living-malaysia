@@ -221,7 +221,7 @@ export function ProductCarousel({ onShop }: { onShop: () => void }) {
   };
 
   return (
-    <div className="product-carousel">
+    <div className="product-carousel" data-reveal="scale">
       <div
         ref={viewportRef}
         className="product-carousel__viewport"

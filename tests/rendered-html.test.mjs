@@ -114,16 +114,23 @@ test("server-renders the V5 KIYO portfolio alignment experience", async () => {
   for (const step of ["Consult", "Brand", "Approve", "Deliver"]) {
     assert.ok(html.includes(`<strong>${step}</strong>`), `UMRAH process is missing ${step}`);
   }
+  // Each step ships a real SVG scene, server-rendered so it exists before JS.
+  assert.equal((html.match(/class="umrah__process-scene"/g) ?? []).length, 4);
+  assert.equal((html.match(/data-process-card/g) ?? []).length, 4);
 
   const locationHtml = html.slice(html.indexOf('<section id="location"'), html.indexOf('<section id="contact"'));
   const warehouseSources = Array.from(locationHtml.matchAll(/\/images\/kiyo\/warehouse-(\d)\.webp/g), (match) => Number(match[1]));
   assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
-  assert.ok(locationHtml.indexOf("Warehouse Inventory") > locationHtml.indexOf("/images/kiyo/warehouse-5.webp"));
+  // Operations capability sits above the photo mosaic; the rail below it
+  // carries the address only.
+  assert.ok(locationHtml.indexOf("Warehouse Inventory") < locationHtml.indexOf("/images/kiyo/warehouse-5.webp"));
   for (const capability of ["Warehouse Inventory", "Nationwide Fulfilment", "Product Sourcing", "Live-Commerce Support"]) {
     assert.ok(html.includes(capability), `location is missing the ${capability} card`);
   }
   assert.match(html, /<span>Built for scale<\/span> <em>across Malaysia<\/em>/);
-  assert.doesNotMatch(html, /Visit by appointment/);
+  assert.match(locationHtml, /Pusat Perindustrian Sungai Chua/);
+  assert.match(locationHtml, /Monday to Saturday, 9:00am to 6:00pm/);
+  assert.match(locationHtml, /Arrange a visit/);
   assert.match(html, /<span>Start your<\/span> <em>next journey<\/em>/);
   assert.match(html, /wa\.me\/60132767887/);
   assert.match(html, /shopee\.com\.my\/kiyoliving/);
@@ -217,6 +224,19 @@ test("keeps the V5 portfolio architecture production-ready", async () => {
   // V7: markup removed with the redesign leaves no orphaned rules behind.
   assert.doesNotMatch(css, /\.agency-process|\.corporate-panel__details|\.corporate-panel__inspect/);
   assert.doesNotMatch(css, /\.shop-dialog/);
+
+  // V11: one radius scale, and one declarative reveal system rather than a
+  // bespoke gsap call per section. The old per-section approach is how the
+  // carousel ended up with no entrance at all.
+  for (const token of ["--radius-card", "--radius-tile", "--radius-pill"]) {
+    assert.match(css, new RegExp(`${token}:`), `radius scale is missing ${token}`);
+  }
+  assert.match(css, /\.button \{[^}]*border-radius: var\(--radius-pill\)/);
+  assert.match(experience, /ScrollTrigger\.batch/);
+  assert.match(experience, /data-reveal-group/);
+  // The dead animation V9 left behind must not come back.
+  assert.doesNotMatch(experience, /fromTo\("\.product-collection__layout/);
+  assert.doesNotMatch(css, /\.product-collection__layout/);
 
   // V8: the Shop flyout slides in from the right and supports hover and press.
   assert.match(experience, /type ShopMode = "hover" \| "press"/);

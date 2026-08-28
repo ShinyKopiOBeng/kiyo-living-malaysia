@@ -43,7 +43,7 @@ export function SiteFooter({ standalone = false }: { standalone?: boolean }) {
 
   return (
     <footer className="site-footer">
-      <div className="site-footer__grid">
+      <div className="site-footer__grid" data-reveal-group>
         <div className="footer-brand">
           <a className="brand brand--footer" href={standalone ? "/" : "#home"} aria-label="Back to KIYO home">
             <img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" />

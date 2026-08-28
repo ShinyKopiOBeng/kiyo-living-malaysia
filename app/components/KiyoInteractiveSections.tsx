@@ -20,14 +20,14 @@ const productCategories = [
 export function ProductCollectionOverview({ onShop }: { onShop: () => void }) {
   return (
     <div className="product-collection" aria-label="KIYO travel and lifestyle collection">
-      <header className="product-collection__intro">
+      <header className="product-collection__intro" data-reveal-group>
         <h2><span>Travel &amp; lifestyle</span> <em>collection</em></h2>
         <p>Luggage, bags and travel accessories, curated for style, durability, and every journey.</p>
       </header>
 
       <ProductCarousel onShop={onShop} />
 
-      <div className="product-categories">
+      <div className="product-categories" data-reveal-group>
         {productCategories.map(({ title, description, icon: Icon }) => (
           <article className="product-category" key={title}>
             <span className="product-category__icon"><Icon aria-hidden="true" /></span>
@@ -37,7 +37,7 @@ export function ProductCollectionOverview({ onShop }: { onShop: () => void }) {
         ))}
       </div>
 
-      <aside className="product-collection__proof">
+      <aside className="product-collection__proof" data-reveal>
         <div className="product-collection__proof-copy">
           <ShoppingBag aria-hidden="true" />
           <h3>Retail &amp; wholesale ready</h3>
@@ -176,7 +176,7 @@ export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
 
   return (
     <>
-      <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions">
+      <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions" data-reveal-group>
         {corporateGiftSets.map((gift, index) => (
           <article
             key={gift.id}
@@ -230,7 +230,7 @@ export function UmrahServiceGallery() {
   }, [activeIndex]);
 
   return (
-    <div ref={rootRef} className="umrah-gallery">
+    <div ref={rootRef} className="umrah-gallery" data-reveal="right">
       <div className="umrah-gallery__cards" role="group" aria-label="UMRAH programme components">
         {umrahServices.map((service, index) => (
           <button type="button" key={service.slot.id} className={`umrah-card${index === activeIndex ? " is-active" : ""}`} aria-pressed={index === activeIndex} onClick={() => setActiveIndex(index)}>

@@ -6,13 +6,14 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, ArrowUpRight, BadgeCheck, Check, ClipboardCheck, Clock, Gift, Handshake, Mail, MapPin, MessageSquare, Menu, Palette, ShieldCheck, ShoppingCart, Smartphone, TrendingUp, Trophy, Truck, Video, Warehouse, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BadgeCheck, Check, Clock, Gift, Handshake, Mail, MapPin, Menu, ShieldCheck, ShoppingCart, Smartphone, TrendingUp, Trophy, Truck, Video, Warehouse, X } from "lucide-react";
 import { FaTiktok, FaWhatsapp } from "react-icons/fa6";
 import { SiShopee } from "react-icons/si";
 import { CorporateGiftGallery, ProductCollectionOverview, UmrahServiceGallery } from "./components/KiyoInteractiveSections";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
 import { aboutSlots, heroSlot, warehouseSlots } from "./components/imageSlots";
 import { SiteFooter, SocialLinks, WHATSAPP_URL } from "./components/SiteFooter";
+import { UmrahProcessFlow } from "./components/UmrahProcessFlow";
 
 const navigation = [
   ["About", "#about"],
@@ -51,13 +52,6 @@ const operationsCapabilities = [
   { title: "Live-Commerce Support", description: "Built for TikTok Shop and live-commerce operations.", icon: Video },
 ] as const;
 
-/* How an agency order actually runs, for the UMRAH chapter. */
-const umrahProcess = [
-  { step: "01", title: "Consult", description: "We size the programme, confirm quantities and agree the pieces.", icon: MessageSquare },
-  { step: "02", title: "Brand", description: "Your agency logo and identity applied across the coordinated set.", icon: Palette },
-  { step: "03", title: "Approve", description: "A physical sample signed off before the full run begins.", icon: ClipboardCheck },
-  { step: "04", title: "Deliver", description: "Packed, checked and delivered to your office or departure point.", icon: Truck },
-] as const;
 
 const warehouseStories = [
   { title: "Warehouse exterior", description: "Our Kajang base for stock, showroom visits and operations." },
@@ -409,12 +403,48 @@ export function KiyoExperience() {
           .fromTo(".hero__copy > *", { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.72, stagger: 0.08 }, "<0.14")
           .fromTo(".hero-proof", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.52, stagger: 0.08 }, "<0.16");
 
-        gsap.fromTo(".about__copy > *", { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.72, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#about", start: "top 72%", once: true } });
-        gsap.fromTo(".about__portrait", { x: 28, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9, ease: "power3.out", scrollTrigger: { trigger: "#about", start: "top 72%", once: true } });
-        gsap.fromTo(".business-pillar", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.58, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#glance", start: "top 72%", once: true } });
-        gsap.fromTo(".product-collection__layout > *", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.68, stagger: 0.1, ease: "power3.out", scrollTrigger: { trigger: "#products", start: "top 72%", once: true } });
-        gsap.fromTo(".contact__copy > *", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.62, stagger: 0.065, ease: "power3.out", scrollTrigger: { trigger: "#contact", start: "top 72%", once: true } });
-        gsap.fromTo(".location-card", { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.55, stagger: 0.07, ease: "power3.out", scrollTrigger: { trigger: "#location", start: "top 68%", once: true } });
+        /* One declarative reveal system for everything below the fold. Marking
+           up `data-reveal` beats adding a bespoke gsap call per section, which
+           is how the carousel ended up with no entrance at all: its old
+           animation targeted `.product-collection__layout`, which V9 set to
+           `display: none`. */
+        const FROM = {
+          up: { y: 24, autoAlpha: 0 },
+          left: { x: -28, autoAlpha: 0 },
+          right: { x: 28, autoAlpha: 0 },
+          scale: { scale: 1.04, autoAlpha: 0 },
+        } as const;
+
+        /* React renders a valueless `data-reveal-group` as `="true"`, so the
+           attribute can never be trusted as a variant name on its own. */
+        const variantOf = (value: string | undefined): keyof typeof FROM =>
+          value && value in FROM ? (value as keyof typeof FROM) : "up";
+
+        const reveal = (targets: Element[], variant: keyof typeof FROM, stagger: number) => {
+          if (!targets.length) return;
+          gsap.set(targets, FROM[variant]);
+          ScrollTrigger.batch(targets, {
+            start: "top 82%",
+            once: true,
+            onEnter: (batch) => gsap.to(batch, {
+              x: 0, y: 0, scale: 1, autoAlpha: 1,
+              duration: 0.7, ease: "power3.out", stagger,
+              overwrite: true,
+            }),
+          });
+        };
+
+        for (const variant of Object.keys(FROM) as (keyof typeof FROM)[]) {
+          const selector = variant === "up" ? "[data-reveal=''], [data-reveal]:not([data-reveal='left']):not([data-reveal='right']):not([data-reveal='scale'])" : `[data-reveal='${variant}']`;
+          reveal(gsap.utils.toArray<Element>(selector), variant, 0);
+        }
+
+        /* Groups stagger their own children, so a row of cards arrives as a
+           sequence rather than all at once. */
+        for (const group of gsap.utils.toArray<HTMLElement>("[data-reveal-group]")) {
+          const children = Array.from(group.children);
+          reveal(children, variantOf(group.dataset.revealGroup), 0.08);
+        }
       }
     }, root);
     document.fonts.ready.then(() => ScrollTrigger.refresh());
@@ -460,7 +490,7 @@ export function KiyoExperience() {
         <section id="about" className="about chapter-screen">
           <ImageSlotVisual slot={aboutSlots.warehouse} className="about__background" decorative />
           <div className="about__scrim" aria-hidden="true" />
-          <div className="about__copy">
+          <div className="about__copy" data-reveal-group>
             <p className="eyebrow">Who we are</p>
             <h2><span>A Malaysian travel</span> <em>and live-commerce brand</em></h2>
             <p>KIYO Living Sdn. Bhd. is a Malaysia-based travel and live-commerce brand, founded in 2022 and operating from our own warehouse and showroom in Kajang, Selangor.</p>
@@ -470,17 +500,17 @@ export function KiyoExperience() {
               <figcaption><strong>Samantha Ng</strong><span>Founder, KIYO Living</span></figcaption>
             </figure>
           </div>
-          <ImageSlotVisual slot={aboutSlots.samantha} className="about__portrait" />
+          <ImageSlotVisual slot={aboutSlots.samantha} className="about__portrait" data-reveal="right" />
         </section>
 
         <section id="glance" className="business-pillars chapter">
-          <header className="business-pillars__intro">
+          <header className="business-pillars__intro" data-reveal-group>
             <p className="eyebrow">Our core</p>
             <h2><span>Business</span> <em>pillars</em></h2>
             <p>Five pillars. One mission. Delivering excellence at every touchpoint.</p>
             <a href="#products">Explore our solutions <ArrowRight aria-hidden="true" /></a>
           </header>
-          <div className="business-pillars__grid">
+          <div className="business-pillars__grid" data-reveal-group>
             {businessPillars.map(({ number, title, description, icon: Icon }) => (
               <article className="business-pillar" key={title}>
                 <span className="business-pillar__number">{number}</span>
@@ -496,7 +526,7 @@ export function KiyoExperience() {
         <section id="products" className="products chapter"><ProductCollectionOverview onShop={() => openShop("press")} /></section>
 
         <section id="corporate" className="corporate chapter">
-          <header className="corporate__intro">
+          <header className="corporate__intro" data-reveal-group>
             <h2><span>Corporate</span> <em>gifting</em></h2>
             <p>Custom logo printing, thoughtful event gifting, and premium brand experiences designed to leave a lasting impression.</p>
             <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Enquire for corporate gifts <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
@@ -506,7 +536,7 @@ export function KiyoExperience() {
 
         <section id="services" className="umrah chapter">
           <div className="umrah__layout">
-            <div className="umrah__copy">
+            <div className="umrah__copy" data-reveal-group>
               <p className="eyebrow">UMRAH programme</p>
               <h2><span>The complete</span> <em>UMRAH set</em></h2>
               <p>Coordinate luggage, thoughtful travel essentials and agency branding for UMRAH groups with a calm, professional presentation.</p>
@@ -521,25 +551,23 @@ export function KiyoExperience() {
             <UmrahServiceGallery />
           </div>
 
-          <div className="umrah__process">
-            <h3>How an agency order runs</h3>
-            <ol>
-              {umrahProcess.map(({ step, title, description, icon: Icon }) => (
-                <li key={step}>
-                  <span className="umrah__process-step">{step}</span>
-                  <Icon aria-hidden="true" />
-                  <strong>{title}</strong>
-                  <p>{description}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
+          <UmrahProcessFlow />
         </section>
 
         <section id="location" className="location chapter">
-          <header className="location__intro"><p>Operations, warehouse and distribution</p><h2><span>Built for scale</span> <em>across Malaysia</em></h2><span>KIYO&apos;s end-to-end operations ensure ready stock, efficient fulfilment and reliable delivery, so you can scale with confidence. From warehouse to doorstep, we power businesses nationwide.</span></header>
+          <header className="location__intro" data-reveal-group><p>Operations, warehouse and distribution</p><h2><span>Built for scale</span> <em>across Malaysia</em></h2><span>KIYO&apos;s end-to-end operations ensure ready stock, efficient fulfilment and reliable delivery, so you can scale with confidence. From warehouse to doorstep, we power businesses nationwide.</span></header>
+          <div className="operations-grid" data-reveal-group>
+            {operationsCapabilities.map(({ title, description, icon: Icon }) => (
+              <article className="operations-card" key={title}>
+                <span className="operations-card__icon"><Icon aria-hidden="true" /></span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+
           <div className="location__body">
-            <div className="location__mosaic">
+            <div className="location__mosaic" data-reveal-group>
               {warehouseSlots.map((slot, index) => (
                 <figure className={`location-card location-card--${index + 1}`} key={slot.id} data-sequence={index + 1}>
                   <ImageSlotVisual slot={slot} className="location-card__media" />
@@ -547,35 +575,24 @@ export function KiyoExperience() {
                 </figure>
               ))}
             </div>
-            <aside className="location__details">
-              <div className="operations-grid">
-                {operationsCapabilities.map(({ title, description, icon: Icon }) => (
-                  <article className="operations-card" key={title}>
-                    <Icon aria-hidden="true" />
-                    <h3>{title}</h3>
-                    <p>{description}</p>
-                  </article>
-                ))}
-              </div>
-              <dl className="location-facts">
-                <div>
-                  <dt><MapPin aria-hidden="true" />Warehouse and showroom</dt>
-                  <dd>No. 16, Jalan SC 1,<br />Pusat Perindustrian Sungai Chua,<br />43000 Kajang, Selangor.</dd>
-                </div>
-                <div>
-                  <dt><Clock aria-hidden="true" />Opening hours</dt>
-                  <dd>Monday to Saturday, 9:00am to 6:00pm.<br />Showroom visits by appointment.</dd>
-                </div>
-              </dl>
-              <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Partner with KIYO <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-              <p className="location__assurance"><ShieldCheck aria-hidden="true" />Reliable. Scalable. Nationwide.</p>
+            <aside className="location__details" data-reveal="right">
+              <MapPin aria-hidden="true" />
+              <p>Warehouse and showroom</p>
+              <h3>Kajang,<br />Selangor.</h3>
+              <address>
+                No. 16, Jalan SC 1,<br />
+                Pusat Perindustrian Sungai Chua,<br />
+                43000 Kajang, Selangor.
+              </address>
+              <span><Clock aria-hidden="true" />Monday to Saturday, 9:00am to 6:00pm. Visits by appointment.</span>
+              <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">Arrange a visit <ArrowUpRight aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
             </aside>
           </div>
         </section>
 
         <section id="contact" className="contact chapter">
           <div className="contact__inner">
-            <div className="contact__copy">
+            <div className="contact__copy" data-reveal-group>
               <h2><span>Start your</span> <em>next journey</em></h2>
               <span>Corporate gifts, UMRAH sets, custom branding and retail enquiries.</span>
               <div className="contact__actions">
@@ -584,7 +601,7 @@ export function KiyoExperience() {
               </div>
               <SocialLinks />
             </div>
-            <div className="contact__visual">
+            <div className="contact__visual" data-reveal="scale">
               <ImageSlotVisual slot={warehouseSlots[3]} className="contact__media" />
               <div><MapPin aria-hidden="true" /><span>KIYO Living</span><strong>Kajang, Selangor</strong></div>
             </div>
