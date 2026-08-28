@@ -67,21 +67,29 @@ function ConsultScene() {
   );
 }
 
-/* 02 — the case outline draws, a colour is chosen, the shell takes it. */
+/* 02 — a colour is chosen, the shell takes it, then the agency name types on. */
 function BrandScene() {
   return (
-    <svg viewBox="0 0 120 90" role="img" aria-label="Agency branding applied to a luggage set">
-      <rect x="38" y="10" width="44" height="54" rx="7" className="scene-shell" data-scene-part="shell" />
-      <rect x="38" y="10" width="44" height="54" rx="7" className="scene-outline" data-scene-part="outline" />
-      <path d="M56 10V4h8v6" className="scene-outline" data-scene-part="handle" />
-      <rect x="50" y="28" width="20" height="14" rx="3" className="scene-mark" data-scene-part="mark" />
+    <svg viewBox="0 0 120 90" role="img" aria-label="A luggage colour chosen and the agency name applied">
+      <rect x="38" y="6" width="44" height="54" rx="7" className="scene-shell" data-scene-part="shell" />
+      <rect x="38" y="6" width="44" height="54" rx="7" className="scene-outline" data-scene-part="outline" />
+      <path d="M56 6V1h8v5" className="scene-outline" data-scene-part="handle" />
+
+      {/* The typed agency name lands across the middle of the case. */}
+      <text x="60" y="36" className="scene-brandmark" data-scene-part="brandmark" textAnchor="middle">
+        <tspan data-scene-part="brandletter">K</tspan>
+        <tspan data-scene-part="brandletter">I</tspan>
+        <tspan data-scene-part="brandletter">Y</tspan>
+        <tspan data-scene-part="brandletter">O</tspan>
+      </text>
+      <rect x="76" y="27" width="1.6" height="12" className="scene-caret" data-scene-part="caret" />
 
       <g data-scene-part="chips">
-        <circle cx="42" cy="78" r="6" className="scene-chip scene-chip--a" />
-        <circle cx="60" cy="78" r="6" className="scene-chip scene-chip--b" />
-        <circle cx="78" cy="78" r="6" className="scene-chip scene-chip--c" />
+        <circle cx="42" cy="78" r="6" className="scene-chip scene-chip--a" data-swatch="#081b2b" />
+        <circle cx="60" cy="78" r="6" className="scene-chip scene-chip--b" data-swatch="#67b8bd" />
+        <circle cx="78" cy="78" r="6" className="scene-chip scene-chip--c" data-swatch="#ee5a43" />
       </g>
-      <circle cx="60" cy="78" r="9.5" className="scene-ring" data-scene-part="ring" />
+      <circle cx="42" cy="78" r="9.5" className="scene-ring" data-scene-part="ring" />
     </svg>
   );
 }
@@ -161,12 +169,35 @@ function buildTimeline(card: HTMLElement, index: number) {
   }
 
   if (index === 1) {
+    const chips = q('[data-scene-part="chips"] circle') as unknown as SVGCircleElement[];
+    const letters = q('[data-scene-part="brandletter"]');
+    /* Walk the swatches, settle on one, recolour the shell to it, then type the
+       agency name across the case: choose a colour, then apply the identity. */
+    const chosen = chips[2];
+
     timeline
-      .fromTo(q('[data-scene-part="outline"], [data-scene-part="handle"]'), { strokeDashoffset: 260, autoAlpha: 1 }, { strokeDashoffset: 0, duration: 0.75, stagger: 0.08 })
-      .fromTo(q('[data-scene-part="chips"] circle'), { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.34, stagger: 0.08 }, "-=0.3")
-      .fromTo(q('[data-scene-part="ring"]'), { scale: 0.4, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.34, ease: "back.out(2)", transformOrigin: "center" })
-      .to(q('[data-scene-part="shell"]'), { fill: "var(--teal)", duration: 0.44 }, "<")
-      .fromTo(q('[data-scene-part="mark"]'), { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.36, ease: "back.out(2)", transformOrigin: "center" }, "<0.12");
+      .fromTo(q('[data-scene-part="outline"], [data-scene-part="handle"]'), { strokeDashoffset: 260 }, { strokeDashoffset: 0, duration: 0.7, stagger: 0.07 })
+      .fromTo(chips, { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.3, stagger: 0.08 }, "-=0.28");
+
+    const cxOf = (chip: SVGCircleElement) => chip.getAttribute("cx") ?? "60";
+    const swatchOf = (chip: SVGCircleElement) => chip.dataset.swatch ?? "#67b8bd";
+
+    chips.forEach((chip, i) => {
+      timeline
+        .to(q('[data-scene-part="ring"]'), { attr: { cx: cxOf(chip) }, duration: 0.26, ease: "power2.inOut" }, i === 0 ? ">" : ">-0.02")
+        .to(q('[data-scene-part="shell"]'), { fill: swatchOf(chip), duration: 0.26 }, "<");
+    });
+
+    timeline
+      .to(q('[data-scene-part="ring"]'), { attr: { cx: cxOf(chosen) }, duration: 0.3, ease: "back.out(2)" })
+      .to(q('[data-scene-part="shell"]'), { fill: swatchOf(chosen), duration: 0.3 }, "<")
+      .to(q('[data-scene-part="ring"]'), { scale: 1.18, duration: 0.16, yoyo: true, repeat: 1, transformOrigin: "center" }, "<0.1")
+      /* Letters appear one at a time with the caret stepping along behind. */
+      .fromTo(letters, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01, stagger: 0.13 }, ">0.1")
+      .fromTo(q('[data-scene-part="caret"]'), { autoAlpha: 1, x: -18 }, { x: 4, duration: 0.52, ease: "steps(4)" }, "<")
+      .to(q('[data-scene-part="caret"]'), { autoAlpha: 0, duration: 0.2, repeat: 2, yoyo: true }, ">")
+      .to(q('[data-scene-part="caret"]'), { autoAlpha: 0, duration: 0.01 });
+
     return timeline;
   }
 
@@ -209,22 +240,50 @@ export function UmrahProcessFlow() {
 
     const context = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>("[data-process-card]");
+      const steps = cards.map((card, index) => buildTimeline(card, index));
 
-      cards.forEach((card, index) => {
-        const timeline = buildTimeline(card, index);
+      /* The four steps run as one sequence: consult finishes before brand
+         starts, and so on, so the row demonstrates an order moving through the
+         process rather than four unrelated loops firing at once.
+         Nesting them in a master timeline will not work, because a paused
+         child never advances under its parent, and each step also has to stay
+         independently replayable on hover. So they are chained by callback
+         with a flag guarding the chain. */
+      let sequencing = false;
 
-        ScrollTrigger.create({
-          trigger: card,
-          start: "top 82%",
-          once: true,
-          /* Left to right, so the row reads as a sequence rather than four
-             things firing at once. */
-          onEnter: () => gsap.delayedCall(index * 0.25, () => timeline.play(0)),
+      const start = (index: number) => {
+        cards[index].setAttribute("data-active", "true");
+        steps[index].play(0);
+      };
+
+      steps.forEach((step, index) => {
+        step.eventCallback("onComplete", () => {
+          cards[index].removeAttribute("data-active");
+          if (!sequencing) return;
+          if (index + 1 < steps.length) {
+            gsap.delayedCall(0.28, () => start(index + 1));
+          } else {
+            sequencing = false;
+          }
         });
+      });
 
+      ScrollTrigger.create({
+        trigger: root,
+        start: "top 78%",
+        once: true,
+        onEnter: () => {
+          sequencing = true;
+          start(0);
+        },
+      });
+
+      /* Hover replays one step on its own. The guard stops it hijacking the
+         run, and the flag stops a hover replay chaining into the next step. */
+      cards.forEach((card, index) => {
         const replay = () => {
-          if (timeline.isActive()) return;
-          timeline.play(0);
+          if (sequencing || steps[index].isActive()) return;
+          start(index);
         };
         card.addEventListener("pointerenter", replay);
         card.addEventListener("focusin", replay);

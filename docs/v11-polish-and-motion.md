@@ -360,3 +360,63 @@ gap actually closes at 830, 1000, 1280 and 1440, and that nothing else moved.
 
 I will start once you have picked, and will assume my recommendations for
 anything you do not call out.
+
+---
+
+## 8. Follow-up round
+
+### New About assets
+
+The owner supplied a transparent cut-out of the founder and a clean background
+plate, replacing the single composite that had the warehouse baked in.
+
+`tools/build-about-assets.mjs` prepares both. The portrait is trimmed to its
+true opaque bounds first, because transparent padding is what lets a gap open
+beside the subject:
+
+```
+portrait source 1086x1448
+  transparent padding  left 19, right 65, top 12, bottom 0
+  trimmed to 1002x1436  ->  about-samantha.webp 900x1290, 121 KB
+background            ->  about-warehouse.webp 1916x821, 178 KB
+```
+
+65px of transparent padding on the right was part of the original gap.
+Measured after the swap: right strip 0, bottom strip 0, zero letterbox at 830,
+1280 and 1440. The two superseded composites are deleted.
+
+### Proof tiles
+
+`align-items: stretch` turns the icon into a full-height rail spanning the
+title's top to the description's bottom, and the icon/text pair is centred in
+its column rather than pinned left.
+
+### UMRAH flow is now an actual sequence
+
+Chaining the four steps through a master timeline does not work: a paused child
+never advances under its parent, and each step also has to stay independently
+replayable on hover. They are chained by `onComplete` callback instead, with a
+`sequencing` flag so a hover replay cannot trigger the next step.
+
+Measured by sampling `data-active` every 60ms:
+
+| Step | Active window |
+| --- | --- |
+| Consult | 61 - 2700ms |
+| Brand | 3067 - 6366ms |
+| Approve | 6726 - 8283ms |
+| Deliver | 8582 - 10860ms |
+
+Samples with more than one step active: **0**.
+
+The Brand scene was rebuilt to the owner's idea: the selection ring walks the
+three swatches, the shell recolours to the chosen one, then `KIYO` types across
+the case letter by letter with a stepping caret.
+
+Card boxes and the tinted scene panels are gone, so the row reads as one
+continuous demonstration and nothing clips the lorry as it drives out of frame.
+
+### Location rail
+
+Centred. Measured left/right space inside the rail: heading 35/35, address
+64/64, eyebrow 62/62, CTA 112/112.

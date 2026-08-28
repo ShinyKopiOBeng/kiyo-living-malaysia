@@ -31,26 +31,30 @@ export const aboutSlots = {
   warehouse: {
     id: "ABOUT-WAREHOUSE",
     status: "final",
-    src: "/images/kiyo/samantha-warehouse.webp",
-    aspectRatio: "1047 / 941",
+    src: "/images/kiyo/about-warehouse.webp",
+    aspectRatio: "1916 / 821",
     fit: "cover",
     focalPoint: "center center",
     safeTextArea: "left third",
     alt: "KIYO warehouse and showroom in Kajang at sunset",
-    width: 1047,
-    height: 941,
+    width: 1916,
+    height: 821,
   },
+  /* A transparent cut-out, trimmed to its opaque bounds by
+     tools/build-about-assets.mjs. The old file had the warehouse composited
+     in and 65px of transparent padding on the right, which is what opened a
+     dark strip beside her. */
   samantha: {
     id: "ABOUT-SAMANTHA",
     status: "final",
-    src: "/images/kiyo/samantha-founder.webp",
-    aspectRatio: "2 / 3",
+    src: "/images/kiyo/about-samantha.webp",
+    aspectRatio: "900 / 1290",
     fit: "contain",
     focalPoint: "center bottom",
     safeTextArea: "signature at lower centre",
     alt: "Samantha Ng, founder of KIYO",
-    width: 608,
-    height: 921,
+    width: 900,
+    height: 1290,
   },
 } satisfies Record<string, ImageSlot>;
 

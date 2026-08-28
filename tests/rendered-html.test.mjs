@@ -51,6 +51,9 @@ test("server-renders the V5 KIYO portfolio alignment experience", async () => {
   assert.match(html, /To empower journeys, elevate brands and create lasting impact/);
   assert.match(html, /data-image-slot="ABOUT-WAREHOUSE"/);
   assert.match(html, /data-image-slot="ABOUT-SAMANTHA"/);
+  assert.match(html, /\/images\/kiyo\/about-samantha\.webp/);
+  assert.match(html, /\/images\/kiyo\/about-warehouse\.webp/);
+  assert.doesNotMatch(html, /samantha-founder|samantha-warehouse/);
   assert.doesNotMatch(html, /Founder Samantha Ng|founder badge|<figcaption><span>Founder/i);
 
   assert.match(html, /<h2><span>Business<\/span> <em>pillars<\/em><\/h2>/i);
@@ -335,8 +338,8 @@ test("includes every approved KIYO production asset used by V5", async () => {
   const requiredAssets = [
     "../public/images/kiyo/home-hero-airport.webp",
     "../public/images/kiyo/product-collection-hero.webp",
-    "../public/images/kiyo/samantha-founder.webp",
-    "../public/images/kiyo/samantha-warehouse.webp",
+    "../public/images/kiyo/about-samantha.webp",
+    "../public/images/kiyo/about-warehouse.webp",
     "../public/images/kiyo/corporate-gift-travel-amenities.webp",
     "../public/images/kiyo/corporate-gift-team-building.webp",
     "../public/images/kiyo/corporate-gift-mini-luggage.webp",

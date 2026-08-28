@@ -440,7 +440,7 @@ because the box aspect did not match the image. Matching the image's own
   z-index: 2;
   width: auto;
   height: min(86svh, 46rem);
-  aspect-ratio: 608 / 921;
+  aspect-ratio: 900 / 1290;
   overflow: visible;
 }
 
@@ -1959,7 +1959,6 @@ because the box aspect did not match the image. Matching the image's own
 .location__details a {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
   gap: 0.55rem;
   margin-top: 1.75rem;
   border-bottom: 1px solid rgb(251 252 250 / 0.5);
@@ -2535,11 +2534,16 @@ because the box aspect did not match the image. Matching the image's own
   box-shadow: 0 1.5rem 3.5rem rgb(8 27 43 / 0.12);
 }
 
+/* The tile is a full-height rail: `align-items: stretch` spans it from the
+title's top to the description's bottom, and the pair is centred in its
+column rather than pinned left. */
 .hero-proof {
   display: grid;
   min-width: 0;
-  grid-template-columns: auto 1fr;
-  align-items: start;
+  grid-template-columns: auto minmax(0, auto);
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
   gap: 0.9rem;
   padding: 1.35rem clamp(1rem, 1.6vw, 1.6rem);
   border-right: 1px solid var(--line);
@@ -2553,7 +2557,7 @@ because the box aspect did not match the image. Matching the image's own
   border-radius: var(--radius-tile);
   display: grid;
   width: 2.75rem;
-  aspect-ratio: 1;
+  /* No aspect-ratio: the rail's height comes from the text beside it. */
   place-items: center;
   /* Same tint and glyph colour as .product-category__icon, so the two icon
   families read as one system. */
@@ -4192,7 +4196,7 @@ corner, so the legal row is never sitting underneath it. */
     height: auto;
     margin: 2.5rem auto 0;
     align-self: center;
-    aspect-ratio: 608 / 921;
+    aspect-ratio: 900 / 1290;
   }
 
   .about__portrait img {
@@ -5096,6 +5100,8 @@ It covers only the media band, so the name and swatches sit on the page. */
   counter-reset: none;
 }
 
+/* No card box and no tinted scene panel. The four steps read as one
+continuous flow, and nothing clips the lorry as it drives out of frame. */
 .umrah__process li {
   display: grid;
   align-content: start;
@@ -5245,7 +5251,6 @@ about 140px and wrap every label. One column, icon beside the text. */
   gap: 0.55rem;
   color: rgb(251 252 250 / 0.6);
   font-size: 0.84rem;
-  line-height: 1.55;
 }
 
 .location__details > span svg {
@@ -5257,29 +5262,26 @@ about 140px and wrap every label. One column, icon beside the text. */
 }
 
 /* --- UMRAH process scenes ------------------------------------------------ */
+/* No card box. The four steps read as one continuous demonstration, and
+without a box nothing clips the lorry as it drives out of frame. */
 .umrah__process li {
-  padding-top: 1.15rem;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--line);
-  border-top: 2px solid var(--teal);
-  padding: 1.25rem;
-  background: var(--white);
+  border: 0;
+  padding: 0;
+  background: none;
   cursor: default;
-  transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out);
 }
 
-.umrah__process li:hover,
-.umrah__process li:focus-visible {
-  transform: translateY(-3px);
-  box-shadow: 0 1rem 2.25rem rgb(8 27 43 / 0.1);
+/* The active step lifts slightly while its scene plays, so the eye follows
+the sequence across the row. */
+.umrah__process li[data-active] .umrah__process-scene {
+  transform: translateY(-4px);
 }
 
 .umrah__process-scene {
   width: 100%;
-  margin: 0.35rem 0 0.15rem;
-  border-radius: var(--radius-tile);
-  background: rgb(103 184 189 / 0.09);
+  margin: 0.35rem 0 0.6rem;
   aspect-ratio: 4 / 3;
+  transition: transform 420ms var(--ease-out);
 }
 
 .umrah__process-scene svg {
@@ -5418,4 +5420,60 @@ no-JS and reduced-motion resting state, which must be fully visible. */
   .location__details address {
     font-size: 0.88rem;
   }
+}
+
+/* --- V11.1: proof tiles centred, icon rail full height ------------------- */
+.hero-proof > div {
+  display: grid;
+  align-content: center;
+  gap: 0.3rem;
+}
+
+.hero-proof strong,
+.hero-proof p {
+  text-align: left;
+}
+
+@media (max-width: 767px) {
+  /* Two per row on phones, so the rail still has text to match its height. */
+  .hero-proof {
+    justify-content: start;
+    padding: 1.1rem 0.9rem;
+  }
+}
+
+/* --- V11.1: brand scene typography, centred location rail ---------------- */
+.scene-brandmark {
+  fill: var(--white);
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+}
+
+.scene-caret {
+  fill: var(--white);
+}
+
+/* The rail was left-aligned inside its own padding, so the display heading's
+right-hand space never matched its left. Centring the column evens both. */
+.location__details {
+  align-items: center;
+  text-align: center;
+}
+
+.location__details h3,
+.location__details address,
+.location__details > p {
+  text-align: center;
+}
+
+.location__details > span {
+  line-height: 1.55;
+  justify-content: center;
+  text-align: left;
+}
+
+.location__details a {
+  align-self: center;
 }
