@@ -237,6 +237,16 @@ test("keeps the V5 portfolio architecture production-ready", async () => {
   assert.match(css, /\.button \{[^}]*border-radius: var\(--radius-pill\)/);
   assert.match(experience, /ScrollTrigger\.batch/);
   assert.match(experience, /data-reveal-group/);
+  // In-page anchors must be handled by the page, never by the router. Letting
+  // the router see them makes it fetch an RSC payload that a static host cannot
+  // serve; its 404 error path assigns window.location.href, which fires
+  // popstate, which navigates again, and every iteration calls scrollIntoView
+  // on the fragment target. Measured on the deployed site: one nav click gave
+  // 195 popstate events and 193 scrollIntoView calls, pinning the page.
+  assert.match(experience, /document\.addEventListener\("click", onDocumentClick, \{ capture: true \}\)/);
+  assert.match(experience, /href\.startsWith\("#"\)/);
+  assert.match(experience, /event\.preventDefault\(\)/);
+
   // The dead animation V9 left behind must not come back.
   assert.doesNotMatch(experience, /fromTo\("\.product-collection__layout/);
   assert.doesNotMatch(css, /\.product-collection__layout/);

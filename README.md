@@ -135,3 +135,22 @@ The KIYO logo, hero plates, UMRAH images and product shots come from supplied
 source artwork. The facility portfolio and social-card background are original
 AI-generated review assets prepared for this preview. Replace any review asset
 with final commissioned photography before a public brand launch if required.
+
+## In-page anchors
+
+Every `href="#section"` click is handled by a capture-phase listener in
+`KiyoExperience`, not by the router, and the handler calls `preventDefault()`.
+
+This is deliberate and load-bearing. The router treats a fragment link as a
+navigation and requests an RSC payload for it. A static host has no RSC
+endpoint, so the request 404s, and the router's error path assigns
+`window.location.href`, which fires `popstate`, which navigates again. Each
+iteration calls `scrollIntoView` on the fragment target, so the page drags
+itself back to the anchor and the visitor cannot scroll away.
+
+Measured on the deployed site before the fix: one nav click produced **195
+popstate events and 193 scrollIntoView calls and was still climbing**. Locally
+the 404 returns instantly so the loop burns out in under a second, which is why
+it only ever looked like a production bug.
+
+`npm test` fails if the handler is removed.

@@ -391,6 +391,59 @@ export function KiyoExperience() {
 
   useEffect(() => clearShopTimer, []);
 
+  /**
+   * Own every in-page anchor click.
+   *
+   * These links are same-document fragments on a one-page site, but the router
+   * treats them as navigations and asks the server for an RSC payload. A static
+   * host has no RSC endpoint, so the request 404s and the router's error path
+   * assigns `window.location.href`, which fires popstate, which navigates
+   * again: an endless loop. Every iteration calls `scrollIntoView` on the
+   * fragment target, so the page yanks itself back to the anchor and the user
+   * cannot scroll away from it.
+   *
+   * Measured on the deployed site: one nav click produced 195 popstate events
+   * and 193 scrollIntoView calls and still climbing. Locally the 404 returns
+   * instantly, so the loop burns out before it is noticeable, which is why this
+   * only looked like a production bug.
+   *
+   * Handling the scroll here in the capture phase means the router never sees
+   * the click, and it also lets the fixed header be accounted for properly.
+   */
+  useEffect(() => {
+    const onDocumentClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const anchor = (event.target as Element | null)?.closest?.("a");
+      const href = anchor?.getAttribute("href");
+      if (!anchor || !href || !href.startsWith("#") || href.length < 2) return;
+      if (anchor.hasAttribute("target") || anchor.hasAttribute("download")) return;
+
+      const target = document.getElementById(decodeURIComponent(href.slice(1)));
+      if (!target) return;
+
+      event.preventDefault();
+
+      const header = document.querySelector<HTMLElement>(".site-header");
+      const offset = (header?.offsetHeight ?? 0) + 16;
+      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top, behavior: reduceMotion ? "auto" : "smooth" });
+
+      /* Keep the URL shareable. replaceState does not fire popstate, so the
+         router stays out of it. */
+      try {
+        window.history.replaceState(window.history.state, "", href);
+      } catch {
+        /* Some embedded contexts refuse history writes; the scroll still works. */
+      }
+    };
+
+    document.addEventListener("click", onDocumentClick, { capture: true });
+    return () => document.removeEventListener("click", onDocumentClick, { capture: true });
+  }, []);
+
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
