@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { bodyFont, headingFont } from "./fonts";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kiyo.com.my";
@@ -58,7 +59,7 @@ const organization = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-MY">
+    <html lang="en-MY" className={`${headingFont.variable} ${bodyFont.variable}`}>
       <body>
         {children}
         <script

@@ -2,164 +2,127 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Backpack, Check, Expand, Luggage, ShieldCheck, ShoppingBag, Tag, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Expand, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { ImageSlotVisual } from "./ImagePlaceholder";
-import { ProductCarousel } from "./ProductCarousel";
-import { corporateSlots, umrahSlots, type ImageSlot } from "./imageSlots";
+import { PROGRAMME_EVENT, type Programme } from "./BuildYourSet";
+import { WHATSAPP_URL } from "./SiteFooter";
+import {
+  corporateLeadSlot,
+  corporateSetSlots,
+  umrahLeadSlot,
+  umrahSetSlots,
+  type ImageSlot,
+} from "./imageSlots";
 
-/* The catalogue is luggage, bags and accessories, so the section says so
-   rather than leading on luggage alone. Copy is KIYO's own. */
-const productCategories = [
-  { title: "Cabin & Check-in Luggage", description: "Stylish, lightweight, and engineered for smooth travel anywhere.", icon: Luggage },
-  { title: "Bags & Backpacks", description: "Business, commuter and weekender styles built for daily carry.", icon: Backpack },
-  { title: "Travel Accessories", description: "Smart, functional essentials that keep you organised on the go.", icon: Tag },
-  { title: "Durable Everyday Travel", description: "Built with premium materials for long-lasting performance you can trust.", icon: ShieldCheck },
-] as const;
-
-export function ProductCollectionOverview({ onShop }: { onShop: () => void }) {
-  return (
-    <div className="product-collection" aria-label="KIYO travel and lifestyle collection">
-      <header className="product-collection__intro" data-reveal-group>
-        <h2><span>Travel &amp; lifestyle</span> <em>collection</em></h2>
-        <p>Luggage, bags and travel accessories, curated for style, durability, and every journey.</p>
-      </header>
-
-      <ProductCarousel onShop={onShop} />
-
-      <div className="product-categories" data-reveal-group>
-        {productCategories.map(({ title, description, icon: Icon }) => (
-          <article className="product-category" key={title}>
-            <span className="product-category__icon"><Icon aria-hidden="true" /></span>
-            <h3>{title}</h3>
-            <p>{description}</p>
-          </article>
-        ))}
-      </div>
-
-      <aside className="product-collection__proof" data-reveal>
-        <div className="product-collection__proof-copy">
-          <ShoppingBag aria-hidden="true" />
-          <h3>Retail &amp; wholesale ready</h3>
-          <p>From individual travellers to global partners, KIYO delivers premium quality, reliable supply, and exceptional value. We manufacture, design and wholesale our own range, and add custom logo branding for businesses, travel agencies and corporations.</p>
-        </div>
-        <button className="button button--ink" type="button" onClick={onShop}>Explore products <ArrowUpRight aria-hidden="true" /></button>
-      </aside>
-    </div>
-  );
-}
-
-type CorporateGiftSet = {
+export type GiftSet = {
   id: string;
   number: string;
   title: string;
   summary: string;
-  bullets: string[];
+  contents: string[];
   moq: string;
   leadTime: string;
   slot: ImageSlot;
 };
 
-const corporateGiftSets: CorporateGiftSet[] = [
-  {
-    id: "travel-amenities",
-    number: "01",
-    title: "Branded Luggage + Travel Amenities Set",
-    summary: "A coordinated premium travel set for clients, teams and group programmes.",
-    bullets: ["Premium mini luggage with travel essentials", "Neck pillow, wireless fan & headphones", "Custom logo printing available"],
-    moq: "100 sets",
-    leadTime: "6-8 weeks",
-    slot: corporateSlots[0],
-  },
-  {
-    id: "team-building",
-    number: "02",
-    title: "Team Building Outdoor Kit",
-    summary: "Practical outdoor pieces selected for team programmes, events and shared activities.",
-    bullets: ["Handpicked outdoor & team bonding items", "Durable, practical & adventure-ready", "Custom logo printing available"],
-    moq: "100 sets",
-    leadTime: "6-8 weeks",
-    slot: corporateSlots[1],
-  },
-  {
-    id: "mini-luggage",
-    number: "03",
-    title: "Mini Luggage Travel Kit",
-    summary: "A compact luggage set with useful everyday travel essentials.",
-    bullets: ["Compact luggage with everyday travel must-haves", "Organized, lightweight & easy to carry", "Custom logo printing available"],
-    moq: "100 sets",
-    leadTime: "6-8 weeks",
-    slot: corporateSlots[2],
-  },
-  {
-    id: "notebook",
-    number: "04",
-    title: "A5 Notebook Gift Set",
-    summary: "A refined desk and travel gift set in an elegant presentation box.",
-    bullets: ["A5 notebook, pen & thermos bottle (300ml)", "Elegant gift box packaging", "Custom logo printing available"],
-    moq: "100 sets",
-    leadTime: "6-8 weeks",
-    slot: corporateSlots[3],
-  },
-];
+/* -------------------------------------------------------------------------- */
+/* The set inspector                                                          */
+/* -------------------------------------------------------------------------- */
 
-function GiftCommercialDetails({ gift }: { gift: CorporateGiftSet }) {
-  return (
-    <dl className="gift-commercial">
-      <div><dt>MOQ</dt><dd>{gift.moq}</dd></div>
-      <div><dt>Lead time</dt><dd>{gift.leadTime}</dd></div>
-    </dl>
-  );
-}
-
-function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index: number | null; onChange: (index: number) => void; onClose: () => void; whatsappUrl: string }) {
+function GiftDialog({
+  sets,
+  index,
+  onChange,
+  onClose,
+}: {
+  sets: GiftSet[];
+  index: number | null;
+  onChange: (index: number) => void;
+  onClose: () => void;
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (index === null || !dialog) return;
+
     const opener = document.activeElement as HTMLElement | null;
     dialog.showModal();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
+
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const context = reduceMotion ? undefined : gsap.context(() => {
       gsap.timeline({ defaults: { ease: "power3.out" } })
-        .fromTo(".gift-dialog__surface", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.24 })
-        .fromTo(".gift-dialog__media", { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.46 }, "<")
-        .fromTo(".gift-dialog__details > *", { autoAlpha: 0, x: 16 }, { autoAlpha: 1, x: 0, duration: 0.34, stagger: 0.04 }, "<0.08");
+        .fromTo(".giftdialog__surface", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.3 })
+        .fromTo(".giftdialog__media", { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.45 }, "<")
+        .fromTo(".giftdialog__detail > *", { autoAlpha: 0, x: 14 }, { autoAlpha: 1, x: 0, duration: 0.34, stagger: 0.05 }, "<0.08");
     }, dialog);
+
+    /* The arrow keys walk the set the same way the buttons do. */
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") { event.preventDefault(); onChange((index + 1) % sets.length); }
+      if (event.key === "ArrowLeft") { event.preventDefault(); onChange((index - 1 + sets.length) % sets.length); }
+    };
+    dialog.addEventListener("keydown", onKey);
+
     return () => {
+      dialog.removeEventListener("keydown", onKey);
       context?.revert();
       document.body.style.overflow = previousOverflow;
       if (dialog.open) dialog.close();
       opener?.focus();
     };
-  }, [index]);
+  }, [index, onChange, sets.length]);
 
   if (index === null) return null;
-  const gift = corporateGiftSets[index];
-  const previous = (index - 1 + corporateGiftSets.length) % corporateGiftSets.length;
-  const next = (index + 1) % corporateGiftSets.length;
+  const set = sets[index];
 
   return (
-    <dialog ref={dialogRef} className="gift-dialog" aria-labelledby="gift-dialog-title" onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={(event) => { if (event.target === dialogRef.current) onClose(); }}>
-      <div className="gift-dialog__surface">
-        <button ref={closeRef} type="button" className="gift-dialog__close" onClick={onClose} aria-label="Close gift inspection"><X aria-hidden="true" /></button>
-        <ImageSlotVisual slot={gift.slot} className="gift-dialog__media" />
-        <div className="gift-dialog__details">
-          <p>Corporate gift set {gift.number}</p>
-          <h2 id="gift-dialog-title">{gift.title}</h2>
-          <span>{gift.summary}</span>
-          <ul>{gift.bullets.map((bullet) => <li key={bullet}><Check aria-hidden="true" />{bullet}</li>)}</ul>
-          <GiftCommercialDetails gift={gift} />
-          <div className="gift-dialog__footer">
-            <a className="button button--coral" href={whatsappUrl} target="_blank" rel="noreferrer">Enquire on WhatsApp <FaWhatsapp aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
-            <div className="gift-dialog__navigation">
-              <button type="button" onClick={() => onChange(previous)} aria-label="Inspect previous gift set"><ArrowLeft aria-hidden="true" /></button>
-              <button type="button" onClick={() => onChange(next)} aria-label="Inspect next gift set"><ArrowRight aria-hidden="true" /></button>
+    <dialog
+      ref={dialogRef}
+      className="giftdialog"
+      aria-labelledby="giftdialog-title"
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onClick={(event) => { if (event.target === dialogRef.current) onClose(); }}
+    >
+      <div className="giftdialog__surface">
+        <button ref={closeRef} type="button" className="giftdialog__close" onClick={onClose} aria-label="Close set details">
+          <X aria-hidden="true" />
+        </button>
+
+        <ImageSlotVisual slot={set.slot} className="giftdialog__media" />
+
+        <div className="giftdialog__detail">
+          <p className="giftdialog__index">Set {set.number}</p>
+          <h3 id="giftdialog-title">{set.title}</h3>
+          <p className="giftdialog__summary">{set.summary}</p>
+
+          <ul>
+            {set.contents.map((item) => <li key={item}><Check aria-hidden="true" />{item}</li>)}
+          </ul>
+
+          <dl className="giftdialog__terms">
+            <div><dt>MOQ</dt><dd>{set.moq}</dd></div>
+            <div><dt>Lead time</dt><dd>{set.leadTime}</dd></div>
+          </dl>
+
+          <div className="giftdialog__actions">
+            <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+              Enquire on WhatsApp <FaWhatsapp aria-hidden="true" />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <div className="giftdialog__nav">
+              <button type="button" onClick={() => onChange((index - 1 + sets.length) % sets.length)} aria-label="Previous set">
+                <ArrowLeft aria-hidden="true" />
+              </button>
+              <span aria-hidden="true">{index + 1} / {sets.length}</span>
+              <button type="button" onClick={() => onChange((index + 1) % sets.length)} aria-label="Next set">
+                <ArrowRight aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
@@ -168,79 +131,235 @@ function CorporateGiftDialog({ index, onChange, onClose, whatsappUrl }: { index:
   );
 }
 
-export function CorporateGiftGallery({ whatsappUrl }: { whatsappUrl: string }) {
-  /* Hover (or keyboard focus) widens a panel; the click opens the dialog.
-     The cover itself stays clean: set name and a "See details" affordance. */
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [dialogIndex, setDialogIndex] = useState<number | null>(null);
+/**
+ * The four-up showcase.
+ *
+ * Hover or keyboard focus highlights one set and dims the rest; the click opens
+ * the inspector. The cover itself stays quiet - name and a "View set"
+ * affordance - so the row reads as photography rather than as four buttons.
+ */
+function GiftShowcase({ sets }: { sets: GiftSet[] }) {
+  const [active, setActive] = useState<number | null>(null);
+  const [open, setOpen] = useState<number | null>(null);
 
   return (
     <>
-      <div className="corporate-accordion" role="list" aria-label="Corporate gift solutions" data-reveal-group>
-        {corporateGiftSets.map((gift, index) => (
-          <article
-            key={gift.id}
-            className={`corporate-panel${index === activeIndex ? " is-active" : ""}`}
-            role="listitem"
-            onMouseEnter={() => setActiveIndex(index)}
+      <ul
+        className={`setstrip${active !== null ? " is-focused" : ""}`}
+        data-reveal-group
+        onMouseLeave={() => setActive(null)}
+      >
+        {sets.map((set, index) => (
+          <li
+            className={`setcard${active === index ? " is-active" : ""}`}
+            key={set.id}
+            onMouseEnter={() => setActive(index)}
           >
             <button
               type="button"
-              className="corporate-panel__activate"
+              className="setcard__open"
               aria-haspopup="dialog"
-              onFocus={() => setActiveIndex(index)}
-              onClick={() => setDialogIndex(index)}
+              onFocus={() => setActive(index)}
+              onBlur={() => setActive(null)}
+              onClick={() => setOpen(index)}
             >
-              <ImageSlotVisual slot={gift.slot} className="corporate-panel__media" />
-              <span className="corporate-panel__scrim" aria-hidden="true" />
-              <span className="corporate-panel__heading">
-                <strong>{gift.title}</strong>
-                <span className="corporate-panel__cta">See details <Expand aria-hidden="true" /></span>
-              </span>
+              <ImageSlotVisual slot={set.slot} className="setcard__media" />
+              <span className="setcard__scrim" aria-hidden="true" />
+              <span className="setcard__cta" aria-hidden="true">View set <Expand /></span>
+              <span className="sr-only">View the {set.title}</span>
             </button>
-          </article>
+            <span className="setcard__label">{set.title}</span>
+          </li>
         ))}
-      </div>
-      <CorporateGiftDialog index={dialogIndex} onChange={setDialogIndex} onClose={() => setDialogIndex(null)} whatsappUrl={whatsappUrl} />
+      </ul>
+
+      <GiftDialog sets={sets} index={open} onChange={setOpen} onClose={() => setOpen(null)} />
     </>
   );
 }
 
-type UmrahService = { label: string; description: string; slot: ImageSlot };
+/* -------------------------------------------------------------------------- */
+/* The shared chapter shell                                                   */
+/* -------------------------------------------------------------------------- */
 
-const umrahServices: UmrahService[] = [
-  { label: "Journey set", description: "Coordinated luggage sizes for jemaah and group travel.", slot: umrahSlots[0] },
-  { label: "Essentials", description: "Optional prayer and travel essentials for a more complete package.", slot: umrahSlots[1] },
-  { label: "Agency branding", description: "Custom agency logo and coordinated identity for a more professional programme.", slot: umrahSlots[2] },
+/**
+ * Chapters 3 and 4 are the same chapter twice over: copy on the left, one
+ * lifestyle plate on the right, then the showcase underneath. They share this
+ * shell so the two can never drift apart, and each passes its own programme so
+ * the enquiry flow opens pointed at the right desk.
+ */
+function GiftChapter({
+  id,
+  tone,
+  eyebrow,
+  headline,
+  intro,
+  cta,
+  programme,
+  lead,
+  sets,
+}: {
+  id: string;
+  tone: "sand" | "paper";
+  eyebrow: string;
+  headline: React.ReactNode;
+  intro: string;
+  cta: string;
+  programme: Programme;
+  lead: ImageSlot;
+  sets: GiftSet[];
+}) {
+  return (
+    <section id={id} className={`gift gift--${tone}`}>
+      <div className="gift__lead">
+        <div className="gift__copy" data-reveal-group>
+          <p className="eyebrow">{eyebrow}</p>
+          <h2>{headline}</h2>
+          <p>{intro}</p>
+          <a
+            className="button button--coral"
+            href="#build"
+            onClick={() => window.dispatchEvent(new CustomEvent<Programme>(PROGRAMME_EVENT, { detail: programme }))}
+          >
+            {cta} <ArrowRight aria-hidden="true" />
+          </a>
+        </div>
+
+        <div className="gift__visual" data-reveal="right">
+          <ImageSlotVisual slot={lead} className="gift__media" />
+        </div>
+      </div>
+
+      <GiftShowcase sets={sets} />
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* 03  UMRAH                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const MOQ = "100 sets";
+const LEAD_TIME = "6-8 weeks";
+
+const umrahSets: GiftSet[] = [
+  {
+    id: "essential-journey",
+    number: "01",
+    title: "Essential Journey Set",
+    summary: "The core set every jemaah carries, sized for a full UMRAH departure.",
+    contents: ["Cabin, medium and large cases", "Drawstring bag and toiletry pouch", "Insulated travel bottle"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: umrahSetSlots[0],
+  },
+  {
+    id: "comfort-travel",
+    number: "02",
+    title: "Comfort Travel Set",
+    summary: "The essentials plus the pieces that make a long flight easier.",
+    contents: ["Coordinated luggage in cream", "Neck pillow, eye mask and portable fan", "Toiletry pouch and travel bottle"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: umrahSetSlots[1],
+  },
+  {
+    id: "complete-jemaah",
+    number: "03",
+    title: "Complete Jemaah Set",
+    summary: "A full programme package, ready to hand over on departure day.",
+    contents: ["Full coordinated luggage set", "Prayer mat and ibadah essentials", "Comfort and travel accessories"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: umrahSetSlots[2],
+  },
+  {
+    id: "agency-branding",
+    number: "04",
+    title: "Agency Branding Set",
+    summary: "The complete set carrying your agency's identity throughout.",
+    contents: ["Your logo applied across the set", "Branded presentation box and luggage tag", "Coordinated agency colourway"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: umrahSetSlots[3],
+  },
 ];
 
-export function UmrahServiceGallery() {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const active = umrahServices[activeIndex];
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const context = gsap.context(() => {
-      gsap.fromTo(".umrah-gallery__detail > *", { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.34, stagger: 0.045, ease: "power2.out" });
-      gsap.fromTo(".umrah-card.is-active .image-slot", { scale: 1.025 }, { scale: 1, duration: 0.45, ease: "power3.out" });
-    }, root);
-    return () => context.revert();
-  }, [activeIndex]);
-
+export function UmrahGiftSets() {
   return (
-    <div ref={rootRef} className="umrah-gallery" data-reveal="right">
-      <div className="umrah-gallery__cards" role="group" aria-label="UMRAH programme components">
-        {umrahServices.map((service, index) => (
-          <button type="button" key={service.slot.id} className={`umrah-card${index === activeIndex ? " is-active" : ""}`} aria-pressed={index === activeIndex} onClick={() => setActiveIndex(index)}>
-            <ImageSlotVisual slot={service.slot} className="umrah-card__media" />
-            <span className="umrah-card__scrim" aria-hidden="true" />
-            <strong>{service.label}</strong>
-          </button>
-        ))}
-      </div>
-      <div className="umrah-gallery__detail" aria-live="polite"><p>{active.description}</p></div>
-    </div>
+    <GiftChapter
+      id="umrah"
+      tone="sand"
+      eyebrow="UMRAH programme"
+      headline={<>Complete UMRAH<br />sets, made simple.</>}
+      intro="Coordinated luggage, travel essentials and agency branding for every jemaah."
+      cta="Plan an UMRAH programme"
+      programme="umrah"
+      lead={umrahLeadSlot}
+      sets={umrahSets}
+    />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* 04  Corporate                                                              */
+/* -------------------------------------------------------------------------- */
+
+const corporateSets: GiftSet[] = [
+  {
+    id: "branded-travel",
+    number: "01",
+    title: "Branded Travel Set",
+    summary: "A coordinated travel set for clients, teams and group programmes.",
+    contents: ["Compact branded case", "Headphones, neck pillow and travel pouch", "Custom logo printing available"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: corporateSetSlots[0],
+  },
+  {
+    id: "executive-journey",
+    number: "02",
+    title: "Executive Journey Set",
+    summary: "A senior gift: darker finishes and a heavier presentation.",
+    contents: ["Premium cabin case", "Executive desk and travel pieces", "Custom logo printing available"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: corporateSetSlots[1],
+  },
+  {
+    id: "team-building",
+    number: "03",
+    title: "Team Building Kit",
+    summary: "Practical outdoor pieces chosen for team programmes and events.",
+    contents: ["Handpicked outdoor and team items", "Durable, practical and event-ready", "Custom logo printing available"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: corporateSetSlots[2],
+  },
+  {
+    id: "premium-welcoming",
+    number: "04",
+    title: "Premium Welcoming Gift",
+    summary: "A refined desk and travel gift in an elegant presentation box.",
+    contents: ["Notebook, pen and thermos bottle", "Elegant gift box packaging", "Custom logo printing available"],
+    moq: MOQ,
+    leadTime: LEAD_TIME,
+    slot: corporateSetSlots[3],
+  },
+];
+
+export function CorporateGiftSets() {
+  return (
+    <GiftChapter
+      id="corporate"
+      tone="paper"
+      eyebrow="Corporate gifts"
+      headline={<>Corporate gifts<br />that travel further.</>}
+      intro="Branded travel sets for clients, employees, partners and events."
+      cta="Get a corporate quote"
+      programme="corporate"
+      lead={corporateLeadSlot}
+      sets={corporateSets}
+    />
   );
 }

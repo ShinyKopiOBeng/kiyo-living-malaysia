@@ -17,172 +17,350 @@ async function render() {
   );
 }
 
-test("server-renders the V5 KIYO portfolio alignment experience", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+let cached;
+async function html() {
+  if (!cached) {
+    const response = await render();
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+    cached = await response.text();
+  }
+  return cached;
+}
 
-  const html = await response.text();
-  assert.match(html, /<title>KIYO Living \| Luggage, Corporate Gifts &amp; UMRAH Travel Sets<\/title>/i);
+/** The markup between one chapter anchor and the next. */
+async function chapter(id, nextId) {
+  const page = await html();
+  const from = page.indexOf(`id="${id}"`);
+  const to = nextId ? page.indexOf(`id="${nextId}"`) : page.length;
+  assert.notEqual(from, -1, `the page is missing the "${id}" chapter`);
+  assert.ok(to > from, `"${nextId}" does not follow "${id}"`);
+  return page.slice(from, to);
+}
 
-  for (const label of ["About", "At a Glance", "Products", "Corporate", "UMRAH", "Location", "Contact"]) {
-    assert.match(html, new RegExp(`>${label}<`));
+test("renders the chapters in the order the mockup sets out", async () => {
+  const page = await html();
+
+  const order = ["home", "warehouse", "umrah", "corporate", "build", "customise", "delivery", "clients", "about", "visit", "contact"];
+  const positions = order.map((id) => {
+    const at = page.indexOf(`id="${id}"`);
+    assert.notEqual(at, -1, `the page is missing the "${id}" chapter`);
+    return at;
+  });
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b), "chapters are out of order");
+  assert.ok(page.indexOf('class="site-footer"') > page.lastIndexOf('id="contact"'), "the footer must close the page");
+});
+
+test("the header carries the nav, the retail link and BUILD YOUR SET", async () => {
+  const page = await html();
+
+  assert.match(page, /<title>KIYO Living \| Luggage, Corporate Gifts &amp; UMRAH Travel Sets<\/title>/i);
+  for (const label of ["Corporate", "UMRAH", "How it works", "Clients", "About KIYO", "Visit us"]) {
+    assert.ok(page.includes(`>${label}<`), `the header nav is missing ${label}`);
+  }
+  /* Retail is a slider with both stores behind it, not a bare link to one. */
+  assert.match(page, /class="retail-trigger"/);
+  assert.match(page, /aria-controls="retail-flyout"/);
+  assert.match(page, /id="retail-flyout"/);
+  assert.match(page, /class="retail-scrim/);
+  assert.doesNotMatch(page, /class="header-retail"/);
+  assert.match(page, /class="button button--coral header-cta" href="#build"/);
+  assert.match(page, /Build your set <span aria-hidden="true">↓<\/span>/);
+});
+
+test("the hero matches the mockup: eyebrow, three-line headline, two routes", async () => {
+  const hero = await chapter("home", "warehouse");
+
+  assert.match(hero, /class="eyebrow">Malaysian travel, thoughtfully made</);
+  assert.match(hero, /<h1>Designed<br\/>for your<br\/>journey\.<\/h1>/);
+  assert.match(hero, /Premium luggage, corporate gifting and UMRAH programmes/);
+  assert.match(hero, /class="button button--coral" href="#corporate"/);
+  assert.match(hero, /class="button button--ghost" href="#umrah"/);
+  assert.match(hero, /data-image-slot="HOME-HERO-01"/);
+});
+
+test("the warehouse band states the three-line claim and the four capabilities", async () => {
+  const band = await chapter("warehouse", "umrah");
+
+  assert.match(band, /Designed here\.<br\/>Prepared here\.<br\/>Delivered from here\./);
+  assert.match(band, /Kajang, Selangor/);
+  assert.match(band, /data-image-slot="WAREHOUSE-BAND"/);
+  for (const capability of ["Warehouse", "Customisation", "QC", "Fulfilment"]) {
+    assert.ok(band.includes(capability), `the capability row is missing ${capability}`);
+  }
+});
+
+test("UMRAH and corporate are the same chapter shell, twice", async () => {
+  const umrah = await chapter("umrah", "corporate");
+  const corporate = await chapter("corporate", "build");
+
+  for (const [name, section, lead] of [["UMRAH", umrah, "UMRAH-LEAD"], ["corporate", corporate, "CORPORATE-LEAD"]]) {
+    assert.match(section, /class="gift__lead"/, `${name} is not using the shared chapter shell`);
+    assert.match(section, /class="gift__copy"/, `${name} is missing the copy column`);
+    assert.match(section, new RegExp(`data-image-slot="${lead}"`), `${name} is missing its lead plate`);
+    assert.match(section, /class="setstrip"/, `${name} is missing the four-up showcase`);
+    assert.ok(
+      section.indexOf("gift__lead") < section.indexOf("setstrip"),
+      `${name} puts the showcase above the lead`,
+    );
+    assert.equal((section.match(/class="setcard"/g) ?? []).length, 4, `${name} should show four sets`);
   }
 
-  assert.match(html, /DESIGNED FOR/i);
-  assert.match(html, /YOUR JOURNEY/i);
-  assert.match(html, /Malaysia-based premium brand specialising in travel, live-commerce, wholesale distribution, and corporate gifting solutions/i);
-  assert.match(html, /DISCOVER KIYO/i);
-  assert.match(html, /CORPORATE GIFTING/i);
-  assert.match(html, /data-image-slot="HOME-HERO-01"/);
-  assert.match(html, /\/images\/kiyo\/home-hero-airport\.webp/i);
-  for (const proof of ["TOP 3", "TSP OFFICIAL", "EST. 2022", "NATIONWIDE", "TikTok Shop", "SSM 202201026207"]) {
-    assert.ok(html.includes(proof), `hero proof bar is missing ${proof}`);
+  assert.match(umrah, /Complete UMRAH<br\/>sets, made simple\./);
+  assert.match(umrah, /Plan an UMRAH programme/);
+  for (const label of ["Essential Journey Set", "Comfort Travel Set", "Complete Jemaah Set", "Agency Branding Set"]) {
+    assert.ok(umrah.includes(label), `the UMRAH showcase is missing ${label}`);
   }
-  // Two claims from the deck are unsubstantiated and must stay off the site.
-  assert.doesNotMatch(html, /MILLION-RINGGIT|Live Hosts Trained/i);
-  // No invented client names anywhere.
-  assert.doesNotMatch(html, /Wanderlust Travel|Corp Solutions Malaysia|Nexus University|Urban Haul|Global Escapes|Prime Events/i);
-  assert.doesNotMatch(html, /Move to reveal|audience-marquee|torch-hint|hero-grid/i);
 
-  assert.match(html, /<span>A Malaysian travel<\/span> <em>and live-commerce brand<\/em>/);
-  assert.match(html, /KIYO Living Sdn\. Bhd\. is a Malaysia-based travel and live-commerce brand/);
-  assert.match(html, /Samantha Ng<\/strong><span>Founder, KIYO Living<\/span>/);
-  assert.match(html, /To empower journeys, elevate brands and create lasting impact/);
-  assert.match(html, /data-image-slot="ABOUT-WAREHOUSE"/);
-  assert.match(html, /data-image-slot="ABOUT-SAMANTHA"/);
-  assert.match(html, /\/images\/kiyo\/about-samantha\.webp/);
-  assert.match(html, /\/images\/kiyo\/about-warehouse\.webp/);
-  assert.doesNotMatch(html, /samantha-founder|samantha-warehouse/);
-  assert.doesNotMatch(html, /Founder Samantha Ng|founder badge|<figcaption><span>Founder/i);
-
-  assert.match(html, /<h2><span>Business<\/span> <em>pillars<\/em><\/h2>/i);
-  for (const title of ["Viral TikTok Campaigns", "Nationwide Wholesale Distribution", "Premium Corporate Gifting Solutions", "Live-Commerce Ecosystem", "Strategic Partnerships"]) {
-    assert.match(html, new RegExp(title, "i"));
+  assert.match(corporate, /Corporate gifts<br\/>that travel further\./);
+  assert.match(corporate, /Get a corporate quote/);
+  for (const label of ["Branded Travel Set", "Executive Journey Set", "Team Building Kit", "Premium Welcoming Gift"]) {
+    assert.ok(corporate.includes(label), `the corporate showcase is missing ${label}`);
   }
-  assert.doesNotMatch(html, /<h3>UMRAH Programmes<\/h3>/i);
-  assert.doesNotMatch(html, /data-image-slot="CAPABILITY-/);
+});
 
-  assert.match(html, /TRAVEL &amp; LIFESTYLE/i);
-  assert.match(html, /COLLECTION/i);
-  // Scoped to the heading: "premium luggage" is still fair copy elsewhere.
-  assert.doesNotMatch(html, /<span>Premium luggage<\/span>/i);
-  for (const category of ["Cabin &amp; Check-in Luggage", "Bags &amp; Backpacks", "Travel Accessories", "Durable Everyday Travel"]) {
-    assert.ok(html.includes(category), `products is missing the ${category} card`);
-  }
-  assert.match(html, /RETAIL &amp; WHOLESALE READY/i);
-  assert.match(html, /EXPLORE PRODUCTS/i);
-  assert.doesNotMatch(html, /aria-label="KIYO product inspector"|class="product-stage"|>360 Wheels<|>Security Lock</i);
+test("step 1 is the product chooser, with bulk and retail routes per card", async () => {
+  const build = await chapter("build", "customise");
 
-  // V9: the section is a drifting carousel of the real product shots.
-  assert.match(html, /class="product-carousel"/);
-  assert.match(html, /class="product-carousel__track"/);
+  assert.match(build, /class="steprail"/);
+  assert.match(build, /Choose<br\/>your luggage\./);
+  assert.match(build, /Branded designs for every journey\./);
+  assert.match(build, /class="chooser__rail"/);
+  assert.match(build, /Select for bulk/);
+  assert.match(build, /Buy retail/);
+  assert.match(build, /Previous products/);
+  assert.match(build, /Next products/);
+
+  /* Cases and sets only: a corporate or UMRAH programme is built around
+     luggage, so the four bags are filtered out of this step. They stay in the
+     catalogue and on disk; the chooser simply does not offer them. */
+  assert.equal((build.match(/class="product-card"/g) ?? []).length, 6);
   for (const name of [
     "Premium Aluminium Set", "Full Spec Aluminium Frame", "Sunburst Hardshell",
     "Front Pocket Cabin", "Top Access Cabin", "Mini Hard Case",
-    "Business Backpack", "Flap Commuter Backpack", "Slim Laptop Brief", "Weekender Duffel",
   ]) {
-    assert.ok(html.includes(name), `carousel is missing ${name}`);
+    assert.ok(build.includes(name), `the chooser is missing ${name}`);
   }
-  // Ten products, rendered twice so the loop wraps without a visible seam.
-  assert.equal((html.match(/class="product-slide"/g) ?? []).length, 20);
-  assert.match(html, /class="product-swatch/);
-  assert.match(html, /Previous products/);
-  assert.match(html, /Next products/);
-
-  assert.match(html, /class="corporate-accordion"/);
-  assert.match(html, /<span>Corporate<\/span> <em>gifting<\/em>/i);
-  assert.match(html, /Custom logo printing, thoughtful event gifting, and premium brand experiences/i);
-  for (const title of ["Branded Luggage + Travel Amenities Set", "Team Building Outdoor Kit", "Mini Luggage Travel Kit", "A5 Notebook Gift Set"]) {
-    assert.ok(html.includes(title));
+  for (const bag of ["Business Backpack", "Flap Commuter Backpack", "Slim Laptop Brief", "Weekender Duffel"]) {
+    assert.ok(!build.includes(bag), `the chooser should not offer the ${bag}`);
   }
-  for (const slot of ["GIFT-SET-01", "GIFT-SET-02", "GIFT-SET-03", "GIFT-SET-04"]) {
-    assert.match(html, new RegExp(`data-image-slot="${slot}"`));
-  }
-  // Covers show the set name and a "See details" affordance only; the bullets,
-  // MOQ and lead time now live in the dialog, which mounts on demand.
-  assert.match(html, /See details/i);
-  assert.doesNotMatch(html, /Inspect set/i);
-  assert.doesNotMatch(html, /corporate-panel__details/);
-
-  assert.match(html, /<span>The complete<\/span> <em>UMRAH set<\/em>/);
-  assert.match(html, /Journey set/);
-  assert.match(html, /Essentials/);
-  assert.match(html, /Agency branding/);
-  for (const slot of ["UMRAH-JOURNEY", "UMRAH-ESSENTIALS", "UMRAH-BRANDING"]) {
-    assert.match(html, new RegExp(`data-image-slot="${slot}"`));
-  }
-  assert.doesNotMatch(html, /agency-process/);
-  assert.match(html, /How an agency order runs/);
-  for (const step of ["Consult", "Brand", "Approve", "Deliver"]) {
-    assert.ok(html.includes(`<strong>${step}</strong>`), `UMRAH process is missing ${step}`);
-  }
-  // Each step ships a real SVG scene, server-rendered so it exists before JS.
-  assert.equal((html.match(/class="umrah__process-scene"/g) ?? []).length, 4);
-  assert.equal((html.match(/data-process-card/g) ?? []).length, 4);
-
-  const locationHtml = html.slice(html.indexOf('<section id="location"'), html.indexOf('<section id="contact"'));
-  const warehouseSources = Array.from(locationHtml.matchAll(/\/images\/kiyo\/warehouse-(\d)\.webp/g), (match) => Number(match[1]));
-  assert.deepEqual(warehouseSources, [1, 2, 3, 4, 5]);
-  // Operations capability sits above the photo mosaic; the rail below it
-  // carries the address only.
-  assert.ok(locationHtml.indexOf("Warehouse Inventory") < locationHtml.indexOf("/images/kiyo/warehouse-5.webp"));
-  for (const capability of ["Warehouse Inventory", "Nationwide Fulfilment", "Product Sourcing", "Live-Commerce Support"]) {
-    assert.ok(html.includes(capability), `location is missing the ${capability} card`);
-  }
-  assert.match(html, /<span>Built for scale<\/span> <em>across Malaysia<\/em>/);
-  assert.match(locationHtml, /Pusat Perindustrian Sungai Chua/);
-  assert.match(locationHtml, /Monday to Saturday, 9:00am to 6:00pm/);
-  assert.match(locationHtml, /Arrange a visit/);
-  assert.match(html, /<span>Start your<\/span> <em>next journey<\/em>/);
-  assert.match(html, /wa\.me\/60132767887/);
-  assert.match(html, /shopee\.com\.my\/kiyoliving/);
-  assert.match(html, /tiktok\.com\/@kiyoliving/);
-  assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
-
-  // Footer carries navigation, contact detail and the legal routes.
-  assert.match(html, /class="site-footer__grid"/);
-  for (const heading of ["Explore", "Services", "Contact"]) {
-    assert.match(html, new RegExp(`<h2>${heading}</h2>`));
-  }
-  assert.match(html, /kiyoliving88@gmail\.com/);
-  assert.doesNotMatch(html, /hello@kiyo\.com\.my/);
-  // The registered address is in Kajang. Shah Alam was inherited from a mockup.
-  assert.match(html, /No\. 16, Jalan SC 1/);
-  assert.match(html, /43000 Kajang, Selangor/);
-  assert.doesNotMatch(html, /Shah Alam/);
-  assert.match(html, /Company No\. 202201026207 \(1471904-T\)/);
-  assert.match(html, /\+60 13-276 7887/);
-  for (const [label, href] of [["Terms &amp; Conditions", "/terms"], ["Privacy Policy", "/privacy"], ["Shipping &amp; Returns", "/shipping-returns"]]) {
-    assert.match(html, new RegExp(`href="${href}"[^>]*>${label}<`));
-  }
-
-  // The WhatsApp float is a draggable dock, not a bare fixed anchor.
-  assert.match(html, /class="whatsapp-dock"/);
-
-  // Shop is a right-edge flyout, not a centred modal.
-  assert.match(html, /id="shop-flyout"/);
-  assert.match(html, /class="shop-scrim/);
-  assert.doesNotMatch(html, /shop-dialog/);
-  assert.match(html, /aria-controls="shop-flyout"/);
-
-  // Typography house rule: hyphens only, no em or en dashes in visible copy.
-  assert.doesNotMatch(html, /[–—]/);
-
-  // Eyebrows: hero, Who we are, Our core, UMRAH programme.
-  assert.equal((html.match(/class="eyebrow"/g) ?? []).length, 4);
+  assert.match(build, /class="product-swatch/);
+  /* Buy retail opens the shared slider rather than guessing a platform. */
+  assert.match(build, /class="product-card__retail"[^>]*aria-controls="retail-flyout"|aria-controls="retail-flyout"[^>]*class="product-card__retail"/);
 });
 
-test("keeps the V5 portfolio architecture production-ready", async () => {
-  const [page, layout, packageJson, experience, interactions, slots, placeholder, css] = await Promise.all([
+test("step 2 takes the company, the programme and an optional logo", async () => {
+  const customise = await chapter("customise", "delivery");
+
+  assert.match(customise, /Customise<br\/>your brand\./);
+  assert.match(customise, /Make it uniquely yours\./);
+  assert.match(customise, /class="brandcase"/);
+  assert.match(customise, /Your logo/);
+
+  /* React does not preserve JSX attribute order, so match the tag by the
+     attributes it carries rather than by the order they were written in. */
+  assert.match(customise, /<input(?=[^>]*name="company")(?=[^>]*required)[^>]*>/);
+  assert.match(customise, /<input(?=[^>]*name="logo")(?=[^>]*type="file")[^>]*>/);
+
+  for (const option of ["Logo printing", "Luggage tag", "Accessories", "Custom packaging"]) {
+    assert.ok(customise.includes(option), `the customisation chips are missing ${option}`);
+  }
+  for (const programme of ["Corporate Gifts", "UMRAH Programme"]) {
+    assert.ok(customise.includes(programme), `the programme toggle is missing ${programme}`);
+  }
+  /* Three columns, in the mockup's order: the case, then the form, then the
+     detail plates with the step's one forward action closing that column. The
+     mosaic and the button share the panel, which is what keeps them the same
+     width at every viewport rather than at one tuned value. */
+  assert.match(customise, /class="brandpanel"/);
+  assert.ok(
+    customise.indexOf("brandcase") < customise.indexOf("brandform"),
+    "the branded case must lead the row, on the left",
+  );
+  assert.ok(
+    customise.indexOf("brandform") < customise.indexOf("brandpanel"),
+    "the form is the middle column, before the panel of plates",
+  );
+  for (const inPanel of ["branddetails", "flow__continue"]) {
+    assert.ok(
+      customise.indexOf(inPanel) > customise.indexOf("brandpanel"),
+      `${inPanel} must sit inside the right-hand panel`,
+    );
+  }
+  assert.match(customise, /Send logo later on WhatsApp/);
+  assert.match(customise, /Nothing is uploaded to a server/);
+  assert.match(customise, /Continue to delivery/);
+});
+
+test("step 3 collects the delivery detail and hands off to WhatsApp", async () => {
+  const delivery = await chapter("delivery", "clients");
+
+  assert.match(delivery, /Delivery<br\/>made simple\./);
+  assert.match(delivery, /From idea to arrival\./);
+
+  /* The six-stage pipeline, in order. */
+  assert.match(delivery, /class="pipeline"/);
+  const stages = ["Brief", "Sample", "Approve", "Production", "QC", "Warehouse"];
+  const at = stages.map((stage) => {
+    const index = delivery.indexOf(`>${stage}<`);
+    assert.notEqual(index, -1, `the pipeline is missing ${stage}`);
+    return index;
+  });
+  assert.deepEqual(at, [...at].sort((a, b) => a - b), "pipeline stages are out of order");
+  assert.equal((delivery.match(/data-image-slot="DELIVERY-0/g) ?? []).length, 6);
+
+  for (const field of ["quantity", "destination", "required-by", "notes"]) {
+    assert.match(delivery, new RegExp(`name="${field}"`), `the delivery form is missing ${field}`);
+  }
+  assert.match(delivery, /class="enquiry"/);
+  assert.match(delivery, /Your KIYO enquiry/);
+  for (const row of ["Product", "Programme", "Branding", "Quantity", "Delivery"]) {
+    assert.ok(delivery.includes(`<dt>${row}</dt>`), `the enquiry summary is missing ${row}`);
+  }
+  assert.match(delivery, /Get my quote on WhatsApp/);
+  assert.match(delivery, /You can send your logo file after WhatsApp opens\./);
+  assert.match(delivery, /type="submit"/);
+
+  /* An enquiry, not a checkout. Quoting a price or taking payment on the page
+     is out of scope; asking KIYO to quote one is the whole point. */
+  assert.doesNotMatch(delivery, /add to cart|checkout|proceed to pay|card number|RM ?[0-9]/i);
+});
+
+test("chapter 8 carries the client wall, the video, the quotes and partner stories", async () => {
+  const clients = await chapter("clients", "about");
+
+  assert.match(clients, /Trusted by leading organisations/i);
+  /* The marks loop rather than wrap, so twelve can each be shown large. The
+     run is rendered twice, which is what makes the wrap seamless. */
+  assert.match(clients, /class="logomarquee"/);
+  assert.equal((clients.match(/class="logomarquee__run"/g) ?? []).length, 2);
+  assert.equal((clients.match(/logowall__mark/g) ?? []).length, 24);
+  /* The duplicate run must not be read out twice. */
+  assert.match(clients, /class="logomarquee__run" aria-hidden="true"|aria-hidden="true"[^>]*class="logomarquee__run"/);
+  assert.equal((clients.match(/data-image-status="placeholder"/g) ?? []).length, 0);
+  assert.match(clients, /\/images\/kiyo\/sections\/logos\/01-aia\.webp/);
+  /* Two marks arrived filed only as a crest. They must stay unnamed rather
+     than have an organisation guessed onto them. */
+  assert.match(clients, /alt="Client organisation logo"/);
+  assert.doesNotMatch(clients, /Wanderlust Travel|Corp Solutions Malaysia|Nexus University|Urban Haul|Global Escapes|Prime Events/i);
+
+  assert.match(clients, /class="videocard"/);
+  assert.match(clients, /tiktok\.com\/@kiyoliving/);
+  assert.equal((clients.match(/class="quote"/g) ?? []).length, 2);
+  assert.match(clients, /Reliable quality and seamless coordination from start to finish\./);
+  assert.match(clients, /Our jemaah love the sets\./);
+  assert.match(clients, /Partner stories/);
+  assert.equal((clients.match(/data-image-slot="PARTNER-0/g) ?? []).length, 3);
+});
+
+test("chapter 9 keeps Samantha and the recognition shelf", async () => {
+  const about = await chapter("about", "visit");
+
+  assert.match(about, /data-image-slot="ABOUT-SAMANTHA"/);
+  assert.match(about, /\/images\/kiyo\/sections\/samantha\.webp/);
+  assert.match(about, /<h2>Samantha Ng<\/h2>/);
+  assert.match(about, /Founder, KIYO Living/);
+  assert.match(about, /Built to help organisations move together\./);
+  assert.match(about, /Recognised in live commerce/i);
+  /* Two award rows, not one composite panel: each is stood on a shelf of the
+     photographed room, which is only possible while they are separate plates
+     and siblings of the band rather than children of the content column. */
+  assert.match(about, /data-image-slot="RECOGNITION-ROW-1"/);
+  assert.match(about, /data-image-slot="RECOGNITION-ROW-2"/);
+  assert.ok(
+    about.indexOf("founder__inner") < about.indexOf('class="recognition"'),
+    "the award rows must be laid over the band, not nested in the copy column",
+  );
+  /* One photographed room: the shelving is the band itself, so it comes before
+     the content rather than being boxed inside a left-hand panel. */
+  assert.match(about, /data-image-slot="ABOUT-BACKDROP"/);
+  assert.match(about, /class="founder__wash"/);
+  assert.ok(
+    about.indexOf("ABOUT-BACKDROP") < about.indexOf("founder__inner"),
+    "the shelving plate must span the band, behind the content",
+  );
+  assert.doesNotMatch(about, /founder__portrait/);
+
+  /* Two claims from the live-commerce deck are unsubstantiated and stay off. */
+  const page = await html();
+  assert.doesNotMatch(page, /MILLION-RINGGIT|Live Hosts Trained/i);
+});
+
+test("chapter 10 gives the reach map, the address and a real map", async () => {
+  const visit = await chapter("visit", "contact");
+
+  assert.match(visit, /Nationwide<br\/>coordination\./);
+  assert.match(visit, /From our warehouse to every destination in Malaysia\./);
+  assert.match(visit, /class="reachmap"[^>]*src="\/images\/kiyo\/sections\/reachMap\.svg"/);
+  /* The base map is CC BY 3.0. The credit has to stay visible on the page, not
+     only inside the file. */
+  assert.match(visit, /class="reachmap__credit"/);
+  assert.match(visit, /CC BY 3\.0/);
+  for (const label of ["Stock", "Pack", "Coordinate", "Deliver"]) {
+    assert.ok(visit.includes(label), `the reach row is missing ${label}`);
+  }
+
+  assert.match(visit, /Visit KIYO/);
+  assert.match(visit, /Kajang, Selangor/);
+  assert.match(visit, /No\. 16, Jalan SC 1, Pusat Perindustrian Sungai Chua/);
+  assert.match(visit, /Monday to Saturday, 9:00am to 6:00pm/);
+  assert.match(visit, /<iframe[^>]*maps\.google\.com[^>]*output=embed/);
+  assert.match(visit, /title="Map showing KIYO Living in Kajang, Selangor"/);
+  assert.match(visit, /Get directions/);
+  assert.match(visit, /Arrange a visit/);
+
+  /* The registered address is in Kajang. Shah Alam was inherited from a mockup. */
+  const page = await html();
+  assert.doesNotMatch(page, /Shah Alam/);
+});
+
+test("the closing band and footer carry every business route", async () => {
+  const page = await html();
+
+  assert.match(page, /Ready to build your set\?/);
+  assert.match(page, /Tell us your programme\./);
+  assert.match(page, /Talk to KIYO on WhatsApp/);
+
+  assert.match(page, /class="site-footer__grid"/);
+  for (const heading of ["B2B Solutions", "Retail", "Visit &amp; Contact"]) {
+    assert.match(page, new RegExp(`<h2>${heading}</h2>`), `the footer is missing the ${heading} column`);
+  }
+  for (const label of ["Corporate Gifts", "UMRAH Programmes", "Customisation", "How It Works", "Product Collection", "Shopee Store", "TikTok Shop", "Arrange a Visit"]) {
+    assert.ok(page.includes(label), `the footer is missing the ${label} link`);
+  }
+  assert.match(page, /Designed for Your Journey\./);
+  assert.match(page, /kiyoliving88@gmail\.com/);
+  assert.doesNotMatch(page, /hello@kiyo\.com\.my/);
+  assert.match(page, /Company No\. 202201026207 \(1471904-T\)/);
+  assert.match(page, /\+60 13-276 7887/);
+  assert.match(page, /wa\.me\/60132767887/);
+  assert.match(page, /shopee\.com\.my\/kiyoliving/);
+  for (const [label, href] of [["Terms", "/terms"], ["Privacy", "/privacy"], ["Shipping &amp; Returns", "/shipping-returns"]]) {
+    assert.match(page, new RegExp(`href="${href}"[^>]*>${label}<`));
+  }
+
+  /* Retail actions offer Shopee and TikTok only. No Lazada route is included. */
+  assert.doesNotMatch(page, /lazada/i);
+  /* The WhatsApp float is a draggable dock, not a bare fixed anchor. */
+  assert.match(page, /class="whatsapp-dock"/);
+  /* Typography house rule: hyphens only, no em or en dashes in visible copy. */
+  assert.doesNotMatch(page, /[–—]/);
+  assert.doesNotMatch(page, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+});
+
+test("keeps the architecture production-ready", async () => {
+  const [page, layout, packageJson, experience, builder, gifts, trust, slots, placeholder, css, fonts] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../app/KiyoExperience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/BuildYourSet.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/KiyoInteractiveSections.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TrustSections.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/imageSlots.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ImagePlaceholder.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/fonts.css", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /KiyoExperience/);
@@ -191,52 +369,80 @@ test("keeps the V5 portfolio architecture production-ready", async () => {
   assert.match(slots, /status: ImageSlotStatus/);
   assert.match(slots, /mobileSrc\?: string/);
   assert.match(placeholder, /process\.env\.NODE_ENV !== "production"/);
-  assert.match(interactions, /<dialog/);
-  assert.match(interactions, /ProductCollectionOverview/);
-  assert.doesNotMatch(interactions, /ProductInspector|productScenes|productSlots/);
-  // Gift detail is authored once and rendered only inside the dialog.
-  assert.match(interactions, /See details/i);
-  assert.match(interactions, /Premium mini luggage with travel essentials/);
-  assert.match(interactions, /\bmoq\b|leadTime|<dl>/i);
-  assert.match(interactions, /100 sets/);
-  assert.match(interactions, /6-8 weeks/);
-  // Hover expands a panel; the click opens the dialog.
-  assert.match(interactions, /onMouseEnter=\{\(\) => setActiveIndex\(index\)\}/);
-  assert.match(interactions, /onClick=\{\(\) => setDialogIndex\(index\)\}/);
-  assert.match(experience, /businessPillars/);
-  assert.doesNotMatch(experience, /const capabilities\s*=/);
-  assert.match(experience, /ScrollTrigger\.create/);
-  assert.doesNotMatch(experience, /pin:\s*true/);
-  assert.doesNotMatch(experience, /locationTrackRef|location__track/);
-  assert.doesNotMatch(experience, /window\.addEventListener\("scroll"/);
-  assert.doesNotMatch(experience, /Lenis|torch|audience-marquee/i);
-  assert.doesNotMatch(css, /\.hero-grid|\.torch-hint|\.product-inspector|\.product-stage/);
 
-  // V7: the WhatsApp float is a round, draggable dock.
+  /* UMRAH and corporate must keep sharing one shell, or the two layouts drift
+     apart, which the mockup explicitly does not want. */
+  assert.match(gifts, /function GiftChapter/);
+  assert.equal((gifts.match(/<GiftChapter/g) ?? []).length, 2);
+  /* Both showcases stay interactive: hover to highlight, click to inspect. */
+  assert.match(gifts, /function GiftShowcase/);
+  assert.match(gifts, /<dialog/);
+  assert.match(gifts, /setActive\(index\)/);
+  assert.match(gifts, /aria-haspopup="dialog"/);
+
+  /* The reveal has to hand the element back to the stylesheet when it lands.
+     A finished tween leaves `opacity` inline, and an inline style outranks any
+     rule, which silently killed every CSS hover state on a revealed element -
+     the showcase could not dim its unhovered cards. */
+  assert.match(experience, /clearProps: "opacity,visibility,transform"/);
+
+  /* The builder hands off to WhatsApp and stores nothing. */
+  assert.match(builder, /whatsappLink\(message\)/);
+  assert.match(builder, /window\.open\(/);
+  assert.match(builder, /URL\.revokeObjectURL/);
+  assert.doesNotMatch(builder, /fetch\(|XMLHttpRequest|FormData\(/);
+
+  /* Quotes stay unattributed until real, approved ones arrive. */
+  assert.match(trust, /export const customerReviews: CustomerReview\[\]/);
+
+  /* The display and body faces are self-hosted: next/font downloaded them but
+     the Vinext build never emitted the @font-face rules, which silently left
+     every heading on the system sans. */
+  assert.doesNotMatch(layout, /next\/font/);
+  assert.match(css, /@import "\.\/fonts\.css"/);
+  /* The variable names match app/fonts.ts, so the next/font declaration and the
+     self-hosted faces describe the same two families. */
+  assert.match(css, /--font-heading:/);
+  assert.match(css, /--font-body:/);
+  assert.match(fonts, /font-family: "Cormorant Garamond"/);
+  assert.match(fonts, /font-family: "Montserrat"/);
+  assert.match(fonts, /url\("\/fonts\//);
+  await access(new URL("../public/fonts", import.meta.url));
+
+  /* ScrollTrigger still drives the header, which is scroll-position based and
+     self-correcting. */
+  assert.match(experience, /ScrollTrigger\.create/);
+  assert.match(experience, /data-reveal-group/);
+  /* The reveals must NOT use ScrollTrigger.batch. It measures every start
+     against the page height at creation time, so photographs loading below the
+     fold grew the page underneath the triggers and stranded whole chapters at
+     `autoAlpha: 0`. It was a race, so a different set of sections went missing
+     on each load. An IntersectionObserver has no stale geometry to go wrong. */
+  assert.doesNotMatch(experience, /ScrollTrigger\.batch/);
+  assert.match(experience, /new IntersectionObserver\(/);
+  assert.match(experience, /observer\.unobserve\(entry\.target\)/);
+  assert.doesNotMatch(experience, /pin:\s*true/);
+  assert.doesNotMatch(experience, /window\.addEventListener\("scroll"/);
+
+  /* The WhatsApp float is a round, draggable dock. */
   assert.match(experience, /setPointerCapture/);
   assert.match(experience, /DOCK_TAP_TOLERANCE/);
   assert.match(css, /\.whatsapp-float \{[^}]*border-radius: 50%/);
   assert.match(css, /\.whatsapp-dock \{[^}]*touch-action: none/);
-
-  // V7: the header is transparent over the hero and solid once past it.
+  /* The header is transparent over the hero and solid once past it. */
   assert.match(css, /\.site-header--hero \{[^}]*background: transparent/);
 
-  // V7: the proof bar sits inside the hero rather than straddling its edge.
-  assert.doesNotMatch(css, /\.hero__proofs \{[^}]*bottom: -4\.25rem/);
-
-  // V7: markup removed with the redesign leaves no orphaned rules behind.
-  assert.doesNotMatch(css, /\.agency-process|\.corporate-panel__details|\.corporate-panel__inspect/);
-  assert.doesNotMatch(css, /\.shop-dialog/);
-
-  // V11: one radius scale, and one declarative reveal system rather than a
-  // bespoke gsap call per section. The old per-section approach is how the
-  // carousel ended up with no entrance at all.
+  /* One radius scale, and anchored sections clear the fixed header. */
   for (const token of ["--radius-card", "--radius-tile", "--radius-pill"]) {
     assert.match(css, new RegExp(`${token}:`), `radius scale is missing ${token}`);
   }
-  assert.match(css, /\.button \{[^}]*border-radius: var\(--radius-pill\)/);
-  assert.match(experience, /ScrollTrigger\.batch/);
-  assert.match(experience, /data-reveal-group/);
+  assert.match(css, /scroll-margin-top/);
+
+  /* Markup the redesign removed leaves no orphaned rules behind. */
+  for (const dead of ["\\.shop-flyout", "\\.business-pillar", "\\.product-collection", "\\.location-card", "\\.about__copy", "\\.corporate-accordion", "\\.umrah__process"]) {
+    assert.doesNotMatch(css, new RegExp(dead), `globals.css still carries rules for ${dead}`);
+  }
+
   // In-page anchors must be handled by the page, never by the router. Letting
   // the router see them makes it fetch an RSC payload that a static host cannot
   // serve; its 404 error path assigns window.location.href, which fires
@@ -247,38 +453,11 @@ test("keeps the V5 portfolio architecture production-ready", async () => {
   assert.match(experience, /href\.startsWith\("#"\)/);
   assert.match(experience, /event\.preventDefault\(\)/);
 
-  // The dead animation V9 left behind must not come back.
-  assert.doesNotMatch(experience, /fromTo\("\.product-collection__layout/);
-  assert.doesNotMatch(css, /\.product-collection__layout/);
-
-  // V8: the Shop flyout slides in from the right and supports hover and press.
-  assert.match(experience, /type ShopMode = "hover" \| "press"/);
-  assert.match(experience, /onPointerEnter=\{\(event\) => \{ if \(event\.pointerType === "mouse"\) onShopOpen\("hover"\); \}\}/);
-  assert.match(css, /\.shop-flyout \{[^}]*transform: translateX\(100%\)/);
-  assert.match(css, /\.shop-flyout\.is-open \{[^}]*transform: translateX\(0\)/);
-  // The panel must clear the header, or it covers the trigger that opened it.
-  assert.match(css, /\.shop-flyout \{[^}]*top: var\(--header-height\)/);
-
-  // V8: UMRAH cards are an even grid below 1200px, never an off-screen carousel.
-  assert.match(css, /\.umrah-gallery__cards \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(css, /\.umrah-gallery__cards \{[^}]*scroll-snap-type: none/);
-  // The source photographs are 900x1125. A card frame of any other ratio makes
-  // `cover` discard part of the picture, so both breakpoints match 4 / 5.
-  assert.equal((css.match(/aspect-ratio: 4 \/ 5;/g) ?? []).length, 2);
-  assert.doesNotMatch(css, /\.umrah-card[^{]*\{[^}]*aspect-ratio: 16 \/ 10/);
-
-  // AA-safe accent for label-sized text on the light surfaces.
-  assert.match(css, /--coral-deep:/);
-  // The hero must not reintroduce the margin that opened a dead band between
-  // the hero and the about chapter; the proof bar straddles that seam.
-  assert.doesNotMatch(css, /\.hero \{[^}]*margin-bottom: 4\.25rem/);
-  // Anchored sections have to clear the fixed header.
-  assert.match(css, /scroll-margin-top/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
 });
 
-test("product carousel catalogue matches the shipped assets", async () => {
+test("product catalogue matches the shipped assets", async () => {
   const source = await readFile(new URL("../app/components/productCatalogue.ts", import.meta.url), "utf8");
   // Anchor on the assignment: the first "[" in the file belongs to a type.
   const marker = "export const carouselProducts: CarouselProduct[] = ";
@@ -321,7 +500,7 @@ test("stylesheet stays flat: no selector re-declares a property it already set",
   // Tailwind theme tokens are what make text-ink / bg-paper / font-display
   // available to new markup; the hand-written rules alias onto them.
   assert.match(css, /@theme \{/);
-  for (const token of ["--color-ink", "--color-paper", "--color-coral", "--color-line", "--font-display"]) {
+  for (const token of ["--color-ink", "--color-paper", "--color-coral", "--color-line", "--font-heading"]) {
     assert.match(css, new RegExp(`${token}:`), `theme is missing ${token}`);
   }
   assert.match(css, /--ink: var\(--color-ink\)/);
@@ -344,25 +523,18 @@ ${report}`);
   );
 });
 
-test("includes every approved KIYO production asset used by V5", async () => {
-  const requiredAssets = [
-    "../public/images/kiyo/home-hero-airport.webp",
-    "../public/images/kiyo/product-collection-hero.webp",
-    "../public/images/kiyo/about-samantha.webp",
-    "../public/images/kiyo/about-warehouse.webp",
-    "../public/images/kiyo/corporate-gift-travel-amenities.webp",
-    "../public/images/kiyo/corporate-gift-team-building.webp",
-    "../public/images/kiyo/corporate-gift-mini-luggage.webp",
-    "../public/images/kiyo/corporate-gift-notebook.webp",
-    "../public/images/kiyo/umrah-journey.webp",
-    "../public/images/kiyo/umrah-essentials.webp",
-    "../public/images/kiyo/umrah-custom.webp",
-    "../public/images/kiyo/warehouse-1.webp",
-    "../public/images/kiyo/warehouse-2.webp",
-    "../public/images/kiyo/warehouse-3.webp",
-    "../public/images/kiyo/warehouse-4.webp",
-    "../public/images/kiyo/warehouse-5.webp",
-  ];
+test("every photograph the page references is actually shipped", async () => {
+  const page = await html();
+  const sources = new Set(Array.from(page.matchAll(/src="(\/images\/[^"]+)"/g), (match) => match[1]));
+  assert.ok(sources.size > 20, "the page stopped referencing its photography");
 
-  await Promise.all(requiredAssets.map((asset) => access(new URL(asset, import.meta.url))));
+  await Promise.all(
+    [...sources].map(async (source) => {
+      try {
+        await access(new URL(`../public${source}`, import.meta.url));
+      } catch {
+        throw new Error(`the page references ${source}, which is not in public/`);
+      }
+    }),
+  );
 });
