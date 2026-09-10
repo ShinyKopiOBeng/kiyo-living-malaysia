@@ -391,6 +391,16 @@ sizes and small caps for the labels above it. */
   color: var(--coral-deep);
 }
 
+/* The chapter the reader is in, marked the same way the step rail marks the
+   step they are on, so the page has one idea of "you are here". */
+.desktop-navigation a[aria-current] {
+  color: var(--coral-deep);
+}
+
+.mobile-menu__links a[aria-current] {
+  color: var(--coral-deep);
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -526,6 +536,30 @@ sizes and small caps for the labels above it. */
   font-size: clamp(1.9rem, 3.4vw, 3.15rem);
 }
 
+/* Three verbs, three of the brand's colours, and the "here" they all share
+   held back at 70% so the verbs carry the line. Every one of the three clears
+   AA against the scrimmed photograph at this size. */
+.scale__headline span {
+  display: block;
+  color: var(--white-70);
+}
+
+.scale__headline em {
+  font-style: inherit;
+}
+
+.scale__headline span:nth-child(1) em {
+  color: var(--sand);
+}
+
+.scale__headline span:nth-child(2) em {
+  color: var(--teal);
+}
+
+.scale__headline span:nth-child(3) em {
+  color: var(--coral);
+}
+
 .scale__copy p {
   margin: 1.15rem 0 0;
   color: var(--white-70);
@@ -619,6 +653,7 @@ sizes and small caps for the labels above it. */
   min-height: clamp(17rem, 22vw, 24rem);
   max-height: 46vh;
   overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 14%, #000 100%);
   mask-image: linear-gradient(to right, transparent 0%, #000 14%, #000 100%);
 }
 
@@ -1042,15 +1077,20 @@ the three-part flow they are. */
 
 /* --- Step 2: customise ----------------------------------------------------- */
 
-/* Three columns, as the mockup carries it: the case on the left, the form in
-   the middle, the detail plates and the one forward action on the right. The
-   two right columns span both rows so the form starts at the heading's line
-   rather than under the case. */
+/* Two columns, not three.
+ *
+ * The engraving preview takes the left with the field that drives it directly
+ * underneath; every other control takes the right. The form column spans both
+ * rows so it starts at the heading's line rather than under the case.
+ *
+ * The third column this replaces held five photographs in a grid where the
+ * first tile had to span two to stop a hole opening. They are inside the
+ * option controls now, which is where they were always describing. */
 .flow__body--customise {
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   grid-template-rows: auto minmax(0, 1fr);
   align-items: start;
-  column-gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  column-gap: clamp(1.5rem, 3vw, 3rem);
   row-gap: clamp(1rem, 1.6vw, 1.5rem);
 }
 
@@ -1059,56 +1099,51 @@ the three-part flow they are. */
   grid-row: 1;
 }
 
-.brandpanel {
+/* The case, the tie and the name field are one object. What the visitor types
+   is engraved directly above where they type it, on the same centre axis, so
+   the cause and the effect do not have to be connected by a caption. */
+.brandstudio {
   display: grid;
-  grid-row: 1 / 3;
-  grid-column: 3;
-  align-content: start;
-  gap: clamp(0.85rem, 1.4vw, 1.25rem);
-}
-
-/* The largest object in the chapter, hard against the left edge of the
-   content column, which is how the mockup carries it. */
-/* The figure is sized to the plate's own 1000x1039 box rather than to the
-   column, because the engraved logo plate is positioned as a percentage of the
-   picture. Let the figure be bigger than the photograph and those percentages
-   land on empty space instead of on the case - which is what used to put the
-   visitor's logo below the plate. */
-.brandcase {
-  position: relative;
   grid-column: 1;
   grid-row: 2;
+  align-content: start;
+  justify-items: center;
+  width: 100%;
+}
+
+/* Sized to the plate's own 701x899 box rather than to the column, because the
+   engraved plate is positioned as a percentage of the picture. Let the figure
+   be wider than the photograph and those percentages land on empty space
+   instead of on the case. */
+.brandcase {
+  position: relative;
   width: auto;
   height: min(28rem, 44vh);
   margin: 0;
-  justify-self: center;
-  aspect-ratio: 1000 / 1039;
+  aspect-ratio: 701 / 899;
   container-type: inline-size;
 }
 
-.brandcase__media {
-  width: 100%;
-  height: 100%;
-}
-
+.brandcase__media,
 .brandcase .image-slot img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-/* Measured off `brandCase.webp`: the engraved plate spans 40.2%-59.4% across
-   and 48.1%-55.8% down, so the visitor's mark is laid exactly on it. The type
-   is sized in container units so it shrinks with the case instead of spilling
-   over the plate's edge. */
+/* Measured off the shipped `brandCaseZoom.webp`: the gold plate is centred on
+   50.21% across and 72.47% down and runs 33.7% by 10.8%, so the visitor's name
+   sits inside it with a small inset for the border. The type is sized in
+   container units so it shrinks with the case rather than spilling over the
+   plate's edge. */
 .brandcase__plate {
   position: absolute;
-  top: 51.95%;
-  left: 49.8%;
+  top: 72.47%;
+  left: 50.21%;
   display: grid;
-  width: 19.2%;
-  height: 7.7%;
-  padding: 0.35cqw;
+  width: 30%;
+  height: 7.8%;
+  padding: 0.3cqw;
   transform: translate(-50%, -50%);
   place-items: center;
   overflow: hidden;
@@ -1116,27 +1151,45 @@ the three-part flow they are. */
 
 .brandcase__plate span {
   color: var(--white);
-  font-size: 1.55cqw;
+  font-size: 3cqw;
   font-weight: 700;
   letter-spacing: 0.1em;
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
-.brandcase__plate img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+/* A hairline dropped from the plate to the field, so the pairing is stated
+   rather than left to be noticed. */
+.brandcase__tie {
+  width: 1px;
+  height: clamp(0.85rem, 1.6vw, 1.5rem);
+  background: linear-gradient(180deg, transparent, var(--line));
 }
 
+.field--name,
+.brandstudio .field__note {
+  width: min(100%, 22rem);
+}
+
+.field--name {
+  margin-top: 0.6rem;
+}
+
+.brandstudio .field__note {
+  margin-top: 0.65rem;
+}
+
+/* The gaps are wide on purpose. This column is set against a case that is
+   half a screen tall, and at the old form spacing it finished 200px short of
+   it and left a hole under the forward action. */
 .brandform {
   display: grid;
   grid-column: 2;
   grid-row: 1 / 3;
   align-content: start;
-  gap: clamp(0.75rem, 1.1vw, 1.1rem);
+  gap: clamp(1rem, 2vw, 2rem);
 }
 
 .field {
@@ -1253,82 +1306,102 @@ the three-part flow they are. */
   color: var(--coral);
 }
 
-.brandform__logo {
+/* The four customisation options, as photographs rather than as text chips.
+   A buyer who has never ordered branded luggage cannot picture what "custom
+   packaging" covers, and the pictures that answered that used to sit in a
+   separate column illustrating nothing in particular. */
+.optionset {
   display: grid;
-  gap: 0.45rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
 }
 
-.ghost-button {
-  display: inline-flex;
-  min-height: 2.6rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.9rem;
+.optioncard {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-tile);
   background: var(--white);
   cursor: pointer;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-align: center;
-  text-transform: uppercase;
+  overflow: hidden;
+  text-align: left;
   transition: border-color 200ms ease;
 }
 
-.ghost-button:hover {
+.optioncard:hover {
   border-color: var(--ink);
 }
 
-.ghost-button svg {
-  width: 0.85rem;
-  height: 0.85rem;
-  flex: none;
+.optioncard.is-on {
+  border-color: var(--coral);
 }
 
-.brandform__file {
+.optioncard__media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.optioncard__label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 0.76rem;
-  font-weight: 600;
-  overflow-wrap: anywhere;
+  gap: 0.35rem;
+  padding: 0 0.5rem 0.6rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 
-.brandform__file button {
+.optioncard.is-on .optioncard__label {
+  color: var(--coral-deep);
+}
+
+.optioncard__tick {
   display: grid;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 0.95rem;
+  height: 0.95rem;
   flex: none;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
+  color: transparent;
+  transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
 }
 
-.brandform__file svg {
-  width: 0.7rem;
-  height: 0.7rem;
+.optioncard__tick svg {
+  width: 0.55rem;
+  height: 0.55rem;
 }
 
-.branddetails {
+.optioncard.is-on .optioncard__tick {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: var(--white);
+}
+
+.orderfields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
 }
 
-/* Five plates over three columns: the first spans two so the block squares off
-   instead of leaving a hole. */
-.branddetails__tile:first-child {
-  grid-column: span 2;
+/* The reason this chapter now holds every field: a visitor used to reach the
+   end of it with no way of knowing four more were waiting in the next one.
+   This line names the first thing still blank, next to the button they are
+   about to press. */
+.flow__status {
+  margin: 0.15rem 0 0;
+  color: var(--coral-deep);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
-.branddetails__tile {
-  width: 100%;
-  border-radius: var(--radius-tile);
+.flow__status.is-ready {
+  color: var(--teal-dark);
 }
 
 .flow__continue {
@@ -1338,14 +1411,20 @@ the three-part flow they are. */
 
 /* --- Step 3: delivery ------------------------------------------------------ */
 
+/* One column.
+ *
+ * The fields have moved up to step 2, so this chapter reviews and sends. The
+ * rail runs the full shell, which is what finally gives the six process
+ * photographs a readable size, and the review card is centred under it as the
+ * last beat of the flow. Keeping the old split would also have made this
+ * chapter a second copy of the composition above it. */
 .flow__body--delivery {
-  grid-template-columns: minmax(0, 2.9fr) minmax(0, 1.2fr);
-  grid-template-rows: auto auto auto;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.75rem, 3vw, 2.75rem);
 }
 
 .flow__body--delivery .flow__intro {
   grid-column: 1;
-  grid-row: 1;
 }
 
 /* Six stages on one line, as one pipeline reads.
@@ -1355,10 +1434,8 @@ the three-part flow they are. */
  * here and steps down at the breakpoints below instead. */
 .pipeline {
   display: grid;
-  grid-column: 1;
-  grid-row: 2;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: clamp(0.5rem, 1vw, 0.9rem);
+  gap: clamp(0.75rem, 1.5vw, 1.5rem);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1366,21 +1443,40 @@ the three-part flow they are. */
 
 .pipeline__step {
   display: grid;
-  gap: 0.5rem;
+  align-content: start;
+  gap: 0.4rem;
   justify-items: start;
 }
 
 .pipeline__media {
   width: 100%;
+  margin-bottom: 0.35rem;
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-tile);
 }
 
+/* The ordinal carries the rail: a hairline runs from it to the edge of its own
+   column, so six pictures read as one sequence rather than as six tiles. */
 .pipeline__number {
-  color: var(--coral);
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--coral-deep);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
+}
+
+.pipeline__number::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.pipeline__step:last-child .pipeline__number::after {
+  display: none;
 }
 
 .pipeline__label {
@@ -1390,19 +1486,18 @@ the three-part flow they are. */
   text-transform: uppercase;
 }
 
-.deliveryform {
-  display: grid;
-  grid-column: 1;
-  grid-row: 3;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.85rem;
-  margin-top: clamp(1.5rem, 2.5vw, 2.25rem);
+.pipeline__line {
+  color: var(--ink-70);
+  font-size: 0.72rem;
+  line-height: 1.45;
 }
 
+/* What the whole flow is for, so it is centred and given room rather than
+   boxed into a narrow rail beside something else. */
 .enquiry {
-  grid-column: 2;
-  grid-row: 1 / 4;
-  padding: clamp(1.25rem, 2vw, 1.75rem);
+  width: min(52rem, 100%);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 2.4vw, 2.25rem);
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--white);
@@ -1418,16 +1513,18 @@ the three-part flow they are. */
 
 .enquiry dl {
   display: grid;
-  gap: 0.65rem;
-  margin: 0 0 1.35rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(1.5rem, 3.5vw, 3rem);
+  margin: 0 0 1.5rem;
 }
 
 .enquiry dl > div {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: 0.5rem;
   align-items: baseline;
   padding-bottom: 0.6rem;
+  margin-bottom: 0.55rem;
   border-bottom: 1px solid var(--line);
 }
 
@@ -1444,6 +1541,27 @@ the three-part flow they are. */
   overflow-wrap: anywhere;
 }
 
+/* A blank value is a control, not a dash. A visitor who missed a field is
+   taken back to it rather than told that they missed it. */
+.enquiry__add {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dashed currentcolor;
+  background: none;
+  color: var(--ink-55);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.enquiry__add:hover {
+  color: var(--ink);
+}
+
+.enquiry__add.is-required {
+  color: var(--coral-deep);
+}
+
 .enquiry__send {
   width: 100%;
 }
@@ -1454,6 +1572,39 @@ the three-part flow they are. */
   font-size: 0.7rem;
   line-height: 1.45;
   text-align: center;
+}
+
+/* Quieter than the WhatsApp button on purpose. It is the route for a visitor
+   on a desktop with no WhatsApp, who would otherwise be left holding a
+   finished brief and no way to send it. */
+.enquiry__mail {
+  display: flex;
+  width: 100%;
+  min-height: 2.4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-55);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 200ms ease;
+}
+
+.enquiry__mail:hover {
+  color: var(--ink);
+}
+
+.enquiry__mail svg {
+  width: 0.85rem;
+  height: 0.85rem;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1481,6 +1632,7 @@ the three-part flow they are. */
   margin: clamp(1.5rem, 2.5vw, 2.25rem) auto clamp(2rem, 3.5vw, 3rem);
   overflow: hidden;
   /* Fades the marks in and out at the edges instead of clipping them mid-logo. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
 }
 
@@ -1497,8 +1649,14 @@ the three-part flow they are. */
   to { transform: translateX(-50%); }
 }
 
-.logomarquee:hover .logomarquee__track {
-  animation-play-state: paused;
+/* No hover pause. The row stalled whenever the pointer crossed it, which on a
+   wide screen is most of the time. The one pause that belongs here is the
+   viewer's own setting: an endless loop nobody can stop is the case that
+   prefers-reduced-motion exists for. */
+@media (prefers-reduced-motion: reduce) {
+  .logomarquee__track {
+    animation: none;
+  }
 }
 
 .logomarquee__run {
@@ -1516,224 +1674,391 @@ the three-part flow they are. */
   padding: 0 clamp(0.75rem, 1.6vw, 1.6rem);
 }
 
+/* Held a little under full strength so the row does not out-shout KIYO's own
+   photography. There is no hover state: on a row that never stops, nothing
+   stays under the pointer long enough for one to mean anything. */
 .logowall__mark {
   width: 100%;
-  /* The marks are supplied in full colour. Holding them just under full
-     strength keeps the row from out-shouting KIYO's own photography, and a
-     hover brings the one being looked at back up. */
-  opacity: 0.78;
-  transition: opacity 220ms ease;
+  opacity: 0.86;
 }
 
-.logomarquee__run li:hover .logowall__mark {
-  opacity: 1;
-}
-
-/* One row, three regions: the film, the two quotes, and the partner stories.
-   The mockup carries them side by side; stacking the stories underneath added
-   a whole second gallery's worth of height to the chapter. */
-.clients__body {
+/* Four figures, hairline-separated rather than boxed. They are the point of
+   this part of the chapter, so they are set at display size, and every one
+   carries its own scope underneath because "4.9" on its own is a bigger claim
+   than KIYO has made. */
+.proofnumbers {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 0.7fr);
-  align-items: stretch;
-  gap: clamp(1rem, 2vw, 1.75rem);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2.5vw, 2.5rem);
   width: min(var(--shell), 100%);
-  margin: 0 auto;
+  margin: 0 auto clamp(2rem, 4vw, 3.25rem);
 }
 
-.videocard {
+.proofnumbers > div {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  padding-left: clamp(0.85rem, 1.6vw, 1.4rem);
+  border-left: 1px solid var(--line);
+}
+
+.proofnumbers dt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.proofnumbers__value {
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  /* The count-up rewrites this text sixty times a second, and "2,000+" is
+     wider than "0". Without a floor the label under it would shuffle sideways
+     for the whole animation. */
+  min-width: 3ch;
+}
+
+/* A rating is conventionally stars, so the two figures that are ratings get
+   them. Two layers: outlines underneath, filled ones clipped to the exact
+   score on top, so 4.9 is not drawn as five full stars.
+   Coral rather than the usual gold, because the page has one accent and this
+   is not the place to introduce a second. */
+.stars {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.stars__track,
+.stars__fill {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.stars__fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--coral);
+}
+
+.stars__fill svg {
+  fill: currentcolor;
+}
+
+.stars__track {
+  color: rgb(14 34 55 / 0.22);
+}
+
+.stars svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: none;
+}
+
+.proofnumbers dd {
+  margin: 0;
+  color: var(--ink-70);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+/* Five claims across the shell. Portrait, because these are social-native
+   pictures rather than landscape stills, and because five landscape cards in a
+   row would be postage stamps. */
+.proofstrip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.6rem, 1.2vw, 1rem);
+  width: min(var(--shell), 100%);
+  margin: 0 auto clamp(2rem, 3.5vw, 3rem);
+  padding: 0;
+  list-style: none;
+}
+
+.proofcard {
   position: relative;
   display: block;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: var(--radius-card);
   background: var(--ink);
+  color: var(--white);
 }
 
-.videocard__media {
+.proofcard__media {
   width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
   transition: transform 600ms var(--ease-out);
 }
 
-.videocard:hover .videocard__media {
-  transform: scale(1.04);
+.proofcard:hover .proofcard__media {
+  transform: scale(1.05);
 }
 
-.videocard__scrim {
+/* Weighted to the foot, where the caption sits, so the top of the picture is
+   left alone. */
+.proofcard__scrim {
   position: absolute;
   inset: 0;
-  background: rgb(9 24 39 / 0.3);
+  background: linear-gradient(180deg, rgb(9 24 39 / 0.05) 0%, rgb(9 24 39 / 0.12) 42%, rgb(9 24 39 / 0.78) 100%);
 }
 
-.videocard__play {
+.proofcard__play {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 1rem;
+  right: 1rem;
   display: grid;
-  width: 3.25rem;
-  height: 3.25rem;
-  transform: translate(-50%, -50%);
+  width: 2.1rem;
+  height: 2.1rem;
   place-items: center;
   border-radius: 50%;
   background: rgb(255 255 255 / 0.92);
   color: var(--ink);
 }
 
-.videocard__play svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-left: 0.15rem;
+.proofcard__play svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-left: 0.1rem;
 }
 
-.quotes {
+.proofcard__body {
+  position: absolute;
+  right: clamp(0.75rem, 1.4vw, 1.1rem);
+  bottom: clamp(0.75rem, 1.4vw, 1.1rem);
+  left: clamp(0.75rem, 1.4vw, 1.1rem);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(0.75rem, 1.5vw, 1.25rem);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 0.55rem;
 }
 
-.quote {
-  display: grid;
-  align-content: start;
-  gap: 0.5rem;
-  padding: clamp(1rem, 1.8vw, 1.5rem);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+.proofcard__caption {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-wrap: balance;
 }
 
-.quote__mark {
-  color: var(--coral);
-  font-family: var(--font-heading);
-  font-size: 2.25rem;
-  line-height: 0.6;
-}
-
-.quote blockquote {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: 0.98rem;
-  font-style: italic;
-  line-height: 1.5;
-}
-
-.quote cite {
-  color: var(--ink-55);
-  font-size: 0.62rem;
-  font-style: normal;
+/* Printed on every card, because three of the five open a part of this site
+   and two open a video on someone else's. A visitor should never have to press
+   one to find out which. */
+.proofcard__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--white-70);
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.stories {
+.proofcard__go svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  transition: transform 220ms var(--ease-out);
+}
+
+.proofcard:hover .proofcard__go {
+  color: var(--white);
+}
+
+.proofcard:hover .proofcard__go svg {
+  transform: translateX(2px);
+}
+
+/* One quote featured with the photograph of that handover beside it, and the
+   other two under it. Not three equal cards: that is the arrangement every
+   other site reaches for here. */
+.voices {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  width: min(var(--shell), 100%);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.voice {
   display: grid;
   align-content: start;
-  gap: 0.6rem;
+  gap: clamp(0.75rem, 1.4vw, 1.1rem);
+  padding: clamp(1rem, 1.8vw, 1.5rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--white);
+}
+
+/* The featured quote takes the left column whole; the other two stack beside
+   it and stretch to meet it, so the block squares off instead of leaving a
+   hole under the short ones. */
+.voice--lead {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+/* The two beside it stretch to the featured card's height, and their content
+   sits in the middle of that height rather than clinging to the ceiling with a
+   drop of empty card underneath. */
+.voice:not(.voice--lead) {
+  align-content: center;
+}
+
+.voice:not(.voice--lead) blockquote {
+  font-size: 1.02rem;
+}
+
+.voice__media {
+  width: 100%;
+  border-radius: var(--radius-tile);
+}
+
+.voice figure {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
   margin: 0;
 }
 
-.stories__head {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--ink);
-  font-size: 0.72rem;
+/* The body face, upright.
+   These were set in the display serif, italic, at body size: a combination
+   that is fine for one line of pull quote over a photograph and poor for the
+   one thing on this page a visitor reads word for word. The quote mark beside
+   it stays in the serif, where an ornament belongs. */
+.voice blockquote {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: -0.005em;
+  text-wrap: pretty;
+}
+
+.voice--lead blockquote {
+  font-size: clamp(1.05rem, 1.5vw, 1.28rem);
+  line-height: 1.55;
+}
+
+/* The reviewer wrote in Malay. Translating over her is worse than printing
+   both, so the original leads and the gloss follows it quietly. */
+.voice__gloss {
+  margin: 0;
+  color: var(--ink-55);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.voice figcaption {
+  color: var(--ink-55);
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.stories__head svg {
-  width: 0.85rem;
-  height: 0.85rem;
-  color: var(--coral);
+.voice figcaption a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--coral-deep);
 }
 
-.stories__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.4rem;
+.voice figcaption a:hover {
+  color: var(--ink);
 }
 
-.stories__tile {
-  width: 100%;
-  border-radius: var(--radius-tile);
+.voice figcaption svg {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.clients__more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: min(var(--shell), 100%);
+  margin: clamp(1.25rem, 2.5vw, 2rem) auto 0;
+  color: var(--ink-55);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.clients__more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--ink);
+}
+
+.clients__more a:hover {
+  color: var(--coral-deep);
+}
+
+.clients__more svg {
+  width: 0.8rem;
+  height: 0.8rem;
 }
 
 /* -------------------------------------------------------------------------- */
 /* 09  Samantha and recognition                                                */
 /* -------------------------------------------------------------------------- */
 
-/* The band is the photograph.
+/* The chapter is the photograph.
  *
- * It keeps the plate's own 1920x800 ratio rather than a free height, because
- * everything laid over it - Samantha, and the two award rows - is positioned
- * against shelf lines measured in that picture. Crop the plate and those lines
- * move; hold the ratio and a percentage lands on the same shelf at every
- * width. The cap keeps the band inside one viewport on a tall window. */
+ * Samantha, the room and all fourteen trophies are composited in one plate, so
+ * the band no longer assembles itself at runtime out of a backdrop, a cut-out
+ * and two award rows that had to be re-registered against shelf lines. That
+ * assembly is what slid the trophies off the shelves at odd browser zoom.
+ *
+ * Row 1 is the picture, and the copy and the hotspots share that grid area, so
+ * every percentage below resolves against the same box. The box holds the
+ * plate's 1920x800 ratio exactly and is not capped: capping the height was
+ * what let the box and the picture disagree in the first place. Row 2 and
+ * beyond exist for the tablet and phone layouts at the foot of this file. */
 .founder {
   position: relative;
-  height: min(calc(100vw * 800 / 1920), 50rem);
-  min-height: 24rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   padding: 0;
-  overflow: hidden;
   background: var(--sand);
 }
 
-.founder__backdrop {
-  position: absolute;
-  inset: 0;
+.founder__band,
+.founder__copy,
+.recognition {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.founder__band {
   width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
+  aspect-ratio: 1920 / 800;
 }
 
-/* Only under the copy. Washing the whole plate would grey out the shelving,
-   which is the thing the chapter is standing on. */
-.founder__wash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgb(239 231 218 / 0.1) 0%, rgb(239 231 218 / 0.45) 24%, rgb(239 231 218 / 0.4) 44%, rgb(239 231 218 / 0.08) 58%, transparent 68%);
-}
-
-/* Samantha and the quote take the left of the room; the right of the room is
-   the shelving, which the award rows are stood on. */
-.founder__inner {
+/* The wall between Samantha and the shelving runs at a measured luminance of
+   215 with almost no variance across it, so ink type sits on it at full
+   contrast and the chapter needs no wash. */
+.founder__copy {
   position: relative;
   z-index: 2;
   display: grid;
-  /* Her cut-out sizes itself off the band height, so the first column takes
-     what she needs and the quote takes the rest of the room's left half. The
-     right 46% is the shelving, which the award rows are standing on. */
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: end;
-  gap: clamp(1rem, 2.5vw, 2.5rem);
-  height: 100%;
-  padding: 0 46% 0 var(--page-padding);
-}
-
-/* Bottom-aligned so she stands on the floor of the photograph rather than
-   floating in it. */
-/* Bottom-aligned and sized off the band, so she stands on the floor of the
-   photograph at any width rather than floating in it. */
-.founder__cutout {
-  align-self: end;
-  height: 84%;
-  width: auto;
-  aspect-ratio: auto;
-}
-
-.founder__cutout img {
-  width: auto;
-  height: 100%;
-}
-
-.founder__copy {
-  display: grid;
+  width: 26%;
   align-content: center;
   align-self: center;
-  padding: 0 0 clamp(2.5rem, 4vw, 4rem);
+  justify-self: start;
+  margin-left: 28%;
+  padding-bottom: clamp(1rem, 3vw, 3rem);
 }
 
 .founder__copy h2 {
@@ -1764,40 +2089,155 @@ the three-part flow they are. */
   line-height: 1.4;
 }
 
-/* The awards are stood on the shelves of the photograph, not shown on a panel
-   over it, so this is a layer rather than a column.
- *
- * Every number below is measured off `bookshelf.webp` (1920x800): the upper
- * shelf's surface is at 34.25% of the plate's height, the lower one at 68.4%,
- * and the open span between the left post and the plant on the right runs from
- * 57.5% to 96.5% of its width. Both row plates are trimmed to their content by
- * the asset tool, so a row's bottom edge is the base of its trophies and can be
- * sat straight on a shelf line. */
+/* The fourteen trophies are controls standing where they stand in the
+   photograph, not a panel laid over it, so this is a layer rather than a
+   column. Its own box is the picture's box, which is what lets every position
+   in `awardWall.ts` be a plain percentage. */
 .recognition {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 3;
   pointer-events: none;
 }
 
-.recognition__label {
+.recognition__caption {
   position: absolute;
-  top: 12%;
-  left: 57.5%;
-}
-
-.recognition__row {
-  position: absolute;
+  top: 11%;
   left: 57.5%;
   width: 39%;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.recognition__row--1 {
-  bottom: 65.75%;
+.recognition__hint {
+  position: absolute;
+  top: 15.5%;
+  left: 57.5%;
+  width: 39%;
+  margin: 0;
+  color: var(--ink-70);
+  font-size: 0.68rem;
 }
 
-.recognition__row--2 {
-  bottom: 31.6%;
+.awardwall {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The hotspot is the trophy's own cut-out, laid exactly over the trophy baked
+   into the band, so at rest the two are the same pixels in the same place and
+   it is invisible. On hover the cut-out scales from its bottom edge and rises,
+   and since it grows by more than it rises it covers the original.
+   The earlier version scaled a rectangle of the band instead, which scaled the
+   background inside that rectangle too. See `hotspot()` in TrustSections. */
+.awardwall__spot {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.awardwall__lift {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  transform-origin: bottom center;
+  transition: transform 320ms var(--ease-out);
+}
+
+.awardwall__lift img {
+  object-fit: fill;
+}
+
+/* Scale only, with no rise.
+   Scaling about the base maps every point of a trophy radially outward from
+   that origin, so the enlarged silhouette strictly contains the original and
+   nothing of it can show. Adding even a 4% rise slid the enlarged arms of the
+   star trophy off the original's arms and left its tips visible behind them:
+   thin spiky shapes have no tolerance for it. The growth is the lift. */
+.awardwall__spot:hover .awardwall__lift,
+.awardwall__spot:focus-visible .awardwall__lift {
+  transform: scale(1.12);
+}
+
+/* And the shadow is what says the trophy came forward rather than simply got
+   bigger. It spreads from under the base as the trophy grows. */
+.awardwall__cast {
+  position: absolute;
+  bottom: -3%;
+  left: 6%;
+  width: 88%;
+  height: 12%;
+  border-radius: 50%;
+  background: rgb(14 34 55 / 0.34);
+  filter: blur(5px);
+  opacity: 0;
+  transform: scaleX(0.7);
+  transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out);
+}
+
+.awardwall__spot:hover .awardwall__cast,
+.awardwall__spot:focus-visible .awardwall__cast {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.awardwall__spot:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+}
+
+/* Below the desktop breakpoint the awards come off the shelf. See the media
+   queries: at those widths a trophy in the band is about 30px wide, and a 30px
+   target with a 30px picture inside it is not a control. */
+.awardrow {
+  display: none;
+}
+
+.awardrow__item {
+  display: grid;
+  width: 100%;
+  align-content: start;
+  gap: 0.35rem;
+  padding: 0.75rem 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tile);
+  background: var(--white);
+  cursor: pointer;
+  text-align: center;
+}
+
+.awardrow__media {
+  width: 100%;
+  height: 5.5rem;
+  aspect-ratio: auto;
+}
+
+.awardrow__media img {
+  object-fit: contain;
+}
+
+.awardrow__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.awardrow__year {
+  color: var(--ink-55);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2335,9 +2775,28 @@ the three-part flow they are. */
   }
 
   .button:hover,
-  .videocard:hover .videocard__media,
+  .proofcard:hover .proofcard__media,
   .whatsapp-float:hover {
     transform: none;
+  }
+
+  /* The lift is the only thing that says a trophy is a control, so it is
+     replaced rather than dropped: the outline states the same thing without
+     moving anything. */
+  .awardwall__lift,
+  .awardwall__cast {
+    transition: none;
+  }
+
+  .awardwall__spot:hover .awardwall__lift,
+  .awardwall__spot:focus-visible .awardwall__lift {
+    transform: none;
+  }
+
+  .awardwall__spot:hover,
+  .awardwall__spot:focus-visible {
+    outline: 2px solid var(--coral);
+    outline-offset: 3px;
   }
 }
 
@@ -2358,8 +2817,9 @@ the three-part flow they are. */
     --marks-in-view: 5;
   }
 
-  .founder__inner {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  .founder__copy {
+    width: 24%;
+    margin-left: 29%;
   }
 }
 
@@ -2402,13 +2862,8 @@ the three-part flow they are. */
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .flow__body--delivery .flow__intro,
-  .pipeline,
-  .deliveryform,
-  .enquiry,
-  .brandpanel,
   .brandform,
-  .brandcase,
+  .brandstudio,
   .flow__body--customise .flow__intro {
     grid-column: 1;
     grid-row: auto;
@@ -2416,11 +2871,10 @@ the three-part flow they are. */
 
   .brandcase {
     height: min(24rem, 52vh);
-    justify-self: center;
   }
 
-  .deliveryform {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .pipeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .chooser__arrow--prev {
@@ -2431,59 +2885,87 @@ the three-part flow they are. */
     right: 0;
   }
 
-  .clients__body {
-    grid-template-columns: minmax(0, 1fr);
+  .proofnumbers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: clamp(1.25rem, 3vw, 2rem);
   }
 
-  .stories {
-    margin-top: 0.5rem;
+  /* Two and a bit cards in view, so the row reads as something to swipe. */
+  .proofstrip {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 38%;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.25rem;
+  }
+
+  .proofstrip > li {
+    scroll-snap-align: start;
+  }
+
+  .voices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .voice--lead {
+    grid-column: 1 / -1;
+    grid-row: auto;
   }
 
   .logomarquee {
     --marks-in-view: 4;
   }
 
-  /* One photographed room does not survive being squeezed into a column, so
-     below this width the shelving becomes a plain backdrop, the content stacks
-     over it, and the award rows leave the shelves and become a plain pair of
-     strips - there is no room to read them standing in the picture. */
-  .founder {
-    height: auto;
-    padding: clamp(2.5rem, 4vw, 4rem) var(--page-padding);
-  }
-
-  .founder__inner {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    height: auto;
-    padding-right: 0;
-    text-align: center;
-  }
-
-  .founder__cutout {
-    max-width: 18rem;
-  }
-
-  .founder__wash {
-    background: linear-gradient(180deg, rgb(239 231 218 / 0.4) 0%, rgb(239 231 218 / 0.88) 45%, rgb(239 231 218 / 0.94) 100%);
-  }
-
+  /* The band is 2.4:1, so by this width a trophy standing in it is about 40px
+     wide. That is under a usable target, and a 40px picture of a certificate
+     is not readable either, so the awards come off the shelf into a row of
+     their own underneath. The photograph stays, because it is still the best
+     picture of the company on the page. */
+  /* Samantha reaches 26% across the plate, and by this width the wall beside
+     her is too narrow to hold the quote, so the copy came down onto her jacket.
+     It stacks under the picture from here down. */
   .founder__copy {
-    padding-bottom: 1.5rem;
+    grid-row: 2;
+    width: auto;
+    align-self: start;
+    margin-left: 0;
+    padding: clamp(1.5rem, 4vw, 2.25rem) var(--page-padding) 0;
+  }
+
+  .awardwall,
+  .recognition__hint {
+    display: none;
   }
 
   .recognition {
-    position: relative;
-    display: grid;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-bottom: 0;
+    position: static;
+    grid-row: 3;
+    padding: clamp(1.5rem, 4vw, 2.25rem) var(--page-padding) 0;
+    pointer-events: auto;
   }
 
-  .recognition__label,
-  .recognition__row {
+  .recognition__caption {
     position: static;
-    width: 100%;
+    width: auto;
+  }
+
+  .awardrow {
+    display: flex;
+    grid-row: 4;
+    gap: 0.75rem;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 1.5rem) var(--page-padding) clamp(2rem, 4vw, 3rem);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+
+  .awardrow li {
+    flex: 0 0 clamp(7rem, 22vw, 9.5rem);
+    scroll-snap-align: start;
   }
 
   .visit,
@@ -2528,18 +3010,28 @@ the three-part flow they are. */
     --marks-in-view: 3;
   }
 
-  .branddetails {
+  .optionset {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .stories__grid {
+  .proofstrip {
+    grid-auto-columns: 64%;
+  }
+
+  .voices,
+  .orderfields,
+  .enquiry dl,
+  .chipset {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .quotes,
-  .deliveryform,
-  .chipset {
-    grid-template-columns: minmax(0, 1fr);
+  .voice--lead {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .proofnumbers {
+    gap: 1.1rem;
   }
 
   /* The step rail has to survive a 390px viewport without pushing the page
@@ -2564,13 +3056,33 @@ the three-part flow they are. */
     gap: 0.6rem;
   }
 
+  /* One and a bit stages in view, so the row reads as something to swipe
+     rather than as a grid that happens to be cut off. */
   .pipeline {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 62%;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
   }
 
-  .founder {
-    min-height: 0;
+  .pipeline__step {
+    scroll-snap-align: start;
   }
+
+  /* The band is 167px tall at this width, which is a letterbox rather than a
+     photograph, so it crops to portrait and holds Samantha. Everything laid
+     over it moves below it. */
+  .founder__band {
+    aspect-ratio: 4 / 5;
+  }
+
+  .founder__band img {
+    object-fit: cover;
+    object-position: 4% center;
+  }
+
 
   .site-footer__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -2625,6 +3137,7 @@ the three-part flow they are. */
 
 .giftdialog::backdrop {
   background: rgb(9 24 39 / 0.72);
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 
@@ -3020,4 +3533,196 @@ the three-part flow they are. */
 .retail-flyout__links small {
   color: var(--ink-55);
   font-size: 0.76rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* The award inspector                                                         */
+/* -------------------------------------------------------------------------- */
+
+/* The trophy is a cut-out standing on nothing, so the surface behind it is
+   left open and the page is blurred out behind that instead. */
+/* Glass, which means the panel does the blurring and the page behind it keeps
+   enough structure to be worth seeing through. It used to be the other way
+   round: an opaque panel over a heavily blurred backdrop, where the blur only
+   showed in the margins. */
+.awarddialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(46rem, calc(100vw - 2.5rem));
+  max-width: none;
+  max-height: min(88vh, 34rem);
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgb(255 255 255 / 0.45);
+  border-radius: 1rem;
+  background: rgb(246 241 233 / 0.72);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    0 24px 64px rgb(9 24 39 / 0.28);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.awarddialog::backdrop {
+  background: rgb(9 24 39 / 0.22);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* Translucency is a preference and a capability, and it fails closed both
+   ways: without the filter the panel would be a flat wash over a photograph,
+   and the summary text would sit on whatever happened to be behind it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .awarddialog {
+    background: var(--paper);
+    border-color: var(--line);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .awarddialog {
+    background: var(--paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--line);
+  }
+
+  .awarddialog::backdrop {
+    background: rgb(9 24 39 / 0.72);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.awarddialog__surface {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  height: 100%;
+  padding: clamp(1.5rem, 2.5vw, 2.25rem);
+}
+
+.awarddialog__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 3;
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.92);
+  cursor: pointer;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.awarddialog__close:hover {
+  border-color: var(--ink);
+  color: var(--coral-deep);
+}
+
+.awarddialog__close svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.awarddialog__media {
+  width: 100%;
+  height: min(24rem, 60vh);
+  aspect-ratio: auto;
+}
+
+.awarddialog__media img {
+  object-fit: contain;
+}
+
+.awarddialog__detail {
+  display: grid;
+  align-content: center;
+  gap: 0.7rem;
+  padding-right: 1.5rem;
+}
+
+.awarddialog__year {
+  margin: 0;
+  color: var(--coral-deep);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.awarddialog__detail h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  font-weight: 600;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.awarddialog__summary {
+  margin: 0;
+  color: var(--ink-70);
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+.awarddialog__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.55rem;
+  color: var(--ink-55);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.awarddialog__nav button {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.7);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.awarddialog__nav button:hover {
+  border-color: var(--ink);
+  color: var(--coral-deep);
+}
+
+.awarddialog__nav svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+@media (max-width: 639px) {
+  .awarddialog {
+    max-height: min(88vh, 40rem);
+  }
+
+  .awarddialog__surface {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    overflow-y: auto;
+  }
+
+  .awarddialog__media {
+    height: min(13rem, 32vh);
+  }
+
+  .awarddialog__detail {
+    padding-right: 0;
+  }
 }

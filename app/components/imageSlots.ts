@@ -1,4 +1,4 @@
-import { clientLogoAssets, sectionAssets, type SectionAsset } from "./sectionAssets";
+import { awardAssets, awardSmallAssets, clientLogoAssets, sectionAssets, type SectionAsset } from "./sectionAssets";
 
 export type ImageSlotStatus = "final" | "temporary" | "placeholder";
 
@@ -108,21 +108,28 @@ export const corporateSetSlots: ImageSlot[] = [
 /* 06  Customise your brand                                                   */
 /* -------------------------------------------------------------------------- */
 
-/* A transparent cut-out, so the visitor's own logo can be laid over the shell
-   without a photographic background fighting it. */
+/* A transparent cut-out, so the visitor's own name can be laid over the shell
+   without a photographic background fighting it.
+   This is the close crop, not the full-length case: the engraving is the one
+   moment in the chapter that shows a visitor their own brand, and at full
+   length it was a few pixels tall. */
 export const brandCaseSlot = plate(
-  "BRAND-CASE",
-  sectionAssets.brandCase,
-  "A KIYO case shown ready for a printed logo",
+  "BRAND-CASE-ZOOM",
+  sectionAssets.brandCaseZoom,
+  "The engraved plate on a KIYO case, shown close",
   { fit: "contain" },
 );
 
-export const brandDetailSlots: ImageSlot[] = [
+/**
+ * One photograph per customisation option, in the order the options are
+ * listed. The order is load-bearing: the chapter zips this array against
+ * `CUSTOMISATIONS` in BuildYourSet, so a plate and its label stay together.
+ */
+export const customisationSlots: ImageSlot[] = [
   plate("BRAND-DETAIL-01", sectionAssets.brandDetail1, "A logo printed onto a KIYO case shell"),
   plate("BRAND-DETAIL-02", sectionAssets.brandDetail2, "A branded luggage tag on a KIYO case"),
   plate("BRAND-DETAIL-03", sectionAssets.brandDetail3, "Branded travel accessories prepared for a corporate order"),
   plate("BRAND-DETAIL-04", sectionAssets.brandDetail4, "Custom packaging for a KIYO gift set"),
-  plate("BRAND-DETAIL-05", sectionAssets.brandDetail5, "A finished branded set boxed for delivery"),
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -176,47 +183,53 @@ export const clientLogoSlots: ImageSlot[] = clientLogoAssets.map((asset) => ({
   alt: CLIENT_NAMES[asset.id] ? `${CLIENT_NAMES[asset.id]} logo` : "Client organisation logo",
 }));
 
-export const clientVideoSlot = plate(
-  "CLIENT-VIDEO",
-  sectionAssets.clientVideo,
-  "A KIYO team member preparing branded luggage, filmed in the warehouse",
-);
-
-export const partnerStorySlots: ImageSlot[] = [
-  plate("PARTNER-01", sectionAssets.partnerCorporate, "A corporate gift handover to a client team"),
-  plate("PARTNER-02", sectionAssets.partnerUmrah, "An UMRAH agency collecting its branded group sets"),
-  plate("PARTNER-03", sectionAssets.partnerWarehouse, "Fulfilment under way on the KIYO warehouse floor"),
-];
+/* The video still and the three partner photographs used to be slots of their
+   own. The chapter now builds its cards from `clientProof.ts`, where each
+   picture sits next to the claim it is evidence for. */
 
 /* -------------------------------------------------------------------------- */
 /* 09  Samantha and recognition                                               */
 /* -------------------------------------------------------------------------- */
 
-export const founderSlots = {
-  /* A transparent cut-out, laid over the shelving plate below it. */
-  portrait: plate("ABOUT-SAMANTHA", sectionAssets.samantha, "Samantha Ng, founder of KIYO Living", { fit: "contain", focalPoint: "center bottom" }),
-  backdrop: plate("ABOUT-BACKDROP", sectionAssets.bookshelf, "The KIYO showroom shelving", { focalPoint: "center center" }),
-} satisfies Record<string, ImageSlot>;
-
 /**
- * The recognition wall, delivered as two transparent rows.
+ * The chapter is one photograph.
  *
- * They are not one composite: each row is stood on a shelf of the photographed
- * room, so the trophies sit in the space rather than on a panel floating over
- * it. Both are trimmed to their content by the asset tool, which is what lets
- * CSS align a row's base to a shelf line by percentage.
+ * Samantha, the room and all fourteen trophies are composited in the source
+ * rather than stacked at runtime, so nothing has to be re-registered against a
+ * shelf line and nothing slides off a shelf at odd browser zoom. Everything
+ * laid over it - the copy, and the fourteen hotspots - is positioned as a
+ * percentage of this one box, which is why the band has to keep the plate's
+ * 1920x800 ratio. See `.founder` in globals.css.
  */
-export const awardRowSlots: ImageSlot[] = [
-  plate(
-    "RECOGNITION-ROW-1",
-    sectionAssets.awardsRow1,
-    "KIYO awards: Rising Star Brand, Excellence in Customer Experience, Top 100 SME Malaysia, SME100 Fast Moving Companies, Outstanding E-Commerce Achievement, Brand Impact Award and Malaysia Trusted Brand",
-    { fit: "contain" },
-  ),
-  plate(
-    "RECOGNITION-ROW-2",
-    sectionAssets.awardsRow2,
-    "KIYO awards: TikTok Shop Top Merchant, TikTok Top 3 Live Luggage Brand, TikTok Shop Top Growth Partner, Million Ringgit Sales Achievement, Best Live Commerce Performance, Live Commerce Excellence and TikTok Shop Preferred Partner",
-    { fit: "contain" },
-  ),
-];
+export const aboutBandSlot = plate(
+  "ABOUT-BAND",
+  sectionAssets.aboutBand,
+  "Samantha Ng in the KIYO showroom, beside shelves holding the company's awards",
+);
+
+function cutOut(prefix: string, asset: SectionAsset & { id: string }): [string, ImageSlot] {
+  return [
+    asset.id,
+    {
+      id: `${prefix}-${asset.id}`,
+      status: "final",
+      src: asset.src,
+      width: asset.width,
+      height: asset.height,
+      aspectRatio: `${asset.width} / ${asset.height}`,
+      fit: "contain",
+      focalPoint: "center center",
+      alt: "",
+    },
+  ];
+}
+
+/** The fourteen cut-outs the award dialog enlarges, in shelf order. */
+export const awardSlots: Record<string, ImageSlot> = Object.fromEntries(
+  awardAssets.map((asset) => cutOut("AWARD", asset)),
+);
+
+/** The same fourteen at wall size, laid over the trophies standing in the band. */
+export const awardWallSlots: Record<string, ImageSlot> = Object.fromEntries(
+  awardSmallAssets.map((asset) => cutOut("AWARD-WALL", asset)),
+);

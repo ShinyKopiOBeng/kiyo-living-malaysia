@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Check, Expand, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { ImageSlotVisual } from "./ImagePlaceholder";
 import { PROGRAMME_EVENT, type Programme } from "./BuildYourSet";
-import { WHATSAPP_URL } from "./SiteFooter";
+import { giftSetMessage, whatsappLink } from "./SiteFooter";
 import {
   corporateLeadSlot,
   corporateSetSlots,
@@ -111,7 +111,7 @@ function GiftDialog({
           </dl>
 
           <div className="giftdialog__actions">
-            <a className="button button--coral" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+            <a className="button button--coral" href={whatsappLink(giftSetMessage(set.title))} target="_blank" rel="noreferrer">
               Enquire on WhatsApp <FaWhatsapp aria-hidden="true" />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>

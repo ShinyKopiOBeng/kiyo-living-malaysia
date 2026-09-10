@@ -82,7 +82,13 @@ test("the hero matches the mockup: eyebrow, three-line headline, two routes", as
 test("the warehouse band states the three-line claim and the four capabilities", async () => {
   const band = await chapter("warehouse", "umrah");
 
-  assert.match(band, /Designed here\.<br\/>Prepared here\.<br\/>Delivered from here\./);
+  /* The three verbs are the claim and each takes one of the brand's colours;
+     the "here" they share steps back so they can carry it. */
+  assert.match(band, /class="scale__headline"/);
+  for (const verb of ["Designed", "Prepared", "Delivered"]) {
+    assert.match(band, new RegExp(`<em>${verb}</em>`), `the warehouse claim is missing ${verb}`);
+  }
+  assert.match(band, /<em>Delivered<\/em> from here\./);
   assert.match(band, /Kajang, Selangor/);
   assert.match(band, /data-image-slot="WAREHOUSE-BAND"/);
   for (const capability of ["Warehouse", "Customisation", "QC", "Fulfilment"]) {
@@ -149,56 +155,74 @@ test("step 1 is the product chooser, with bulk and retail routes per card", asyn
   assert.match(build, /class="product-card__retail"[^>]*aria-controls="retail-flyout"|aria-controls="retail-flyout"[^>]*class="product-card__retail"/);
 });
 
-test("step 2 takes the company, the programme and an optional logo", async () => {
+test("step 2 collects every field the enquiry needs", async () => {
   const customise = await chapter("customise", "delivery");
 
   assert.match(customise, /Customise<br\/>your brand\./);
   assert.match(customise, /Make it uniquely yours\./);
+
+  /* The close crop, not the full-length case. The engraved plate is placed as
+     a percentage of this exact picture, so swapping the plate moves the
+     visitor's own name off it. */
   assert.match(customise, /class="brandcase"/);
-  assert.match(customise, /Your logo/);
+  assert.match(customise, /data-image-slot="BRAND-CASE-ZOOM"/);
+  assert.match(customise, /brandCaseZoom\.webp/);
+  assert.match(customise, /Your name here/);
 
   /* React does not preserve JSX attribute order, so match the tag by the
      attributes it carries rather than by the order they were written in. */
   assert.match(customise, /<input(?=[^>]*name="company")(?=[^>]*required)[^>]*>/);
-  assert.match(customise, /<input(?=[^>]*name="logo")(?=[^>]*type="file")[^>]*>/);
 
-  for (const option of ["Logo printing", "Luggage tag", "Accessories", "Custom packaging"]) {
-    assert.ok(customise.includes(option), `the customisation chips are missing ${option}`);
+  /* Every field lives in this step now. Splitting the form across steps 2 and
+     3 was what let visitors reach WhatsApp with a half-written brief. */
+  for (const field of ["company", "quantity", "destination", "required-by", "notes"]) {
+    assert.match(customise, new RegExp(`name="${field}"`), `step 2 is missing ${field}`);
   }
+  assert.match(customise, /<input(?=[^>]*name="quantity")(?=[^>]*required)[^>]*>/);
+
+  /* The four options carry their own photograph, so a buyer can see what an
+     option means before ticking it. Four options, four plates, no fifth. */
+  for (const option of ["Logo printing", "Luggage tag", "Accessories", "Custom packaging"]) {
+    assert.ok(customise.includes(option), `the customisation options are missing ${option}`);
+  }
+  assert.equal((customise.match(/class="optioncard[ "]/g) ?? []).length, 4);
+  assert.equal((customise.match(/data-image-slot="BRAND-DETAIL-0/g) ?? []).length, 4);
   for (const programme of ["Corporate Gifts", "UMRAH Programme"]) {
     assert.ok(customise.includes(programme), `the programme toggle is missing ${programme}`);
   }
-  /* Three columns, in the mockup's order: the case, then the form, then the
-     detail plates with the step's one forward action closing that column. The
-     mosaic and the button share the panel, which is what keeps them the same
-     width at every viewport rather than at one tuned value. */
-  assert.match(customise, /class="brandpanel"/);
+
+  /* The engraving and the field that drives it are one object, in that order:
+     what the visitor types is shown directly above where they type it. */
   assert.ok(
-    customise.indexOf("brandcase") < customise.indexOf("brandform"),
-    "the branded case must lead the row, on the left",
+    customise.indexOf("brandcase") < customise.indexOf("field-company"),
+    "the engraved case must sit above the field that drives it",
   );
   assert.ok(
-    customise.indexOf("brandform") < customise.indexOf("brandpanel"),
-    "the form is the middle column, before the panel of plates",
+    customise.indexOf("brandstudio") < customise.indexOf("brandform"),
+    "the preview column must lead the row, on the left",
   );
-  for (const inPanel of ["branddetails", "flow__continue"]) {
-    assert.ok(
-      customise.indexOf(inPanel) > customise.indexOf("brandpanel"),
-      `${inPanel} must sit inside the right-hand panel`,
-    );
-  }
-  assert.match(customise, /Send logo later on WhatsApp/);
-  assert.match(customise, /Nothing is uploaded to a server/);
-  assert.match(customise, /Continue to delivery/);
+
+  /* The live hint names the first thing still blank, next to the button the
+     visitor is about to press. */
+  assert.match(customise, /class="flow__status[^"]*"[^>]*aria-live="polite"|aria-live="polite"[^>]*class="flow__status/);
+  assert.match(customise, /Pick a model in step 1 to start\./);
+  assert.match(customise, /Review my enquiry/);
+
+  /* Nothing is uploaded any more, so nothing may claim to be. */
+  assert.doesNotMatch(customise, /type="file"/);
+  assert.doesNotMatch(customise, /Upload your logo|Send logo later on WhatsApp|Nothing is uploaded to a server/);
+  assert.match(customise, /Send your logo artwork on WhatsApp/);
 });
 
-test("step 3 collects the delivery detail and hands off to WhatsApp", async () => {
+test("step 3 reviews the enquiry and hands off to WhatsApp", async () => {
   const delivery = await chapter("delivery", "clients");
 
   assert.match(delivery, /Delivery<br\/>made simple\./);
   assert.match(delivery, /From idea to arrival\./);
 
-  /* The six-stage pipeline, in order. */
+  /* The six-stage pipeline, in order, each with a line of its own: six
+     photographs under a one-word label said nothing about what happens
+     between them. */
   assert.match(delivery, /class="pipeline"/);
   const stages = ["Brief", "Sample", "Approve", "Production", "QC", "Warehouse"];
   const at = stages.map((stage) => {
@@ -208,25 +232,42 @@ test("step 3 collects the delivery detail and hands off to WhatsApp", async () =
   });
   assert.deepEqual(at, [...at].sort((a, b) => a - b), "pipeline stages are out of order");
   assert.equal((delivery.match(/data-image-slot="DELIVERY-0/g) ?? []).length, 6);
+  assert.equal((delivery.match(/class="pipeline__line"/g) ?? []).length, 6);
 
+  /* The chapter reviews and sends. Collecting anything here is what caused the
+     half-written briefs in the first place. */
   for (const field of ["quantity", "destination", "required-by", "notes"]) {
-    assert.match(delivery, new RegExp(`name="${field}"`), `the delivery form is missing ${field}`);
+    assert.doesNotMatch(delivery, new RegExp(`name="${field}"`), `${field} must be collected in step 2`);
   }
+
   assert.match(delivery, /class="enquiry"/);
   assert.match(delivery, /Your KIYO enquiry/);
-  for (const row of ["Product", "Programme", "Branding", "Quantity", "Delivery"]) {
+  for (const row of ["Product", "Programme", "Company", "Branding", "Quantity", "Delivery to", "Required by", "Additional request"]) {
     assert.ok(delivery.includes(`<dt>${row}</dt>`), `the enquiry summary is missing ${row}`);
   }
+
+  /* A blank value is a control that goes back to the field, not a dash: the
+     summary doubles as the checklist. */
+  assert.match(delivery, /class="enquiry__add is-required"/);
+  assert.ok(!delivery.includes("<dd>-</dd>"), "a blank summary value must offer a way to fill it");
+
   assert.match(delivery, /Get my quote on WhatsApp/);
-  assert.match(delivery, /You can send your logo file after WhatsApp opens\./);
   assert.match(delivery, /type="submit"/);
+
+  /* The link opens WhatsApp with the message written but NOT sent, which
+     visitors miss: they close the tab believing they have enquired. */
+  assert.match(delivery, /Press send once WhatsApp opens/);
+
+  /* And on a desktop with no WhatsApp the deep link dead-ends on an "open the
+     app" interstitial, so the same brief has to have a second way out. */
+  assert.match(delivery, /Email it instead/);
 
   /* An enquiry, not a checkout. Quoting a price or taking payment on the page
      is out of scope; asking KIYO to quote one is the whole point. */
   assert.doesNotMatch(delivery, /add to cart|checkout|proceed to pay|card number|RM ?[0-9]/i);
 });
 
-test("chapter 8 carries the client wall, the video, the quotes and partner stories", async () => {
+test("chapter 8 answers the trust question with numbers, proof and voices", async () => {
   const clients = await chapter("clients", "about");
 
   assert.match(clients, /Trusted by leading organisations/i);
@@ -238,52 +279,128 @@ test("chapter 8 carries the client wall, the video, the quotes and partner stori
   /* The duplicate run must not be read out twice. */
   assert.match(clients, /class="logomarquee__run" aria-hidden="true"|aria-hidden="true"[^>]*class="logomarquee__run"/);
   assert.equal((clients.match(/data-image-status="placeholder"/g) ?? []).length, 0);
-  assert.match(clients, /\/images\/kiyo\/sections\/logos\/01-aia\.webp/);
-  /* Two marks arrived filed only as a crest. They must stay unnamed rather
-     than have an organisation guessed onto them. */
-  assert.match(clients, /alt="Client organisation logo"/);
-  assert.doesNotMatch(clients, /Wanderlust Travel|Corp Solutions Malaysia|Nexus University|Urban Haul|Global Escapes|Prime Events/i);
 
-  assert.match(clients, /class="videocard"/);
-  assert.match(clients, /tiktok\.com\/@kiyoliving/);
-  assert.equal((clients.match(/class="quote"/g) ?? []).length, 2);
-  assert.match(clients, /Reliable quality and seamless coordination from start to finish\./);
-  assert.match(clients, /Our jemaah love the sets\./);
-  assert.match(clients, /Partner stories/);
-  assert.equal((clients.match(/data-image-slot="PARTNER-0/g) ?? []).length, 3);
+  /* Every figure carries its own scope. A bare "4.9" would be a wider claim
+     than KIYO has made, and a bare "2,000+" would read as a company total. */
+  assert.match(clients, /class="proofnumbers"/);
+  /* The finished number ships in the markup, so the row is right before the
+     count-up runs and stays right if it never does. */
+  for (const [value, scope] of [
+    ["4.9", "Shopee store rating"],
+    ["2,000+", "sold on one luggage listing"],
+    ["5.0", "Google rating, from 183 reviews"],
+    ["14", "awards since 2022"],
+  ]) {
+    assert.ok(
+      clients.includes(`class="proofnumbers__value" data-count=`) && clients.includes(`>${value}</span>`),
+      `the numbers are missing ${value}`,
+    );
+    assert.ok(clients.includes(`<dd>${scope}</dd>`), `the numbers are missing the scope "${scope}"`);
+  }
+
+  /* Only the two ratings get stars, and the fill is clipped to the score
+     rather than rounded up, so 4.9 is not five full stars. The stars restate
+     the number beside them, so the scale goes to assistive tech as words. */
+  assert.equal((clients.match(/class="stars"/g) ?? []).length, 2);
+  assert.match(clients, /class="stars__fill" style="width:98%"/);
+  assert.match(clients, /class="stars__fill" style="width:100%"/);
+  assert.equal((clients.match(/ out of <!-- -->5<\/span>/g) ?? []).length, 2);
+
+  /* Five claims, each opening the best proof KIYO has for it, and each one
+     printing where it goes: three lead into this site, two to a video. */
+  assert.equal((clients.match(/class="proofcard"/g) ?? []).length, 5);
+  for (const destination of ["Watch on Lazada", "UMRAH sets", "Customise", "How we deliver"]) {
+    assert.ok(clients.includes(destination), `a proof card is missing the destination ${destination}`);
+  }
+  assert.equal((clients.match(/Watch on Lazada/g) ?? []).length, 2);
+  /* Anything leaving the site says so, and says so to a screen reader too. */
+  for (const external of clients.match(/<a class="proofcard"[^>]*>/g) ?? []) {
+    if (!external.includes("http")) continue;
+    assert.match(external, /target="_blank"/);
+    assert.match(external, /rel="noreferrer"/);
+  }
+
+  /* One featured quote, two beside it. The third is a public review post, so
+     it is quoted in the reviewer's words and linked back to the original,
+     which is the basis on which quoting it is fair. */
+  assert.equal((clients.match(/class="voice[ "]/g) ?? []).length, 3);
+  assert.equal((clients.match(/class="voice voice--lead"/g) ?? []).length, 1);
+  assert.match(clients, /Reliable quality and seamless coordination/);
+  assert.match(clients, /Our jemaah love the sets/);
+  assert.match(clients, /Berbaloi beli luggage ni/);
+  assert.match(clients, /lemon8-app\.com/);
+  assert.match(clients, /lily_ssi on Lemon8/);
+
+  /* The old chapter is gone: a still photograph with a play badge that opened
+     TikTok, and a "Partner stories" heading that opened a WhatsApp chat. */
+  for (const dead of ["videocard", "stories__head", "class=\"quotes\""]) {
+    assert.ok(!clients.includes(dead), `chapter 8 still carries ${dead}`);
+  }
+  assert.doesNotMatch(clients, /wa\.me/);
 });
 
-test("chapter 9 keeps Samantha and the recognition shelf", async () => {
+test("chapter 9 stands the awards on one plate and makes them readable", async () => {
   const about = await chapter("about", "visit");
 
-  assert.match(about, /data-image-slot="ABOUT-SAMANTHA"/);
-  assert.match(about, /\/images\/kiyo\/sections\/samantha\.webp/);
   assert.match(about, /<h2>Samantha Ng<\/h2>/);
   assert.match(about, /Founder, KIYO Living/);
   assert.match(about, /Built to help organisations move together\./);
   assert.match(about, /Recognised in live commerce/i);
-  /* Two award rows, not one composite panel: each is stood on a shelf of the
-     photographed room, which is only possible while they are separate plates
-     and siblings of the band rather than children of the content column. */
-  assert.match(about, /data-image-slot="RECOGNITION-ROW-1"/);
-  assert.match(about, /data-image-slot="RECOGNITION-ROW-2"/);
-  assert.ok(
-    about.indexOf("founder__inner") < about.indexOf('class="recognition"'),
-    "the award rows must be laid over the band, not nested in the copy column",
-  );
-  /* One photographed room: the shelving is the band itself, so it comes before
-     the content rather than being boxed inside a left-hand panel. */
-  assert.match(about, /data-image-slot="ABOUT-BACKDROP"/);
-  assert.match(about, /class="founder__wash"/);
-  assert.ok(
-    about.indexOf("ABOUT-BACKDROP") < about.indexOf("founder__inner"),
-    "the shelving plate must span the band, behind the content",
-  );
-  assert.doesNotMatch(about, /founder__portrait/);
 
-  /* Two claims from the live-commerce deck are unsubstantiated and stay off. */
+  /* One photograph, not three layers. Samantha, the room and all fourteen
+     trophies are composited in the plate, so nothing has to be re-registered
+     against a shelf line and nothing slides off a shelf at odd browser zoom. */
+  assert.match(about, /data-image-slot="ABOUT-BAND"/);
+  assert.match(about, /aboutBand\.webp/);
+  for (const gone of ["ABOUT-SAMANTHA", "ABOUT-BACKDROP", "RECOGNITION-ROW-", "founder__wash", "founder__inner"]) {
+    assert.ok(!about.includes(gone), `the About band no longer assembles itself from ${gone}`);
+  }
+
+  /* Fourteen controls standing where the trophies stand, each with a real
+     name, positioned against the same box the plate fills. */
+  assert.equal((about.match(/class="awardwall__spot"/g) ?? []).length, 14);
+  assert.ok(
+    about.indexOf("ABOUT-BAND") < about.indexOf('class="recognition"'),
+    "the hotspots must be laid over the band, not nested in the copy column",
+  );
+  for (const name of [
+    "Rising Star Brand", "SME100 Awards, Fast Moving Companies", "TikTok Top 3 Live Luggage Brand",
+    "Million Ringgit Sales Achievement", "TikTok Shop Preferred Partner",
+  ]) {
+    assert.ok(about.includes(name), `the award wall is missing ${name}`);
+  }
+
+  /* Below the desktop breakpoint the awards leave the shelf, so the same
+     fourteen have to exist as a row of their own. */
+  assert.equal((about.match(/class="awardrow__item"/g) ?? []).length, 14);
+  /* Two sizes of the same fourteen: the wall lays one over each trophy in the
+     band, the row and the dialog use the larger. */
+  assert.equal((about.match(/data-image-slot="AWARD-WALL-/g) ?? []).length, 14);
+  assert.equal((about.match(/data-image-slot="AWARD-(?!WALL)/g) ?? []).length, 14);
+
+  /* The lift is the cut-out itself, not a scaled rectangle of the band. That
+     rectangle used to carry background with it. */
+  assert.equal((about.match(/class="image-slot awardwall__lift"/g) ?? []).length, 14);
+  assert.doesNotMatch(about, /awardwall__spot"[^>]*background-image/);
+
+  /* The summaries live in the dialog, which is not rendered until a trophy is
+     opened, so they are checked at the source. Only SME100 publishes its
+     criteria, so it is the only award whose organiser is named: naming the
+     others would invent a credential KIYO has not claimed. */
+  const wall = await readFile(new URL("app/components/awardWall.ts", templateRoot), "utf8");
+  assert.equal((wall.match(/^    id: "/gm) ?? []).length, 14);
+  assert.match(wall, /SME100 has ranked Malaysian SMEs since 2009/);
+  assert.doesNotMatch(wall, /Reader's Digest|Readers Digest/i);
+
+  /* Two claims from the live-commerce deck were unsubstantiated and stay off.
+     "Million Ringgit Sales Achievement" is now on the page, but as the name of
+     a trophy KIYO holds rather than as a business statistic, so the guard
+     checks that it never appears without the award's own wording. */
   const page = await html();
-  assert.doesNotMatch(page, /MILLION-RINGGIT|Live Hosts Trained/i);
+  assert.doesNotMatch(page, /Live Hosts Trained/i);
+  for (const hit of page.match(/million[ -]ringgit[^<"]*/gi) ?? []) {
+    assert.match(hit, /sales[ -]achievement/i, `million ringgit is claimed as a statistic in: ${hit}`);
+  }
 });
 
 test("chapter 10 gives the reach map, the address and a real map", async () => {
@@ -339,8 +456,17 @@ test("the closing band and footer carry every business route", async () => {
     assert.match(page, new RegExp(`href="${href}"[^>]*>${label}<`));
   }
 
-  /* Retail actions offer Shopee and TikTok only. No Lazada route is included. */
-  assert.doesNotMatch(page, /lazada/i);
+  /* Retail actions offer Shopee and TikTok only: no Lazada buying route.
+     Chapter 8 does link two Lazada product videos as proof, which is the one
+     place the name is allowed to appear, so the guard is scoped to the routes
+     rather than to the whole page. */
+  assert.doesNotMatch(await chapter("contact"), /lazada/i);
+  const lazada = page.match(/href="[^"]*lazada[^"]*"/gi) ?? [];
+  assert.equal(lazada.length, 2, "Lazada belongs only on the two proof cards");
+  for (const link of lazada) {
+    assert.match(link, /videodetail/, `a Lazada link that is not a product video: ${link}`);
+  }
+  assert.equal((page.match(/<a class="proofcard"[^>]*lazada[^>]*>/g) ?? []).length, 2);
   /* The WhatsApp float is a draggable dock, not a bare fixed anchor. */
   assert.match(page, /class="whatsapp-dock"/);
   /* Typography house rule: hyphens only, no em or en dashes in visible copy. */
@@ -349,7 +475,7 @@ test("the closing band and footer carry every business route", async () => {
 });
 
 test("keeps the architecture production-ready", async () => {
-  const [page, layout, packageJson, experience, builder, gifts, trust, slots, placeholder, css, fonts] = await Promise.all([
+  const [page, layout, packageJson, experience, builder, gifts, , slots, placeholder, css, fonts] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
@@ -389,11 +515,27 @@ test("keeps the architecture production-ready", async () => {
   /* The builder hands off to WhatsApp and stores nothing. */
   assert.match(builder, /whatsappLink\(message\)/);
   assert.match(builder, /window\.open\(/);
-  assert.match(builder, /URL\.revokeObjectURL/);
   assert.doesNotMatch(builder, /fetch\(|XMLHttpRequest|FormData\(/);
+  /* Nothing is read off the visitor's disk either. The logo upload existed
+     only to draw a preview, and the file it took never went anywhere. */
+  assert.doesNotMatch(builder, /createObjectURL|FileReader|type="file"/);
 
-  /* Quotes stay unattributed until real, approved ones arrive. */
-  assert.match(trust, /export const customerReviews: CustomerReview\[\]/);
+  /* Two of the three quotes are still attributed to a role rather than to a
+     person, because KIYO has not asked permission to name anyone. The third is
+     a public post, and quoting it is only fair while it is credited and linked
+     back, so both have to stay together. */
+  const proof = await readFile(new URL("app/components/clientProof.ts", templateRoot), "utf8");
+  assert.match(proof, /source: "Corporate client"/);
+  assert.match(proof, /source: "lily_ssi on Lemon8"/);
+  assert.match(proof, /href: "https:\/\/www\.lemon8-app\.com/);
+
+  /* Every WhatsApp button says where it was pressed, so whoever answers is not
+     starting two messages behind. */
+  const footer = await readFile(new URL("app/components/SiteFooter.tsx", templateRoot), "utf8");
+  assert.match(footer, /Sent from the KIYO website, \$\{source\}/);
+  for (const message of ["GENERAL_MESSAGE", "UMRAH_MESSAGE", "CORPORATE_MESSAGE", "VISIT_MESSAGE"]) {
+    assert.match(footer, new RegExp(`export const ${message}`), `SiteFooter is missing ${message}`);
+  }
 
   /* The display and body faces are self-hosted: next/font downloaded them but
      the Vinext build never emitted the @font-face rules, which silently left
@@ -439,7 +581,7 @@ test("keeps the architecture production-ready", async () => {
   assert.match(css, /scroll-margin-top/);
 
   /* Markup the redesign removed leaves no orphaned rules behind. */
-  for (const dead of ["\\.shop-flyout", "\\.business-pillar", "\\.product-collection", "\\.location-card", "\\.about__copy", "\\.corporate-accordion", "\\.umrah__process"]) {
+  for (const dead of ["\\.shop-flyout", "\\.business-pillar", "\\.product-collection", "\\.location-card", "\\.about__copy", "\\.corporate-accordion", "\\.umrah__process", "\\.branddetails", "\\.brandpanel", "\\.deliveryform", "\\.brandform__logo", "\\.ghost-button", "\\.founder__wash", "\\.founder__cutout"]) {
     assert.doesNotMatch(css, new RegExp(dead), `globals.css still carries rules for ${dead}`);
   }
 

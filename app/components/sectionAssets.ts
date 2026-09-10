@@ -17,12 +17,11 @@ export const sectionAssets = {
   corporateSet2: { src: "/images/kiyo/sections/corporateSet2.webp", width: 1100, height: 825 },
   corporateSet3: { src: "/images/kiyo/sections/corporateSet3.webp", width: 1100, height: 825 },
   corporateSet4: { src: "/images/kiyo/sections/corporateSet4.webp", width: 1100, height: 825 },
-  brandCase: { src: "/images/kiyo/sections/brandCase.webp", width: 1000, height: 1039 },
+  brandCaseZoom: { src: "/images/kiyo/sections/brandCaseZoom.webp", width: 701, height: 899 },
   brandDetail1: { src: "/images/kiyo/sections/brandDetail1.webp", width: 900, height: 900 },
   brandDetail2: { src: "/images/kiyo/sections/brandDetail2.webp", width: 900, height: 900 },
   brandDetail3: { src: "/images/kiyo/sections/brandDetail3.webp", width: 900, height: 900 },
   brandDetail4: { src: "/images/kiyo/sections/brandDetail4.webp", width: 900, height: 900 },
-  brandDetail5: { src: "/images/kiyo/sections/brandDetail5.webp", width: 900, height: 900 },
   pipeline1: { src: "/images/kiyo/sections/pipeline1.webp", width: 800, height: 552 },
   pipeline2: { src: "/images/kiyo/sections/pipeline2.webp", width: 800, height: 551 },
   pipeline3: { src: "/images/kiyo/sections/pipeline3.webp", width: 800, height: 551 },
@@ -33,10 +32,7 @@ export const sectionAssets = {
   partnerCorporate: { src: "/images/kiyo/sections/partnerCorporate.webp", width: 800, height: 600 },
   partnerUmrah: { src: "/images/kiyo/sections/partnerUmrah.webp", width: 800, height: 600 },
   partnerWarehouse: { src: "/images/kiyo/sections/partnerWarehouse.webp", width: 800, height: 600 },
-  samantha: { src: "/images/kiyo/sections/samantha.webp", width: 1000, height: 1333 },
-  bookshelf: { src: "/images/kiyo/sections/bookshelf.webp", width: 1920, height: 800 },
-  awardsRow1: { src: "/images/kiyo/sections/awardsRow1.webp", width: 1400, height: 217 },
-  awardsRow2: { src: "/images/kiyo/sections/awardsRow2.webp", width: 1400, height: 210 },
+  aboutBand: { src: "/images/kiyo/sections/aboutBand.webp", width: 1920, height: 800 },
   reachMapFallback: { src: "/images/kiyo/sections/reachMapFallback.webp", width: 1600, height: 699 },
 } satisfies Record<string, SectionAsset>;
 
@@ -54,6 +50,42 @@ export const clientLogoAssets: (SectionAsset & { id: string })[] = [
   { id: "clientLogoJalen", src: "/images/kiyo/sections/logos/10-jalen.webp", width: 480, height: 240 },
   { id: "clientLogoBoldMedia", src: "/images/kiyo/sections/logos/11-bold-media.webp", width: 480, height: 240 },
   { id: "clientLogoUnikl", src: "/images/kiyo/sections/logos/12-unikl.webp", width: 480, height: 240 },
+];
+
+/** The recognition cut-outs, in shelf order: the upper shelf first. */
+export const awardAssets: (SectionAsset & { id: string })[] = [
+  { id: "risingStarBrand2022", src: "/images/kiyo/sections/awards/01-rising-star-brand-2022.webp", width: 198, height: 297 },
+  { id: "excellenceCustomerExperience2023", src: "/images/kiyo/sections/awards/02-excellence-customer-experience-2023.webp", width: 260, height: 279 },
+  { id: "top100SmeMalaysia2023", src: "/images/kiyo/sections/awards/03-top-100-sme-malaysia-2023.webp", width: 256, height: 276 },
+  { id: "sme100FastMovingCompanies2023", src: "/images/kiyo/sections/awards/04-sme100-fast-moving-companies-2023.webp", width: 211, height: 305 },
+  { id: "outstandingEcommerceAchievement2023", src: "/images/kiyo/sections/awards/05-outstanding-ecommerce-achievement-2023.webp", width: 263, height: 277 },
+  { id: "brandImpactAward2024", src: "/images/kiyo/sections/awards/06-brand-impact-award-2024.webp", width: 175, height: 292 },
+  { id: "malaysiaTrustedBrandAward2024", src: "/images/kiyo/sections/awards/07-malaysia-trusted-brand-award-2024.webp", width: 260, height: 273 },
+  { id: "tiktokShopTopMerchant2024", src: "/images/kiyo/sections/awards/08-tiktok-shop-top-merchant-2024.webp", width: 272, height: 268 },
+  { id: "tiktokTop3LiveLuggageBrand2023", src: "/images/kiyo/sections/awards/09-tiktok-top-3-live-luggage-brand-2023.webp", width: 127, height: 282 },
+  { id: "tiktokShopTopGrowthPartner2023", src: "/images/kiyo/sections/awards/10-tiktok-shop-top-growth-partner-2023.webp", width: 257, height: 266 },
+  { id: "millionRinggitSalesAchievement2023", src: "/images/kiyo/sections/awards/11-million-ringgit-sales-achievement-2023.webp", width: 215, height: 266 },
+  { id: "bestLiveCommercePerformance2023", src: "/images/kiyo/sections/awards/12-best-live-commerce-performance-2023.webp", width: 264, height: 266 },
+  { id: "liveCommerceExcellenceAward2022", src: "/images/kiyo/sections/awards/13-live-commerce-excellence-award-2022.webp", width: 138, height: 254 },
+  { id: "tiktokShopPreferredPartner2023", src: "/images/kiyo/sections/awards/14-tiktok-shop-preferred-partner-2023.webp", width: 262, height: 272 },
+];
+
+/** The same cut-outs at wall size, laid over the trophies in the band. */
+export const awardSmallAssets: (SectionAsset & { id: string })[] = [
+  { id: "risingStarBrand2022", src: "/images/kiyo/sections/awards/small/01-rising-star-brand-2022.webp", width: 198, height: 297 },
+  { id: "excellenceCustomerExperience2023", src: "/images/kiyo/sections/awards/small/02-excellence-customer-experience-2023.webp", width: 260, height: 279 },
+  { id: "top100SmeMalaysia2023", src: "/images/kiyo/sections/awards/small/03-top-100-sme-malaysia-2023.webp", width: 256, height: 276 },
+  { id: "sme100FastMovingCompanies2023", src: "/images/kiyo/sections/awards/small/04-sme100-fast-moving-companies-2023.webp", width: 211, height: 305 },
+  { id: "outstandingEcommerceAchievement2023", src: "/images/kiyo/sections/awards/small/05-outstanding-ecommerce-achievement-2023.webp", width: 260, height: 274 },
+  { id: "brandImpactAward2024", src: "/images/kiyo/sections/awards/small/06-brand-impact-award-2024.webp", width: 175, height: 292 },
+  { id: "malaysiaTrustedBrandAward2024", src: "/images/kiyo/sections/awards/small/07-malaysia-trusted-brand-award-2024.webp", width: 260, height: 273 },
+  { id: "tiktokShopTopMerchant2024", src: "/images/kiyo/sections/awards/small/08-tiktok-shop-top-merchant-2024.webp", width: 260, height: 256 },
+  { id: "tiktokTop3LiveLuggageBrand2023", src: "/images/kiyo/sections/awards/small/09-tiktok-top-3-live-luggage-brand-2023.webp", width: 127, height: 282 },
+  { id: "tiktokShopTopGrowthPartner2023", src: "/images/kiyo/sections/awards/small/10-tiktok-shop-top-growth-partner-2023.webp", width: 257, height: 266 },
+  { id: "millionRinggitSalesAchievement2023", src: "/images/kiyo/sections/awards/small/11-million-ringgit-sales-achievement-2023.webp", width: 215, height: 266 },
+  { id: "bestLiveCommercePerformance2023", src: "/images/kiyo/sections/awards/small/12-best-live-commerce-performance-2023.webp", width: 260, height: 262 },
+  { id: "liveCommerceExcellenceAward2022", src: "/images/kiyo/sections/awards/small/13-live-commerce-excellence-award-2022.webp", width: 138, height: 254 },
+  { id: "tiktokShopPreferredPartner2023", src: "/images/kiyo/sections/awards/small/14-tiktok-shop-preferred-partner-2023.webp", width: 260, height: 270 },
 ];
 
 export const reachMapSvg = "/images/kiyo/sections/reachMap.svg";

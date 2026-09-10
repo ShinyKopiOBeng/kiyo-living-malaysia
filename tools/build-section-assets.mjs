@@ -57,12 +57,17 @@ const PLATES = [
   { id: "corporateSet4", from: "Section4/ChatGPT Image Aug 18, 2026, 10_03_01 PM (4).png", width: 1100 },
 
   /* 06  Customise --------------------------------------------------------- */
-  { id: "brandCase", from: "Section6/logoLuggage.png", width: 1000, alpha: true },
+  /* The case is shown as a close crop, because the visitor's own name is
+     engraved on the plate and the full-length shot rendered it a few pixels
+     tall. Trimmed to its opaque bounds: the plate is placed as a percentage of
+     the picture, so transparent margin around it would move the engraving. */
+  { id: "brandCaseZoom", from: "Section6/luggageLogoZoom.png", width: 1000, alpha: true, trim: true },
+  /* Four plates for four customisation options. The photographs now live
+     inside the controls they illustrate, so there is no fifth. */
   { id: "brandDetail1", from: "Section6/ChatGPT Image Sep 8, 2026, 11_21_25 AM (2).png", width: 900 },
   { id: "brandDetail2", from: "Section6/ChatGPT Image Sep 8, 2026, 11_21_25 AM (3).png", width: 900 },
   { id: "brandDetail3", from: "Section6/ChatGPT Image Sep 8, 2026, 11_21_26 AM (4).png", width: 900 },
   { id: "brandDetail4", from: "Section6/ChatGPT Image Sep 8, 2026, 11_21_26 AM (5).png", width: 900 },
-  { id: "brandDetail5", from: "Section6/ChatGPT Image Sep 8, 2026, 11_21_26 AM (6).png", width: 900 },
 
   /* 07  Delivery pipeline -------------------------------------------------- */
   { id: "pipeline1", from: "Section7/ChatGPT Image Sep 8, 2026, 11_34_23 AM (1).png", width: 800 },
@@ -79,13 +84,13 @@ const PLATES = [
   { id: "partnerWarehouse", from: "Section8/trust-visuals/partner-story-warehouse-fulfilment.png", width: 800 },
 
   /* 09  Samantha and recognition ------------------------------------------- */
-  { id: "samantha", from: "Section8/samanthaPortrait.png", width: 1000, alpha: true },
-  { id: "bookshelf", from: "Section9/backgroundBookshelf.png", width: 1920 },
-  /* The two award rows ship separately and transparently so each can be stood
-     on its own shelf in the photographed room, rather than floating over it as
-     one composite panel. */
-  { id: "awardsRow1", from: "Section9/Row1.png", width: 1400, alpha: true, trim: true },
-  { id: "awardsRow2", from: "Section9/Row2.png", width: 1400, alpha: true, trim: true },
+  /* One plate, not three layers.
+     Samantha, the room and all fourteen trophies are composited in the source,
+     so nothing has to be re-registered against a shelf line at runtime and
+     nothing can slide off a shelf at odd browser zoom. The file carries an
+     alpha channel but not one transparent pixel, so it flattens like any other
+     photograph. */
+  { id: "aboutBand", from: "Section9/section-9-samantha-awards-bookshelf-combined.png", width: 1920 },
 
   /* 10  Nationwide reach ---------------------------------------------------- */
   { id: "reachMapFallback", from: "Section10/section-10-malaysia-network-map-transparent-hd.png", width: 1600, alpha: true },
@@ -96,6 +101,18 @@ const PLATES = [
 const LOGO_DIR = "Section8/client-logos";
 const LOGO_BOX = { width: 480, height: 240 };
 
+/* The fourteen trophies again, one file each and cut out. The band above
+   already shows them standing on the shelf; these are what the dialog
+   enlarges, so they are trimmed to the trophy and sized for half a dialog. */
+const AWARD_DIR = "Section9/awards";
+/* Two sizes, because the two jobs are two orders of magnitude apart. The
+   dialog shows a trophy about 380px tall. The award wall lays one over each
+   trophy standing in the band, where it renders about 110px tall, and
+   fourteen dialog-sized files would be a megabyte of pictures nobody sees at
+   that size. */
+const AWARD_WIDTH = 600;
+const AWARD_SMALL_WIDTH = 260;
+
 /* Copied through untouched. It is already 915x400 in the brand palette, and it
    carries the CC BY 3.0 credit for the base map inside its <desc>. */
 const REACH_MAP_SVG = "Section10/section-10-malaysia-network-map.svg";
@@ -104,6 +121,8 @@ const camel = (value) => value.replace(/[^a-zA-Z0-9]+(.)/g, (_, c) => c.toUpperC
 
 await mkdir(PUBLIC_DIR, { recursive: true });
 await mkdir(new URL("logos/", PUBLIC_DIR), { recursive: true });
+await mkdir(new URL("awards/", PUBLIC_DIR), { recursive: true });
+await mkdir(new URL("awards/small/", PUBLIC_DIR), { recursive: true });
 
 const manifest = [];
 
@@ -158,6 +177,33 @@ for (const file of logos) {
 
 console.log(`client marks         ${logoEntries.length} trimmed to ${LOGO_BOX.width}x${LOGO_BOX.height}`);
 
+/* --- The recognition cut-outs -------------------------------------------- */
+
+const awardFiles = (await readdir(join(SOURCE, AWARD_DIR))).filter((f) => f.endsWith(".png")).sort();
+const awardEntries = [];
+const awardSmallEntries = [];
+
+for (const file of awardFiles) {
+  const name = file.replace(/[.]png$/, ".webp");
+  const id = camel(file.replace(/^[0-9]+-/, "").replace(/[.]png$/, ""));
+  /* Trimmed once, so both sizes describe exactly the same box. The award wall
+     positions the cut-out against a trophy measured in the band, and a
+     different trim between the two sizes would put them out of register. */
+  const trimmed = await sharp(join(SOURCE, AWARD_DIR, file)).trim({ threshold: 1 }).png().toBuffer();
+
+  for (const [dir, width, into] of [["awards/", AWARD_WIDTH, awardEntries], ["awards/small/", AWARD_SMALL_WIDTH, awardSmallEntries]]) {
+    const out = dir + name;
+    const info = await sharp(trimmed)
+      .resize({ width, withoutEnlargement: true })
+      .webp({ quality: 88, alphaQuality: 100, effort: 5 })
+      .toFile(new URL(out, PUBLIC_DIR).pathname.replace(/^[/]/, ""));
+
+    into.push({ id, src: `${PUBLIC_PREFIX}/${out}`, width: info.width, height: info.height });
+  }
+}
+
+console.log(`award cut-outs       ${awardEntries.length} at ${AWARD_WIDTH}px and ${AWARD_SMALL_WIDTH}px`);
+
 /* --- The network map ships as vector ------------------------------------- */
 
 const svg = await readFile(join(SOURCE, REACH_MAP_SVG), "utf8");
@@ -185,9 +231,19 @@ const body = [
   ...logoEntries.map((a) => `  { id: "${a.id}", src: "${a.src}", width: ${a.width}, height: ${a.height} },`),
   "];",
   "",
+  "/** The recognition cut-outs, in shelf order: the upper shelf first. */",
+  "export const awardAssets: (SectionAsset & { id: string })[] = [",
+  ...awardEntries.map((a) => `  { id: "${a.id}", src: "${a.src}", width: ${a.width}, height: ${a.height} },`),
+  "];",
+  "",
+  "/** The same cut-outs at wall size, laid over the trophies in the band. */",
+  "export const awardSmallAssets: (SectionAsset & { id: string })[] = [",
+  ...awardSmallEntries.map((a) => `  { id: "${a.id}", src: "${a.src}", width: ${a.width}, height: ${a.height} },`),
+  "];",
+  "",
   `export const reachMapSvg = "${PUBLIC_PREFIX}/reachMap.svg";`,
   "",
 ].join("\n");
 
 await writeFile(MANIFEST, body);
-console.log(`\nwrote app/components/sectionAssets.ts (${manifest.length} plates, ${logoEntries.length} marks)`);
+console.log(`\nwrote app/components/sectionAssets.ts (${manifest.length} plates, ${logoEntries.length} marks, ${awardEntries.length} awards)`);

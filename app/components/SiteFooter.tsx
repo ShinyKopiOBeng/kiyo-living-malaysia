@@ -5,13 +5,51 @@ import { ArrowUpRight } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa6";
 
 export const WHATSAPP_E164 = "60132767887";
-export const WHATSAPP_URL = "https://wa.me/60132767887?text=Hi%20KIYO%2C%20I%27m%20interested%20in%20your%20products%20or%20services.";
 export const WHATSAPP_NUMBER = "+60 13-276 7887";
 
 /** Build a wa.me deep link carrying a pre-written message. */
 export function whatsappLink(message: string) {
   return `https://wa.me/${WHATSAPP_E164}?text=${encodeURIComponent(message)}`;
 }
+
+/**
+ * The point of a pre-written message is that it can carry what the page
+ * already knows. Every button used to open the same "I'm interested in your
+ * products or services", which told whoever answered nothing: they had to ask
+ * what the visitor was looking at, and the thread started two messages behind.
+ *
+ * The closing line is not decoration either. It is how KIYO can see which part
+ * of the site is producing enquiries without any analytics at all.
+ */
+export function enquiry(message: string, source: string) {
+  return `${message}\n\nSent from the KIYO website, ${source}.`;
+}
+
+export const GENERAL_MESSAGE = enquiry(
+  "Hi KIYO. I have a question about your luggage and gift sets.",
+  "general enquiry",
+);
+
+export const UMRAH_MESSAGE = enquiry(
+  "Hi KIYO. I am planning an UMRAH programme and would like to see the agency sets.",
+  "UMRAH sets",
+);
+
+export const CORPORATE_MESSAGE = enquiry(
+  "Hi KIYO. I am looking at corporate gift sets for my company.",
+  "corporate gift sets",
+);
+
+export const VISIT_MESSAGE = enquiry(
+  "Hi KIYO. I would like to arrange a visit to the Kajang showroom.",
+  "visit us",
+);
+
+export function giftSetMessage(title: string) {
+  return enquiry(`Hi KIYO. I would like a quote for the ${title}.`, title);
+}
+
+export const WHATSAPP_URL = whatsappLink(GENERAL_MESSAGE);
 
 export const SHOPEE_URL = "https://shopee.com.my/kiyoliving";
 export const TIKTOK_URL = "https://www.tiktok.com/@kiyoliving";

@@ -14,16 +14,80 @@ import { ClientProof, FounderAndAwards, VisitKiyo } from "./components/TrustSect
 import { RetailFlyout, RetailProvider, RetailTrigger } from "./components/RetailFlyout";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
 import { heroSlot, warehouseBandSlot } from "./components/imageSlots";
-import { SHOPEE_URL, SiteFooter, WHATSAPP_URL } from "./components/SiteFooter";
+import { GENERAL_MESSAGE, SHOPEE_URL, SiteFooter, WHATSAPP_URL, whatsappLink } from "./components/SiteFooter";
 
+/* In the order the chapters run, which is UMRAH first. The header had been
+   disagreeing with the page since the chapters were reordered. */
 const navigation = [
-  ["Corporate", "#corporate"],
   ["UMRAH", "#umrah"],
+  ["Corporate", "#corporate"],
   ["How it works", "#build"],
   ["Clients", "#clients"],
   ["About KIYO", "#about"],
   ["Visit us", "#visit"],
 ] as const;
+
+/**
+ * Which nav item a chapter marks.
+ *
+ * Three chapters share one item: the flow is `#build`, `#customise` and
+ * `#delivery`, and without this grouping the marker would go blank for the
+ * longest stretch of the page. The hero and the warehouse band mark nothing,
+ * because neither is a destination in the nav.
+ */
+const CHAPTER_NAV: Record<string, string> = {
+  umrah: "#umrah",
+  corporate: "#corporate",
+  build: "#build",
+  customise: "#build",
+  delivery: "#build",
+  clients: "#clients",
+  about: "#about",
+  visit: "#visit",
+  contact: "#visit",
+};
+
+/**
+ * Mark the chapter the reader is in.
+ *
+ * The observer ignores the height of the header and the lower half of the
+ * viewport, so the chapter that gets marked is the one at reading height rather
+ * than the one merely touching the screen, and the topmost intersecting chapter
+ * wins. Nothing is marked above the first chapter, which is correct: the hero
+ * is not in the nav.
+ */
+function useCurrentChapter() {
+  const [current, setCurrent] = useState<string | null>(null);
+
+  useEffect(() => {
+    const sections = Object.keys(CHAPTER_NAV)
+      .map((id) => document.getElementById(id))
+      .filter((node): node is HTMLElement => node !== null);
+    if (!sections.length) return;
+
+    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const headerPx = Math.round(4.5 * rem);
+    const visible = new Map<string, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.set(entry.target.id, entry.boundingClientRect.top);
+          else visible.delete(entry.target.id);
+        }
+        if (!visible.size) return;
+        const [topmost] = [...visible.entries()].sort((a, b) => a[1] - b[1]);
+        setCurrent(CHAPTER_NAV[topmost[0]] ?? null);
+      },
+      { rootMargin: `-${headerPx}px 0px -55% 0px`, threshold: 0 },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  return current;
+}
 
 /* The four things that happen inside the building, called out under the band. */
 const capabilities = [
@@ -39,7 +103,7 @@ function announce(programme: Programme) {
 
 type DialogProps = { open: boolean; onClose: () => void };
 
-function MenuDialog({ open, onClose }: DialogProps) {
+function MenuDialog({ open, onClose, current }: DialogProps & { current: string | null }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -70,7 +134,11 @@ function MenuDialog({ open, onClose }: DialogProps) {
         <button className="icon-button" onClick={onClose} aria-label="Close menu"><X aria-hidden="true" /></button>
       </div>
       <nav className="mobile-menu__links">
-        {navigation.map(([label, href]) => <a key={href} href={href} onClick={onClose}>{label}<ArrowUpRight aria-hidden="true" /></a>)}
+        {navigation.map(([label, href]) => (
+          <a key={href} href={href} onClick={onClose} aria-current={href === current ? "true" : undefined}>
+            {label}<ArrowUpRight aria-hidden="true" />
+          </a>
+        ))}
         <a href={SHOPEE_URL} target="_blank" rel="noreferrer" onClick={onClose}>Retail stores<ArrowUpRight aria-hidden="true" /></a>
       </nav>
       <a className="button button--coral mobile-menu__cta" href="#build" onClick={onClose}>
@@ -192,7 +260,7 @@ function WhatsAppDock({ hidden }: { hidden: boolean }) {
 
 type HeaderMode = "hero" | "solid" | "hidden";
 
-function SmartHeader({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
+function SmartHeader({ onMenu, menuOpen, current }: { onMenu: () => void; menuOpen: boolean; current: string | null }) {
   const [mode, setMode] = useState<HeaderMode>("hero");
 
   useEffect(() => {
@@ -245,7 +313,9 @@ function SmartHeader({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boole
     <header className={`site-header site-header--${mode}`} data-header-mode={mode}>
       <a className="brand" href="#home" aria-label="KIYO home"><img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" /></a>
       <nav className="desktop-navigation" aria-label="Primary navigation">
-        {navigation.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
+        {navigation.map(([label, href]) => (
+          <a key={href} href={href} aria-current={href === current ? "true" : undefined}>{label}</a>
+        ))}
       </nav>
       <div className="header-actions">
         <RetailTrigger />
@@ -259,6 +329,7 @@ function SmartHeader({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boole
 }
 
 export function KiyoExperience() {
+  const currentChapter = useCurrentChapter();
   const rootRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -420,7 +491,7 @@ export function KiyoExperience() {
     <RetailProvider>
     <div ref={rootRef} className="site-shell">
       <a className="skip-link" href="#main">Skip to content</a>
-      <SmartHeader onMenu={() => setMenuOpen(true)} menuOpen={menuOpen} />
+      <SmartHeader onMenu={() => setMenuOpen(true)} menuOpen={menuOpen} current={currentChapter} />
 
       <main id="main">
         {/* 01 -------------------------------------------------------------- */}
@@ -447,7 +518,11 @@ export function KiyoExperience() {
           <ImageSlotVisual slot={warehouseBandSlot} className="scale__media" decorative />
           <div className="scale__scrim" aria-hidden="true" />
           <div className="scale__copy" data-reveal-group>
-            <h2>Designed here.<br />Prepared here.<br />Delivered from here.</h2>
+            <h2 className="scale__headline">
+              <span><em>Designed</em> here.</span>
+              <span><em>Prepared</em> here.</span>
+              <span><em>Delivered</em> from here.</span>
+            </h2>
             <p>Kajang, Selangor</p>
           </div>
           <ul className="scale__capabilities">
@@ -482,7 +557,7 @@ export function KiyoExperience() {
           </div>
           <div className="closer__actions" data-reveal>
             <a className="button button--coral" href="#build">Build your set <ArrowRight aria-hidden="true" /></a>
-            <a className="button button--outline" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+            <a className="button button--outline" href={whatsappLink(GENERAL_MESSAGE)} target="_blank" rel="noreferrer">
               Talk to KIYO on WhatsApp <FaWhatsapp aria-hidden="true" />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
@@ -494,7 +569,7 @@ export function KiyoExperience() {
       <SiteFooter />
 
       <WhatsAppDock hidden={menuOpen} />
-      <MenuDialog open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MenuDialog open={menuOpen} onClose={() => setMenuOpen(false)} current={currentChapter} />
       <RetailFlyout />
     </div>
     </RetailProvider>
