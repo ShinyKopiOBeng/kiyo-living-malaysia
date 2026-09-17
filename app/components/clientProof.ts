@@ -48,14 +48,14 @@ export function formatProofNumber({ value, decimals, suffix }: ProofNumber) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Three client videos under the logo wall. KIYO is supplying the clips; until
- * a card has a `src` it renders as a branded placeholder rather than a frame
- * with nothing in it.
+ * Three client videos under the logo wall, chosen out of KIYO's client
+ * archive and re-encoded by `tools/build-client-videos.mjs`. A card without a
+ * `src` renders as a branded placeholder rather than a frame with nothing in
+ * it.
  *
- * `src` is an MP4 in `public/media/` (drop the file in and point at it) and
- * `poster` is its first frame as a WebP. A card with `embed` set instead
- * opens that link in a new tab, for a clip that only exists on TikTok. The
- * caption says what the clip shows and is written when the clip exists; no
+ * `src` is an MP4 in `public/media/clients/` and `poster` its chosen frame as
+ * a WebP. A card with `embed` set instead opens that link in a new tab, for a
+ * clip that only exists on TikTok. The caption says what the clip shows; no
  * view counts or likes, because KIYO has not supplied any.
  */
 export type ClientVideo = {
@@ -67,9 +67,24 @@ export type ClientVideo = {
 };
 
 export const CLIENT_VIDEOS: ClientVideo[] = [
-  { id: "video-1", caption: "Client video 1" },
-  { id: "video-2", caption: "Client video 2" },
-  { id: "video-3", caption: "Client video 3" },
+  {
+    id: "irkaz-office",
+    caption: "IIRKAZ receives its branded cases at the agency office",
+    src: "/media/clients/irkaz-office.mp4",
+    poster: "/media/clients/irkaz-office.webp",
+  },
+  {
+    id: "hejira-umrah",
+    caption: "Hejira Travel walks through its UMRAH set",
+    src: "/media/clients/hejira-umrah.mp4",
+    poster: "/media/clients/hejira-umrah.webp",
+  },
+  {
+    id: "aq-grand-opening",
+    caption: "AQ Travel & Tours collects its printed sets at the KIYO opening",
+    src: "/media/clients/aq-grand-opening.mp4",
+    poster: "/media/clients/aq-grand-opening.webp",
+  },
 ];
 
 /** Where the rest of KIYO's video lives. */

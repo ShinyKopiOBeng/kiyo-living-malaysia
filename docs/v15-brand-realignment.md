@@ -554,22 +554,37 @@ and Sapphire Ihram for UMRAH; Travel Comfort, Outdoor Retreat, Executive Desk,
 Tech Productivity, Apparel Welcome and Coffee Wellness for corporate. All in
 `giftSets.ts`.
 
-**The home hero is still the stand-in.** The Higgsfield account this workspace
-is connected to is on the free plan with no credits, so nothing could be
-generated from here. The slot keeps the old airport picture under the id
-`heroHome` with `status: "temporary"`, and a prompt for producing the plated
-hero in ChatGPT (the tool the rest of the Drive photography came from) was
-handed to KIYO. Replacing the source file and re-running the asset tool is the
-whole change.
+**Same day, the stand-ins were filled.** KIYO produced the plated airport hero
+in ChatGPT (Higgsfield here is on the free plan, so nothing could be generated
+from this side) and a complete square of the Coffee Wellness set; both went
+through the asset tool under their existing ids. KIYO's Web3Forms key was
+created and is the default in `QuoteSection`, with the environment able to
+override it; a real-browser submission was verified end to end (WhatsApp opens
+with the brief, Web3Forms answers `success: true`, the inbox receives it).
 
-**Two other stand-ins.** The sixth corporate card is a branded tile until
-`06-coffee-wellness.png` is re-uploaded, and the three video cards are branded
-tiles until the clips arrive; both are wired so the file is the only change.
+**The client archive.** KIYO shared a Drive archive of about 220 phone photos
+and clips across sixteen client folders and asked for a selection. Every file
+was reviewed by thumbnail. Three clips were chosen for the video cards, one
+scene each: IIRKAZ receiving branded cases at its office, Hejira Travel
+presenting its UMRAH set, AQ Travel & Tours collecting printed sets at the
+KIYO grand opening. They are re-encoded for the web by
+`tools/build-client-videos.mjs`. Six photographs went into a handover wall
+under the videos, captioned only with what the picture or KIYO's own filing
+establishes: Hejira jemaah at the airport, the PTPTN handover in front of the
+Tabung Pendidikan sign, IIRKAZ jemaah at KLIA, Koperasi TNB, Manazel Mashaer
+Travel, and a branded bulk order. Not used: the TikTok live screenshots, the
+old-shoplot stock photos, and a reception photograph carrying another
+company's sign.
 
-**The email route is dormant until the key exists.** `QuoteSection` reads
-`NEXT_PUBLIC_WEB3FORMS_KEY` at build time (verified inlined by the static
-build). Without it the form still opens WhatsApp with the brief and the success
-panel says so; with it, the same press also posts to Web3Forms.
+**The luggage rail became the same carousel.** On KIYO's request the
+collection shows all ten products, bags included, on the drifting loop the
+gift sets use (`DriftCarousel` now drives both), and a hovered card fades from
+the front shot to the three-quarter shot of the chosen colour.
+
+**next/font is gone.** The Vinext build injected its `@font-face` rules into
+the HTML with the build machine's own file paths, so every visitor's browser
+asked for `C:/Users/.../.vinext/fonts/...`. The faces were already self-hosted;
+the loader was removed and the test suite now asserts no such path is emitted.
 
 **Retired with this release.** `BuildYourSet.tsx`, `awardWall.ts`,
 `tools/build-award-wall.mjs`, `tools/build-about-assets.mjs`, the reach map,

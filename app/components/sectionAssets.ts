@@ -5,7 +5,7 @@
 export type SectionAsset = { src: string; width: number; height: number };
 
 export const sectionAssets = {
-  heroHome: { src: "/images/kiyo/sections/heroHome.webp", width: 1794, height: 877 },
+  heroHome: { src: "/images/kiyo/sections/heroHome.webp", width: 1916, height: 821 },
   warehouseTruck: { src: "/images/kiyo/sections/warehouseTruck.webp", width: 1920, height: 800 },
   umrahOpener: { src: "/images/kiyo/sections/umrahOpener.webp", width: 1795, height: 876 },
   umrahSet1: { src: "/images/kiyo/sections/umrahSet1.webp", width: 1200, height: 800 },
@@ -20,6 +20,7 @@ export const sectionAssets = {
   corporateSet3: { src: "/images/kiyo/sections/corporateSet3.webp", width: 1100, height: 825 },
   corporateSet4: { src: "/images/kiyo/sections/corporateSet4.webp", width: 1100, height: 825 },
   corporateSet5: { src: "/images/kiyo/sections/corporateSet5.webp", width: 1100, height: 825 },
+  corporateSet6: { src: "/images/kiyo/sections/corporateSet6.webp", width: 1100, height: 1100 },
   chooseOpener: { src: "/images/kiyo/sections/chooseOpener.webp", width: 1792, height: 896 },
   personaliseOpener: { src: "/images/kiyo/sections/personaliseOpener.webp", width: 1774, height: 887 },
   brandDetail1: { src: "/images/kiyo/sections/brandDetail1.webp", width: 1000, height: 1000 },
@@ -32,6 +33,12 @@ export const sectionAssets = {
   deliverStore: { src: "/images/kiyo/sections/deliverStore.webp", width: 1600, height: 900 },
   deliverCollect: { src: "/images/kiyo/sections/deliverCollect.webp", width: 1600, height: 960 },
   clientsOpener: { src: "/images/kiyo/sections/clientsOpener.webp", width: 1792, height: 896 },
+  clientHejira: { src: "/images/kiyo/sections/clientHejira.webp", width: 1024, height: 768 },
+  clientIrkaz: { src: "/images/kiyo/sections/clientIrkaz.webp", width: 1280, height: 854 },
+  clientPtptn: { src: "/images/kiyo/sections/clientPtptn.webp", width: 720, height: 1280 },
+  clientManazel: { src: "/images/kiyo/sections/clientManazel.webp", width: 1400, height: 1050 },
+  clientKoperasiTnb: { src: "/images/kiyo/sections/clientKoperasiTnb.webp", width: 900, height: 1600 },
+  clientBulkOrder: { src: "/images/kiyo/sections/clientBulkOrder.webp", width: 1280, height: 959 },
   aboutBand: { src: "/images/kiyo/sections/aboutBand.webp", width: 1920, height: 800 },
 } satisfies Record<string, SectionAsset>;
 

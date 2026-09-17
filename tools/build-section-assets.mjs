@@ -1,13 +1,14 @@
 /**
  * Turn the approved photography into the shipped WebP set.
  *
- * Two deliveries feed the page. The older `SectionAssets` folder (one directory
- * per chapter) still supplies the customisation close-ups, the approval mockup,
- * the Samantha band and the twelve client marks. The `07_Website` Google Drive
- * folder supplies everything V15 added: the six chapter openers, the twelve
- * gift sets and the three warehouse panels. Both arrive at 1100-1950px and
- * 1-2.6MB a file, so nothing is served directly: every plate is resized to the
- * largest size its slot can use and encoded as WebP.
+ * Three deliveries feed the page. The older `SectionAssets` folder (one
+ * directory per chapter) still supplies the customisation close-ups, the
+ * approval mockup, the Samantha band and the twelve client marks. The
+ * `07_Website` Google Drive folder supplies everything V15 added: the home
+ * hero, the six chapter openers, the twelve gift sets and the three warehouse
+ * panels. `KIYO-Clients-Picks` holds the six handover photographs chosen out of
+ * KIYO's client archive. Nothing is served directly: every plate is resized to
+ * the largest size its slot can use and encoded as WebP.
  *
  * The tool also writes `app/components/sectionAssets.ts` so the real pixel
  * dimensions travel with the file, and it deletes anything in the output folder
@@ -15,7 +16,7 @@
  * deliberately NOT generated here: it is authored by hand in `imageSlots.ts`,
  * where it can describe the picture rather than repeat a filename.
  *
- *   node tools/build-section-assets.mjs [--source <SectionAssets>] [--drive <07_Website>]
+ *   node tools/build-section-assets.mjs [--source <SectionAssets>] [--drive <07_Website>] [--clients <KIYO-Clients-Picks>]
  */
 
 import { access, mkdir, readdir, rm, writeFile } from "node:fs/promises";
@@ -29,6 +30,8 @@ const flag = (name, fallback) => {
 };
 const SOURCE = flag("--source", "C:/Users/Admin/Downloads/SectionAssets");
 const DRIVE = flag("--drive", "C:/Users/Admin/Downloads/KIYO-07_Website");
+const CLIENTS = flag("--clients", "C:/Users/Admin/Downloads/KIYO-Clients-Picks");
+const ROOTS = { source: SOURCE, drive: DRIVE, clients: CLIENTS };
 
 const PUBLIC_DIR = new URL("../public/images/kiyo/sections/", import.meta.url);
 const MANIFEST = new URL("../app/components/sectionAssets.ts", import.meta.url);
@@ -47,9 +50,7 @@ const CORPORATE = "KIYO-6-Corporate-Gift-Sets";
  */
 const PLATES = [
   /* 01  Hero ------------------------------------------------------------- */
-  /* Stand-in until the KIYO-plated hero arrives: the cases in this one carry no
-     plate. Replace the file, keep the id. */
-  { id: "heroHome", root: "source", from: "Section1/airport.png", width: 1920 },
+  { id: "heroHome", root: "drive", from: "hero-home-kiyo-plates.png", width: 1920 },
 
   /* 02  Warehouse band ---------------------------------------------------- */
   { id: "warehouseTruck", root: "source", from: "Section2/warehouseTruck.png", width: 1920 },
@@ -70,10 +71,9 @@ const PLATES = [
   { id: "corporateSet3", root: "drive", from: `${CORPORATE}/03-executive-desk.png`, width: 1100 },
   { id: "corporateSet4", root: "drive", from: `${CORPORATE}/04-tech-productivity.png`, width: 1100 },
   { id: "corporateSet5", root: "drive", from: `${CORPORATE}/05-apparel-welcome.png`, width: 1100 },
-  /* 06-coffee-wellness.png is truncated on Drive (both copies stop at 622,592
-     bytes), so the sixth set has no plate until KIYO re-uploads it. Add
-     `{ id: "corporateSet6", root: "drive", from: `${CORPORATE}/06-coffee-wellness.png`, width: 1100 }`
-     here and the slot in imageSlots.ts when it arrives. */
+  /* Re-supplied square after the Drive copy arrived truncated; the card crops
+     it to 4:3 like the other five. */
+  { id: "corporateSet6", root: "drive", from: `${CORPORATE}/06-coffee-wellness.png`, width: 1100 },
 
   /* 05  Step 01, Choose --------------------------------------------------- */
   { id: "chooseOpener", root: "drive", from: "your-idea-your-budget-our-recommendation.png", width: 1920 },
@@ -94,6 +94,14 @@ const PLATES = [
 
   /* 09  Clients ------------------------------------------------------------ */
   { id: "clientsOpener", root: "drive", from: "real-clients-real-experiences.png", width: 1920 },
+  /* Six handovers out of KIYO's own client archive. Phone photographs, so the
+     ceiling is what they were shot at. */
+  { id: "clientHejira", root: "clients", from: "hejira-family-airport.jpg", width: 1024 },
+  { id: "clientIrkaz", root: "clients", from: "irkaz-jemaah-klia.jpg", width: 1280 },
+  { id: "clientPtptn", root: "clients", from: "ptptn-handover.jpg", width: 720 },
+  { id: "clientManazel", root: "clients", from: "manazel-mashaer-team.jpg", width: 1400 },
+  { id: "clientKoperasiTnb", root: "clients", from: "koperasi-tnb-team.jpg", width: 900 },
+  { id: "clientBulkOrder", root: "clients", from: "branded-bulk-order.jpg", width: 1280 },
 
   /* 10  Samantha and Awards ------------------------------------------------ */
   /* One plate: Samantha, the room and the trophies are composited in the
@@ -116,7 +124,7 @@ const written = new Set();
 const manifest = [];
 
 for (const plate of PLATES) {
-  const input = join(plate.root === "drive" ? DRIVE : SOURCE, plate.from);
+  const input = join(ROOTS[plate.root], plate.from);
   try {
     await access(input);
   } catch {
@@ -129,6 +137,8 @@ for (const plate of PLATES) {
 
   const file = `${plate.id}.webp`;
   const info = await sharp(input)
+    /* Phone photographs carry their orientation in EXIF; bake it in. */
+    .rotate()
     .resize({ width, withoutEnlargement: true })
     .flatten({ background: "#ffffff" })
     .webp({ quality: 82, effort: 5 })

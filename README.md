@@ -21,7 +21,7 @@ form-to-email relay and opens WhatsApp; see [The quotation](#the-quotation).
 | 6 | Step 02, Personalise: the customisation portfolio | `#personalise` |
 | 7 | Step 03, Deliver: the three-promise accordion | `#deliver` |
 | 8 | Quotation and location | `#quote` |
-| 9 | Clients: opener, logo marquee, three videos | `#clients` |
+| 9 | Clients: opener, logo marquee, three videos, six handovers | `#clients` |
 | 10 | Samantha and Awards | `#about` |
 | 11 | Closing call to action and footer | `#contact` |
 
@@ -84,9 +84,9 @@ framework preset disabled, so no dashboard configuration is needed. Vercel would
 otherwise detect `next` in the dependencies, apply its Next.js preset, and fail
 looking for a `.next` directory that this build never produces.
 
-Set `NEXT_PUBLIC_WEB3FORMS_KEY` in the host's environment before building to
-turn on the email route of the quotation form. It is inlined at build time, so
-a change to it needs a rebuild.
+The quotation form's email route uses KIYO's Web3Forms key as its default;
+set `NEXT_PUBLIC_WEB3FORMS_KEY` in the host's environment before building to
+override it. It is inlined at build time, so a change needs a rebuild.
 
 ## Routes
 
@@ -104,19 +104,19 @@ a change to it needs a rebuild.
 | `app/KiyoExperience.tsx` | Page shell, smart header, hero, warehouse band, closing CTA, WhatsApp dock, scroll reveals |
 | `app/components/ChapterOpener.tsx` | The opener the six photographic chapters share |
 | `app/components/KiyoInteractiveSections.tsx` | Chapters 3 and 4: the shared gift shell and the set inspector |
-| `app/components/SetCarousel.tsx` | The drifting six-set carousel |
+| `app/components/DriftCarousel.tsx` | The drifting, seamlessly looping carousel both the sets and the luggage use |
+| `app/components/SetCarousel.tsx` | The six-set card on that carousel |
 | `app/components/giftSets.ts` | The twelve sets: names, contents, MOQ, lead time |
 | `app/components/HowItWorks.tsx` | Steps 01 to 03: rail, portfolio bento, accordion |
-| `app/components/ProductCarousel.tsx` | The luggage rail, with a swatch row per card |
+| `app/components/ProductCarousel.tsx` | The whole collection on the carousel: front shot at rest, three-quarter shot on hover |
 | `app/components/productCatalogue.ts` | Generated. Product names, colour order and swatch values |
 | `app/components/QuoteSection.tsx` | The quotation form, the map and the contact details |
 | `app/components/TrustSections.tsx` | The proof strip, Clients and About |
-| `app/components/clientProof.ts` | The four figures and the three video slots |
+| `app/components/clientProof.ts` | The four figures and the three client videos |
 | `app/components/programme.ts` | The event the gift chapters use to pre-select the form's programme |
 | `app/components/scroll.ts` | The one in-page scroll used by anchors and buttons alike |
 | `app/components/sectionAssets.ts` | Generated. Real dimensions for every delivered plate |
 | `app/components/imageSlots.ts` | Alt text, crops and focal points for every plate |
-| `app/fonts.ts` | The two `next/font` declarations |
 | `app/components/SiteFooter.tsx` | Footer shared by the home page and the legal pages, and the WhatsApp messages |
 | `app/globals.css` | Tailwind theme tokens plus the KIYO visual system |
 | `app/fonts.css` | Generated. Self-hosted `@font-face` rules |
@@ -145,9 +145,12 @@ Everything visual comes from `KIYO Branding Guideline.pdf`.
 One form is the whole enquiry. One press sends it two ways:
 
 1. **Email**, through [Web3Forms](https://web3forms.com), a form-to-inbox
-   relay that needs no server of ours. It needs an access key created with
-   the KIYO inbox, set as `NEXT_PUBLIC_WEB3FORMS_KEY` at build time. Without
-   the key the fetch is skipped and the form says so in its success panel.
+   relay that needs no server of ours. The access key was created with the
+   KIYO inbox and is the default in `QuoteSection.tsx`; a Web3Forms key is
+   made to sit in client-side code and can only deliver to the inbox it was
+   created with. `NEXT_PUBLIC_WEB3FORMS_KEY` overrides it at build time.
+   Web3Forms only accepts requests from real browsers, so it cannot be
+   exercised with curl or a headless user agent.
 2. **WhatsApp**, opened with the whole brief written in. A browser can only
    open the chat with the text ready; it cannot press send for the visitor,
    so the success panel says so and repeats the link.
@@ -162,12 +165,14 @@ visitor arrives at the form.
 
 ## Section assets
 
-Two deliveries feed the page: the older `SectionAssets` folder (one directory
-per chapter) and the `07_Website` Google Drive folder that V15 added (six
-openers, twelve gift sets, three warehouse panels). Neither is served directly:
+Three deliveries feed the page: the older `SectionAssets` folder (one
+directory per chapter), the `07_Website` Google Drive folder that V15 added
+(the hero, six openers, twelve gift sets, three warehouse panels) and
+`KIYO-Clients-Picks`, the six handover photographs chosen out of KIYO's client
+archive. None is served directly:
 
 ```bash
-node tools/build-section-assets.mjs --source <SectionAssets> --drive <07_Website>
+node tools/build-section-assets.mjs --source <SectionAssets> --drive <07_Website> --clients <KIYO-Clients-Picks>
 ```
 
 The tool resizes each plate to the largest size its slot can use, encodes
@@ -177,37 +182,35 @@ deletes anything in `public/images/kiyo/sections` it did not write. It writes
 every output. Alt text is deliberately not generated: it is authored in
 `imageSlots.ts`.
 
-Two plates are stand-ins:
+The three client clips are re-encoded for the web (H.264, at most 540px wide,
+30fps, `faststart`) with a poster frame each by:
 
-- `heroHome` is the older airport hero, whose cases carry no KIYO plate.
-  Replace the source file under the same id when the plated hero exists.
-- `corporateSet6` has no plate: `06-coffee-wellness.png` is truncated on
-  Drive (both copies stop at 622,592 bytes). The sixth card renders a branded
-  tile until KIYO re-uploads it; add the plate to `PLATES` and the slot to
-  `corporateSetSlots` when it lands.
+```bash
+FFMPEG=/path/to/ffmpeg node tools/build-client-videos.mjs --source <KIYO-Clients-Picks>
+```
+
+ffmpeg is not a project dependency; point `FFMPEG` at one or have it on the
+PATH. Output lands in `public/media/clients/` and `CLIENT_VIDEOS` in
+`clientProof.ts` names the files.
 
 ## Fonts
 
 Work Sans carries every heading and Montserrat carries navigation, labels,
-descriptions, buttons, forms and the rest of the UI. `app/fonts.ts` declares
-both through `next/font/google` with the variables `--font-heading` and
-`--font-body`.
+descriptions, buttons, forms and the rest of the UI. Both are named in the
+`@theme` block of `globals.css` and **self-hosted from `public/fonts`** through
+the `@font-face` rules in `app/fonts.css`.
 
-The faces are then **self-hosted from `public/fonts`**. `next/font/google`
-downloads them into `.vinext/fonts`, but this Vinext build never emits the
-`@font-face` rules or the variable class that go with them, so every heading
-silently fell back to a system face. `tools/build-fonts.mjs` copies the same
-latin and latin-ext faces out of that cache, or fetches a family the cache does
-not have straight from Google Fonts, and regenerates `app/fonts.css`. A
-variable font answers every weight with one file, and those collapse into a
-single rule with a weight range.
+The site does not use `next/font`. The Vinext build injected its `@font-face`
+rules into the HTML with the build machine's own file paths, so every visitor's
+browser asked for `C:/Users/.../.vinext/fonts/...`. `tools/build-fonts.mjs`
+fetches the latin and latin-ext faces from Google Fonts instead (or copies them
+out of an older build's cache) and regenerates `app/fonts.css`. A variable font
+answers every weight with one file, and those collapse into a single rule with a
+weight range.
 
 ```bash
 node tools/build-fonts.mjs
 ```
-
-Keep the families and weights in `tools/build-fonts.mjs` in step with
-`app/fonts.ts`.
 
 ## Scroll reveals
 
@@ -226,7 +229,8 @@ which silently disabled every CSS hover state on a revealed element.
 
 ## The carousels
 
-`SetCarousel` is a native scroll container with the list rendered twice. One
+`DriftCarousel` is a native scroll container with the list rendered twice; the
+gift sets and the luggage collection are both cards on it. One
 `scrollLeft` nudge a frame drifts it left; wrapping the position by one run's
 width lands on identical pixels, so the loop is seamless in both directions.
 The drift pauses under a pointer, on focus, while a finger or mouse button is
@@ -292,10 +296,9 @@ Two things are deliberately not asserted:
   "Client organisation logo" rather than guessing an organisation onto them.
   Add the real names to `CLIENT_NAMES` in `app/components/imageSlots.ts` when
   KIYO confirms them.
-- The three video cards under the client marks are placeholders until KIYO's
-  clips arrive. Fill `CLIENT_VIDEOS` in `clientProof.ts` with an MP4 and a
-  poster, or a link, and the card plays in place; no captions, view counts or
-  likes are invented in the meantime.
+- The client videos and handover photographs are captioned with what the
+  picture or KIYO's own filing establishes, and nothing more: no view counts,
+  no quotes, no names the pictures do not carry.
 
 ## In-page anchors
 

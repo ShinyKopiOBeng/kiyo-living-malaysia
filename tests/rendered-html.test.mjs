@@ -151,12 +151,12 @@ test("UMRAH and corporate are the same chapter shell, twice, with six sets each"
   for (const label of ["Travel Comfort Set", "Outdoor Retreat Set", "Executive Desk Set", "Tech Productivity Set", "Apparel Welcome Set", "Coffee Wellness Set"]) {
     assert.equal(count(corporate, `class="setcard__label">${label}<`), 2, `the corporate carousel is missing ${label}`);
   }
-  /* The sixth corporate plate is awaited, so its card is the branded tile. */
-  assert.equal(count(corporate, 'class="setcard__pending"'), 2);
-  assert.equal(count(corporate, "Photo coming soon"), 2);
+  /* Every set has its plate now, the sixth included. */
+  assert.equal(count(corporate, 'class="setcard__pending"'), 0);
+  assert.match(corporate, /data-image-slot="CORP-SET-06"/);
 });
 
-test("step 01 is the luggage rail with colour picks and one Shop more", async () => {
+test("step 01 is the whole collection on the carousel, with colour picks and one Shop more", async () => {
   const choose = await chapter("choose", "personalise");
 
   assert.match(choose, /class="eyebrow"><span class="eyebrow__step">Step 01<\/span>Choose</);
@@ -164,15 +164,21 @@ test("step 01 is the luggage rail with colour picks and one Shop more", async ()
   assert.match(choose, /Choose from our collections, share your idea or simply tell us your budget\. We&#x27;ll curate the right gift set for you\./);
   assert.match(choose, /data-image-slot="CHOOSE-OPENER"/);
 
-  assert.match(choose, /class="chooser__rail"/);
-  assert.match(choose, /aria-label="Previous products"/);
-  assert.match(choose, /aria-label="Next products"/);
-  /* Cases and sets only. */
-  assert.equal(count(choose, 'class="product-card"'), 6);
-  for (const bag of ["Business Backpack", "Flap Commuter Backpack", "Slim Laptop Brief", "Weekender Duffel"]) {
-    assert.ok(!choose.includes(bag), `the rail must not offer the ${bag}`);
+  /* The same drifting carousel as the gift sets: ten products, rendered twice
+     for the loop, the clone hidden and out of the tab order. */
+  assert.match(choose, /class="carousel__track" aria-label="The KIYO luggage collection"/);
+  assert.equal(count(choose, 'class="product-card"'), 20);
+  assert.equal(count(choose, 'class="carousel__run" aria-hidden="true"'), 1);
+  for (const name of ["Premium Aluminium Set", "Sunburst Hardshell", "Mini Hard Case", "Business Backpack", "Flap Commuter Backpack", "Slim Laptop Brief", "Weekender Duffel"]) {
+    assert.equal(count(choose, `class="product-card__name">${name}<`), 2, `the collection is missing ${name}`);
   }
-  assert.ok(count(choose, 'class="product-swatch') >= 18, "every card keeps its colour swatches");
+  /* Every card carries both shots of its colour: the front at rest, the
+     three-quarter view that fades in on hover. */
+  assert.equal(count(choose, 'class="product-card__front"'), 20);
+  assert.equal(count(choose, 'class="product-card__angle"'), 20);
+  assert.match(choose, /class="product-card__angle" src="\/images\/kiyo\/products\/[a-z-]+\/[a-z]+-angle\.webp" alt="" aria-hidden="true"/);
+  assert.ok(count(choose, 'class="product-swatch') >= 60, "every card keeps its colour swatches, twice over");
+  assert.ok(!choose.includes('class="chooser'), "the old paged rail is gone");
   /* Nothing is selected any more, and retail is one button for the rail. */
   for (const gone of ["Select for bulk", "Buy retail", "product-card__badge", "product-card__select", "product-card__actions", "Pick a model", "steprail"]) {
     assert.ok(!choose.includes(gone), `step 01 still carries ${gone}`);
@@ -278,10 +284,24 @@ test("clients: the opener, the logo marquee and three video slots", async () => 
   for (const name of ["AIA logo", "Koperasi Tenaga Nasional Berhad logo", "Universiti Kuala Lumpur logo"]) {
     assert.ok(clients.includes(`alt="${name}"`), `the marquee is missing ${name}`);
   }
-  /* Three videos under the marks, honest placeholders until the clips land. */
+  /* Three real client clips under the marks, each with its chosen poster. */
   assert.ok(clients.indexOf('class="logomarquee"') < clients.indexOf('class="videos"'));
   assert.equal(count(clients, 'class="videocard"'), 3);
-  assert.equal(count(clients, "Video coming soon"), 3);
+  assert.equal(count(clients, "Video coming soon"), 0);
+  for (const id of ["irkaz-office", "hejira-umrah", "aq-grand-opening"]) {
+    assert.ok(clients.includes(`<img src="/media/clients/${id}.webp"`), `the ${id} card is missing its poster`);
+  }
+  for (const caption of ["IIRKAZ receives its branded cases", "Hejira Travel walks through its UMRAH set", "AQ Travel &amp; Tours collects its printed sets"]) {
+    assert.ok(clients.includes(caption), `the videos are missing "${caption}"`);
+  }
+  /* Six handovers under the videos, two of them portrait, every one captioned. */
+  assert.ok(clients.indexOf('class="videos"') < clients.indexOf('class="handovers"'));
+  assert.equal(count(clients, 'class="handover[ "]'), 6);
+  assert.equal(count(clients, 'class="handover handover--tall"'), 2);
+  for (const slot of ["CLIENT-HEJIRA", "CLIENT-PTPTN", "CLIENT-IRKAZ", "CLIENT-KOPERASI-TNB", "CLIENT-MANAZEL", "CLIENT-BULK"]) {
+    assert.match(clients, new RegExp(`data-image-slot="${slot}"`), `the wall is missing ${slot}`);
+  }
+  assert.match(clients, /<figcaption>Handover at Menara PTPTN, Tabung Pendidikan<\/figcaption>/);
   assert.match(clients, /See more from KIYO on/);
   assert.match(clients, /tiktok\.com\/@kiyoliving/);
   /* The numbers moved up under the hero; the proof cards and quotes went. */
@@ -368,13 +388,19 @@ test("keeps the architecture production-ready", async () => {
   assert.match(gifts, /<dialog/);
   assert.match(carousel, /aria-haspopup="dialog"/);
 
-  /* The carousel drifts on a native scroll container and stops for a pointer,
-     for focus, for a finger, off screen and under reduced motion. */
-  assert.match(carousel, /requestAnimationFrame\(tick\)/);
-  assert.match(carousel, /prefers-reduced-motion: reduce/);
-  assert.match(carousel, /new IntersectionObserver\(/);
-  assert.match(carousel, /!hovered && !focused && !held && !resting/);
-  assert.doesNotMatch(carousel, /window\.addEventListener\("scroll"/);
+  /* One carousel drives both the gift sets and the luggage. It drifts on a
+     native scroll container and stops for a pointer, for focus, for a finger,
+     off screen and under reduced motion. */
+  const drift = await readFile(new URL("app/components/DriftCarousel.tsx", templateRoot), "utf8");
+  assert.match(drift, /requestAnimationFrame\(tick\)/);
+  assert.match(drift, /prefers-reduced-motion: reduce/);
+  assert.match(drift, /new IntersectionObserver\(/);
+  assert.match(drift, /!hovered && !focused && !held && !resting/);
+  assert.doesNotMatch(drift, /window\.addEventListener\("scroll"/);
+  assert.match(carousel, /<DriftCarousel/);
+  const rail = await readFile(new URL("app/components/ProductCarousel.tsx", templateRoot), "utf8");
+  assert.match(rail, /<DriftCarousel/);
+  assert.match(rail, /productImage\(product\.slug, colour, "angle"\)/);
 
   /* The reveal has to hand the element back to the stylesheet when it lands. */
   assert.match(experience, /clearProps: "opacity,visibility,transform"/);
@@ -385,6 +411,8 @@ test("keeps the architecture production-ready", async () => {
   assert.match(quote, /window\.open\(link, "_blank", "noopener,noreferrer"\)/);
   assert.match(quote, /api\.web3forms\.com\/submit/);
   assert.match(quote, /NEXT_PUBLIC_WEB3FORMS_KEY/);
+  /* KIYO's own key, so the email route is on without any host configuration. */
+  assert.match(quote, /6137b99b-d8fe-456c-b8a9-0596b1cbb096/);
   assert.match(quote, /botcheck/);
   assert.doesNotMatch(quote, /createObjectURL|FileReader|type="file"/);
   assert.ok(quote.indexOf("window.open(") < quote.indexOf("await fetch("), "WhatsApp opens before the fetch, or the popup is blocked");
@@ -397,8 +425,12 @@ test("keeps the architecture production-ready", async () => {
     assert.match(footer, new RegExp(`export const ${message}`), `SiteFooter is missing ${message}`);
   }
 
-  /* The display and body faces are the brand guide's, self-hosted. */
-  assert.doesNotMatch(layout, /next\/font/);
+  /* The display and body faces are the brand guide's, self-hosted. next/font
+     is gone: the Vinext build injected its rules with the build machine's own
+     file paths. */
+  assert.doesNotMatch(layout, /next\/font|fonts"/);
+  await assert.rejects(access(new URL("app/fonts.ts", templateRoot)));
+  assert.doesNotMatch(await html(), /vinext\/fonts|file:\/\//);
   assert.match(css, /@import "\.\/fonts\.css"/);
   assert.match(css, /--font-heading: "Work Sans"/);
   assert.match(css, /--font-body: "Montserrat"/);
@@ -442,7 +474,7 @@ test("keeps the architecture production-ready", async () => {
   assert.match(css, /scroll-margin-top/);
 
   /* Markup the redesign removed leaves no orphaned rules behind. */
-  for (const dead of ["\\.shop-flyout", "\\.business-pillar", "\\.product-collection", "\\.location-card", "\\.about__copy", "\\.corporate-accordion", "\\.umrah__process", "\\.branddetails", "\\.brandpanel", "\\.deliveryform", "\\.brandform", "\\.ghost-button", "\\.founder__wash", "\\.founder__cutout", "\\.awardwall", "\\.awarddialog", "\\.awardrow", "\\.recognition", "\\.steprail", "\\.flow__", "\\.brandstudio", "\\.brandcase", "\\.optioncard", "\\.orderfields", "\\.enquiry", "\\.pipeline", "\\.proofstrip", "\\.proofcard", "\\.voices", "\\.voice", "\\.visit", "\\.reachmap", "\\.reachrow", "\\.setstrip", "\\.gift__lead", "\\.gift__copy", "\\.gift__visual", "\\.product-card__select", "\\.product-card__retail", "\\.product-card__badge"]) {
+  for (const dead of ["\\.chooser", "\\.shop-flyout", "\\.business-pillar", "\\.product-collection", "\\.location-card", "\\.about__copy", "\\.corporate-accordion", "\\.umrah__process", "\\.branddetails", "\\.brandpanel", "\\.deliveryform", "\\.brandform", "\\.ghost-button", "\\.founder__wash", "\\.founder__cutout", "\\.awardwall", "\\.awarddialog", "\\.awardrow", "\\.recognition", "\\.steprail", "\\.flow__", "\\.brandstudio", "\\.brandcase", "\\.optioncard", "\\.orderfields", "\\.enquiry", "\\.pipeline", "\\.proofstrip", "\\.proofcard", "\\.voices", "\\.voice", "\\.visit", "\\.reachmap", "\\.reachrow", "\\.setstrip", "\\.gift__lead", "\\.gift__copy", "\\.gift__visual", "\\.product-card__select", "\\.product-card__retail", "\\.product-card__badge"]) {
     assert.doesNotMatch(css, new RegExp(dead), `globals.css still carries rules for ${dead}`);
   }
 
@@ -547,8 +579,16 @@ test("every photograph the page references is actually shipped", async () => {
     }),
   );
 
+  /* The clips and their posters ship too. */
+  const media = new Set(Array.from(page.matchAll(/(?:src|poster)="(\/media\/[^"]+)"/g), (match) => match[1]));
+  assert.equal(media.size, 3, "three client posters");
+  for (const source of media) {
+    await access(new URL(`../public${source}`, import.meta.url));
+    await access(new URL(`../public${source.replace(/\.webp$/, ".mp4")}`, import.meta.url));
+  }
+
   /* Nothing left on disk that the page no longer shows. */
-  for (const gone of ["public/images/kiyo/sections/awards", "public/images/kiyo/sections/umrahBanner.webp", "public/images/kiyo/sections/reachMap.svg", "public/images/kiyo/warehouse-1.webp", "public/media"]) {
+  for (const gone of ["public/images/kiyo/sections/awards", "public/images/kiyo/sections/umrahBanner.webp", "public/images/kiyo/sections/reachMap.svg", "public/images/kiyo/warehouse-1.webp", "public/media/generated"]) {
     await assert.rejects(access(new URL(`../${gone}`, import.meta.url)), `${gone} should have been retired`);
   }
 });

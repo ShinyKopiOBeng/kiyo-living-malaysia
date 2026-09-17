@@ -48,14 +48,13 @@ function plate(
 /* 01  Hero                                                                   */
 /* -------------------------------------------------------------------------- */
 
-/* Temporary: the cases in this plate carry no KIYO plate. The replacement
-   goes through tools/build-section-assets.mjs under the same id, so only
-   this status line and the alt text change when it lands. */
+/* The picture fades to cream on its left, which is where the copy sits; the
+   three cases carry the gold KIYO plate. */
 export const heroSlot = plate(
   "HOME-HERO",
   sectionAssets.heroHome,
-  "A traveller at a sunlit airport window with a KIYO luggage set and travel accessories",
-  { status: "temporary", focalPoint: "72% center", safeTextArea: "left 42%" },
+  "A traveller at a sunlit airport window beside three black KIYO cases, a neck pillow and a drawstring bag",
+  { focalPoint: "74% center", safeTextArea: "left 42%" },
 );
 
 /* -------------------------------------------------------------------------- */
@@ -105,9 +104,8 @@ export const corporateOpenerSlot = plate(
 );
 
 /**
- * The corporate sets, in carousel order. There are five plates for six sets:
- * the Coffee Wellness picture arrived truncated and is awaiting a re-upload.
- * A set with no slot renders as a branded tile until then.
+ * The corporate sets, in carousel order. A set may have no slot while its
+ * plate is awaited, in which case the card renders a branded tile.
  */
 export const corporateSetSlots: (ImageSlot | null)[] = [
   plate("CORP-SET-01", sectionAssets.corporateSet1, "The Travel Comfort Set: a black mini hard case with headphones, a neck pillow, a portable fan and a pouch"),
@@ -115,7 +113,9 @@ export const corporateSetSlots: (ImageSlot | null)[] = [
   plate("CORP-SET-03", sectionAssets.corporateSet3, "The Executive Desk Set: a leather notebook, card holder, pen, thermos and keychain with a navy gift box"),
   plate("CORP-SET-04", sectionAssets.corporateSet4, "The Tech Productivity Set: a backpack with a speaker, power bank, wireless charger, phone stand and cables"),
   plate("CORP-SET-05", sectionAssets.corporateSet5, "The Apparel Welcome Set: a polo shirt, tote bag, cap, lanyard, socks and pin badge"),
-  null,
+  /* Square in the file; the card crops it to 4:3, so the crop holds the
+     middle where the press, the mug and the candle sit. */
+  plate("CORP-SET-06", sectionAssets.corporateSet6, "The Coffee Wellness Set: a wooden KIYO box with a French press, coffee, a mug, a candle, an eye mask and a blanket", { focalPoint: "center 55%" }),
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -193,6 +193,41 @@ export const clientsOpenerSlot = plate(
   "Three clients opening a KIYO gift box beside a cream case at the showroom",
   { focalPoint: "24% center", safeTextArea: "right 44%" },
 );
+
+/**
+ * Six handovers out of KIYO's own client archive, phone photographs taken on
+ * the day. A client is named only where the picture itself carries the name
+ * (a backdrop, a branded case) or KIYO filed the photograph under it.
+ * `tall` marks the two portrait frames, which the wall stands across two rows.
+ */
+export const clientPhotoSlots: { slot: ImageSlot; caption: string; tall?: boolean }[] = [
+  {
+    slot: plate("CLIENT-HEJIRA", sectionAssets.clientHejira, "A family with their pink KIYO cases at the airport check-in before departing for UMRAH", { focalPoint: "center 40%" }),
+    caption: "Hejira Travel jemaah, departing with their sets",
+  },
+  {
+    slot: plate("CLIENT-PTPTN", sectionAssets.clientPtptn, "A handover photograph in front of the Perbadanan Tabung Pendidikan Tinggi Nasional sign"),
+    caption: "Handover at Menara PTPTN, Tabung Pendidikan",
+    tall: true,
+  },
+  {
+    slot: plate("CLIENT-IRKAZ", sectionAssets.clientIrkaz, "A group of jemaah at KLIA with their silver IIRKAZ-branded cases", { focalPoint: "center 45%" }),
+    caption: "IIRKAZ jemaah at KLIA with their branded cases",
+  },
+  {
+    slot: plate("CLIENT-KOPERASI-TNB", sectionAssets.clientKoperasiTnb, "Three women from Koperasi TNB with their new KIYO cases", { focalPoint: "center 42%" }),
+    caption: "Koperasi TNB, collecting their cases",
+    tall: true,
+  },
+  {
+    slot: plate("CLIENT-MANAZEL", sectionAssets.clientManazel, "The Manazel Mashaer Travel team beside their wrapped stock of green cases", { focalPoint: "center 45%" }),
+    caption: "Manazel Mashaer Travel, stock delivered to their office",
+  },
+  {
+    slot: plate("CLIENT-BULK", sectionAssets.clientBulkOrder, "Rows of purple cases printed with a travel agency's smile logo, ready to ship", { focalPoint: "center 50%" }),
+    caption: "A branded agency order, printed and ready to ship",
+  },
+];
 
 /**
  * The client marks, supplied by KIYO with permission to display them. Each is

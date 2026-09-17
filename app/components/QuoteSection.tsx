@@ -18,9 +18,9 @@ import { EMAIL, WHATSAPP_NUMBER, enquiry, whatsappLink } from "./SiteFooter";
  * quote sits on one card, and one press sends it two ways:
  *
  * 1. By email, through Web3Forms, a form-to-inbox relay that needs no server
- *    of ours, so the site stays static. It needs an access key created with
- *    the KIYO inbox (`NEXT_PUBLIC_WEB3FORMS_KEY`). Until that exists the fetch
- *    is skipped and the form says so, quietly, in the success panel.
+ *    of ours, so the site stays static. The access key was created with the
+ *    KIYO inbox; `NEXT_PUBLIC_WEB3FORMS_KEY` overrides it. With no key at all
+ *    the fetch is skipped and the form says so, quietly, in the success panel.
  * 2. By WhatsApp, which the browser can only open with the message written
  *    in. It cannot press send for the visitor, so the success panel says
  *    "press send" and repeats the link in case a popup blocker ate the tab.
@@ -31,8 +31,13 @@ import { EMAIL, WHATSAPP_NUMBER, enquiry, whatsappLink } from "./SiteFooter";
  */
 
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+/* The access key KIYO created for kiyoliving88@gmail.com. A Web3Forms key is
+   made to sit in client-side code: it can only deliver to the inbox it was
+   created with. The environment overrides it, so a host can rotate the key
+   without a code change. */
+const KIYO_WEB3FORMS_KEY = "6137b99b-d8fe-456c-b8a9-0596b1cbb096";
 const WEB3FORMS_KEY =
-  typeof process !== "undefined" && process.env ? (process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? "") : "";
+  (typeof process !== "undefined" && process.env ? process.env.NEXT_PUBLIC_WEB3FORMS_KEY : undefined) || KIYO_WEB3FORMS_KEY;
 
 export const MAP_EMBED =
   "https://maps.google.com/maps?q=No.%2016%2C%20Jalan%20SC%201%2C%20Pusat%20Perindustrian%20Sungai%20Chua%2C%2043000%20Kajang%2C%20Selangor&z=15&output=embed";

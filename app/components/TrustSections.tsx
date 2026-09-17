@@ -8,7 +8,7 @@ import { ArrowUpRight, Play, Star } from "lucide-react";
 import { ChapterOpener } from "./ChapterOpener";
 import { ImageSlotVisual } from "./ImagePlaceholder";
 import { CLIENT_VIDEOS, PROOF_LINKS, PROOF_NUMBERS, formatProofNumber, type ClientVideo, type ProofNumber } from "./clientProof";
-import { aboutBandSlot, clientLogoSlots, clientsOpenerSlot } from "./imageSlots";
+import { aboutBandSlot, clientLogoSlots, clientPhotoSlots, clientsOpenerSlot } from "./imageSlots";
 
 /* -------------------------------------------------------------------------- */
 /* The proof strip, under the hero                                            */
@@ -186,7 +186,8 @@ function VideoCard({ video }: { video: ClientVideo }) {
 
 /**
  * The chapter that has to answer "should I trust these people with a 250-unit
- * order": who buys from KIYO, then what those buyers say on camera.
+ * order": who buys from KIYO, what those buyers say on camera, and the
+ * handovers themselves, photographed on the day.
  */
 export function ClientProof() {
   return (
@@ -223,6 +224,21 @@ export function ClientProof() {
           landscape frame around a portrait clip is two black bars. */}
       <ul className="videos" data-reveal-group aria-label="Client videos">
         {CLIENT_VIDEOS.map((video) => <VideoCard video={video} key={video.id} />)}
+      </ul>
+
+      {/* Six handovers out of KIYO's own archive: phone photographs from the
+          day, captioned with what they show and, where the picture or KIYO's
+          own filing names the client, who. The two portrait frames stand
+          across both rows so the wall has no gaps. */}
+      <ul className="handovers" data-reveal-group aria-label="Client handovers">
+        {clientPhotoSlots.map(({ slot, caption, tall }) => (
+          <li className={`handover${tall ? " handover--tall" : ""}`} key={slot.id}>
+            <figure>
+              <ImageSlotVisual slot={slot} className="handover__media" />
+              <figcaption>{caption}</figcaption>
+            </figure>
+          </li>
+        ))}
       </ul>
 
       <p className="clients__more" data-reveal>

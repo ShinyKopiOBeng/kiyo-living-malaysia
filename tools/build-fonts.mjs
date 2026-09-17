@@ -1,18 +1,18 @@
 /**
  * Self-host the two web fonts the design uses.
  *
- * `app/fonts.ts` declares Work Sans and Montserrat through `next/font/google`,
- * which downloads them into `.vinext/fonts`. The Vinext build then never emits
- * the `@font-face` rules or the CSS variable class that go with them, so every
- * heading silently fell back to a system face. Rather than depend on that
- * integration, this copies the same faces into `public/fonts` and writes plain
- * `@font-face` rules any host can serve.
+ * The site does not use `next/font`: the Vinext build injected its
+ * `@font-face` rules with the build machine's own file paths, so every
+ * visitor's browser asked for `C:/Users/.../.vinext/fonts/...`. Instead this
+ * writes plain `@font-face` rules that any host can serve, from files in
+ * `public/fonts`.
  *
- * A family that is not in the cache yet (the cache is only filled by a build
- * that ran with network access) is fetched straight from the Google Fonts CSS
- * endpoint instead, with a browser user agent so it answers with woff2.
+ * A family is copied out of `.vinext/fonts` when an older build left it there,
+ * and fetched straight from the Google Fonts CSS endpoint otherwise, with a
+ * browser user agent so it answers with woff2.
  *
- * The families and weights here must stay in step with `app/fonts.ts`.
+ * The families and weights here are the brand guide's; `globals.css` names the
+ * same two families in its theme.
  *
  * Only the latin and latin-ext subsets are kept: the site is English and Malay,
  * and shipping Cyrillic and Vietnamese would triple the font payload for
