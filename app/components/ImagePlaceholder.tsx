@@ -41,7 +41,7 @@ export function ImagePlaceholder({ slot, className = "" }: Pick<ImageSlotVisualP
       role="img"
       aria-label={slot.alt}
     >
-      <img src="/images/kiyo-mark.png" alt="" aria-hidden="true" width="96" height="96" />
+      <img src="/images/kiyo-mark.svg" alt="" aria-hidden="true" width="75" height="100" />
       {showDeveloperNotes ? (
         <span className="image-placeholder__notes">
           <strong>{slot.id}</strong>

@@ -1,6 +1,10 @@
-import { Cormorant_Garamond, Montserrat } from "next/font/google";
+import { Montserrat, Work_Sans } from "next/font/google";
 
-export const headingFont = Cormorant_Garamond({
+/* The brand guide names Work Sans for display and "Gontserrat" for body copy.
+   Gontserrat is a Montserrat derivative that is not on Google Fonts, so
+   Montserrat carries the body until KIYO supplies the files. Keep the families
+   and weights in step with tools/build-fonts.mjs. */
+export const headingFont = Work_Sans({
   subsets: ["latin"],
   weight: ["500", "600"],
   variable: "--font-heading",

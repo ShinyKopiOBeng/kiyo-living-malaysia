@@ -13,7 +13,7 @@ export function LegalShell({ eyebrow, title, lede, children }: { eyebrow: string
     <div className="legal-shell">
       <header className="legal-header">
         <Link className="brand" href="/" aria-label="KIYO home">
-          <img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" />
+          <img src="/images/kiyo-logo.svg" alt="KIYO" width="212" height="86" />
         </Link>
         <Link className="legal-header__back" href="/">
           <ArrowLeft aria-hidden="true" /> Back to site

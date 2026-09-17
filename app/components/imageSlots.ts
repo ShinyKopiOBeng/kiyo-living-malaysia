@@ -1,4 +1,4 @@
-import { awardAssets, awardSmallAssets, clientLogoAssets, sectionAssets, type SectionAsset } from "./sectionAssets";
+import { clientLogoAssets, sectionAssets, type SectionAsset } from "./sectionAssets";
 
 export type ImageSlotStatus = "final" | "temporary" | "placeholder";
 
@@ -28,11 +28,11 @@ function plate(
   id: string,
   asset: SectionAsset,
   alt: string,
-  options: { aspectRatio?: string; fit?: ImageSlot["fit"]; focalPoint?: string; safeTextArea?: string } = {},
+  options: { status?: ImageSlotStatus; aspectRatio?: string; fit?: ImageSlot["fit"]; focalPoint?: string; safeTextArea?: string } = {},
 ): ImageSlot {
   return {
     id,
-    status: "final",
+    status: options.status ?? "final",
     src: asset.src,
     width: asset.width,
     height: asset.height,
@@ -48,15 +48,18 @@ function plate(
 /* 01  Hero                                                                   */
 /* -------------------------------------------------------------------------- */
 
+/* Temporary: the cases in this plate carry no KIYO plate. The replacement
+   goes through tools/build-section-assets.mjs under the same id, so only
+   this status line and the alt text change when it lands. */
 export const heroSlot = plate(
-  "HOME-HERO-01",
-  sectionAssets.heroAirport,
-  "A traveller at a sunlit airport window with the KIYO luggage set and travel accessories",
-  { focalPoint: "72% center", safeTextArea: "left 42%" },
+  "HOME-HERO",
+  sectionAssets.heroHome,
+  "A traveller at a sunlit airport window with a KIYO luggage set and travel accessories",
+  { status: "temporary", focalPoint: "72% center", safeTextArea: "left 42%" },
 );
 
 /* -------------------------------------------------------------------------- */
-/* 02  Warehouse scale                                                        */
+/* 02  Warehouse band                                                         */
 /* -------------------------------------------------------------------------- */
 
 export const warehouseBandSlot = plate(
@@ -67,88 +70,129 @@ export const warehouseBandSlot = plate(
 );
 
 /* -------------------------------------------------------------------------- */
-/* 03  UMRAH gift sets                                                        */
+/* 03  UMRAH                                                                  */
 /* -------------------------------------------------------------------------- */
 
-export const umrahLeadSlot = plate(
-  "UMRAH-LEAD",
-  sectionAssets.umrahBanner,
-  "A pilgrim walking a mosque colonnade with a coordinated cream KIYO UMRAH set",
-  { focalPoint: "60% center" },
+/* The picture fades to cream on its left, which is where the copy sits. */
+export const umrahOpenerSlot = plate(
+  "UMRAH-OPENER",
+  sectionAssets.umrahOpener,
+  "A pilgrim in ihram walking towards the mosque with a coordinated cream KIYO luggage set",
+  { focalPoint: "78% center", safeTextArea: "left 44%" },
 );
 
-/** The four UMRAH sets, in the order the showcase presents them. */
+/** The six UMRAH sets, in carousel order. */
 export const umrahSetSlots: ImageSlot[] = [
-  plate("UMRAH-SET-01", sectionAssets.umrahSet1, "The Essential Journey Set: three cream cases with a drawstring bag, pouch and bottle"),
-  plate("UMRAH-SET-02", sectionAssets.umrahSet2, "The Comfort Travel Set: cream cases with a neck pillow, eye mask, fan and bottle"),
-  plate("UMRAH-SET-03", sectionAssets.umrahSet3, "The Complete Jemaah Set: cream cases with a prayer mat, neck pillow, pouch and accessories"),
-  plate("UMRAH-SET-04", sectionAssets.umrahSet4, "The Agency Branding Set: cream cases with a branded presentation box, luggage tag and bottle"),
+  plate("UMRAH-SET-01", sectionAssets.umrahSet1, "The Navy Heritage Set: two navy cases with a sling bag, rolled prayer mat, tasbih, bottle and document holder"),
+  plate("UMRAH-SET-02", sectionAssets.umrahSet2, "The Emerald Telekung Set: two emerald cases with a white telekung, prayer mat, drawstring bag, pouch and bottle"),
+  plate("UMRAH-SET-03", sectionAssets.umrahSet3, "The Desert Terracotta Set: two terracotta cases with a drawstring bag, pouches, slippers and a rolled prayer mat"),
+  plate("UMRAH-SET-04", sectionAssets.umrahSet4, "The Dusty Rose Comfort Set: two rose cases with a neck pillow, eye mask, tote bag, prayer mat and bottle"),
+  plate("UMRAH-SET-05", sectionAssets.umrahSet5, "The Charcoal Executive Set: two charcoal cases with a backpack, sling bag, neck pillow, fan, bottle and gift box"),
+  plate("UMRAH-SET-06", sectionAssets.umrahSet6, "The Sapphire Ihram Set: three sapphire cases with an ihram set, drawstring bag, neck pillow, sling bag and slippers"),
 ];
 
 /* -------------------------------------------------------------------------- */
-/* 04  Corporate gift sets                                                    */
+/* 04  Corporate                                                              */
 /* -------------------------------------------------------------------------- */
 
-export const corporateLeadSlot = plate(
-  "CORPORATE-LEAD",
-  sectionAssets.corporateBanner,
-  "A branded KIYO corporate gift set arranged for a client handover",
-  { focalPoint: "62% center" },
-);
-
-/** The four corporate sets, in the order the showcase presents them. */
-export const corporateSetSlots: ImageSlot[] = [
-  plate("CORP-SET-01", sectionAssets.corporateSet1, "The Branded Travel Set: a compact case with headphones, neck pillow and travel pouch"),
-  plate("CORP-SET-02", sectionAssets.corporateSet2, "The Executive Journey Set: a dark cabin case with premium desk and travel pieces"),
-  plate("CORP-SET-03", sectionAssets.corporateSet3, "The Team Building Kit: outdoor and team programme items with KIYO branding"),
-  plate("CORP-SET-04", sectionAssets.corporateSet4, "The Premium Welcoming Gift: a presentation box with a notebook, pen and thermos"),
-];
-
-/* -------------------------------------------------------------------------- */
-/* 06  Customise your brand                                                   */
-/* -------------------------------------------------------------------------- */
-
-/* A transparent cut-out, so the visitor's own name can be laid over the shell
-   without a photographic background fighting it.
-   This is the close crop, not the full-length case: the engraving is the one
-   moment in the chapter that shows a visitor their own brand, and at full
-   length it was a few pixels tall. */
-export const brandCaseSlot = plate(
-  "BRAND-CASE-ZOOM",
-  sectionAssets.brandCaseZoom,
-  "The engraved plate on a KIYO case, shown close",
-  { fit: "contain" },
+/* Shown contained and cropped to the cases, so the cream fade on the left of
+   the file stays out of frame. */
+export const corporateOpenerSlot = plate(
+  "CORPORATE-OPENER",
+  sectionAssets.corporateOpener,
+  "A black KIYO corporate gift set: three cases with KIYO plates, headphones, a neck pillow, a fan and a gift box",
+  { aspectRatio: "4 / 3", focalPoint: "82% center" },
 );
 
 /**
- * One photograph per customisation option, in the order the options are
- * listed. The order is load-bearing: the chapter zips this array against
- * `CUSTOMISATIONS` in BuildYourSet, so a plate and its label stay together.
+ * The corporate sets, in carousel order. There are five plates for six sets:
+ * the Coffee Wellness picture arrived truncated and is awaiting a re-upload.
+ * A set with no slot renders as a branded tile until then.
  */
-export const customisationSlots: ImageSlot[] = [
-  plate("BRAND-DETAIL-01", sectionAssets.brandDetail1, "A logo printed onto a KIYO case shell"),
-  plate("BRAND-DETAIL-02", sectionAssets.brandDetail2, "A branded luggage tag on a KIYO case"),
-  plate("BRAND-DETAIL-03", sectionAssets.brandDetail3, "Branded travel accessories prepared for a corporate order"),
-  plate("BRAND-DETAIL-04", sectionAssets.brandDetail4, "Custom packaging for a KIYO gift set"),
+export const corporateSetSlots: (ImageSlot | null)[] = [
+  plate("CORP-SET-01", sectionAssets.corporateSet1, "The Travel Comfort Set: a black mini hard case with headphones, a neck pillow, a portable fan and a pouch"),
+  plate("CORP-SET-02", sectionAssets.corporateSet2, "The Outdoor Retreat Set: a folding chair, cooler bag, umbrella, lantern and picnic blanket, all KIYO branded"),
+  plate("CORP-SET-03", sectionAssets.corporateSet3, "The Executive Desk Set: a leather notebook, card holder, pen, thermos and keychain with a navy gift box"),
+  plate("CORP-SET-04", sectionAssets.corporateSet4, "The Tech Productivity Set: a backpack with a speaker, power bank, wireless charger, phone stand and cables"),
+  plate("CORP-SET-05", sectionAssets.corporateSet5, "The Apparel Welcome Set: a polo shirt, tote bag, cap, lanyard, socks and pin badge"),
+  null,
 ];
 
 /* -------------------------------------------------------------------------- */
-/* 07  Delivery pipeline                                                      */
+/* 05  Step 01, Choose                                                        */
 /* -------------------------------------------------------------------------- */
 
-/** The six stages, in running order: brief through to warehouse. */
-export const pipelineSlots: ImageSlot[] = [
-  plate("DELIVERY-01", sectionAssets.pipeline1, "Taking a client brief at the KIYO office"),
-  plate("DELIVERY-02", sectionAssets.pipeline2, "Preparing a sample case for approval"),
-  plate("DELIVERY-03", sectionAssets.pipeline3, "Signing off the approved sample"),
-  plate("DELIVERY-04", sectionAssets.pipeline4, "The branded production run under way"),
-  plate("DELIVERY-05", sectionAssets.pipeline5, "Quality control checks before packing"),
-  plate("DELIVERY-06", sectionAssets.pipeline6, "Finished stock held in the KIYO warehouse"),
+export const chooseOpenerSlot = plate(
+  "CHOOSE-OPENER",
+  sectionAssets.chooseOpener,
+  "A KIYO consultant and a client at the showroom desk with a cream case, gift sets and colour swatches",
+  { focalPoint: "72% center", safeTextArea: "left 44%" },
+);
+
+/* -------------------------------------------------------------------------- */
+/* 06  Step 02, Personalise                                                   */
+/* -------------------------------------------------------------------------- */
+
+/* The fade is on the right of this one, so the copy sits on the right. */
+export const personaliseOpenerSlot = plate(
+  "PERSONALISE-OPENER",
+  sectionAssets.personaliseOpener,
+  "A KIYO designer showing a client their logo mocked up on a case on screen",
+  { focalPoint: "28% center", safeTextArea: "right 44%" },
+);
+
+/**
+ * The customisation portfolio, in the order a customisation happens. The first
+ * is the large cell of the bento; the other four fill its right-hand column.
+ */
+export const personaliseSlots: { slot: ImageSlot; caption: string }[] = [
+  { slot: plate("BRAND-LOGO", sectionAssets.brandDetail1, "A gloved hand fitting a logo plate to a black KIYO case"), caption: "Logo printing" },
+  { slot: plate("BRAND-TAG", sectionAssets.brandDetail2, "A branded leather luggage tag on a black KIYO case"), caption: "Luggage tag" },
+  { slot: plate("BRAND-SHELL", sectionAssets.brandDetail3, "Six case shell panels in the available colours"), caption: "Shell colours" },
+  { slot: plate("BRAND-ACCESSORIES", sectionAssets.brandDetail4, "Branded travel accessories: a pouch, neck pillow, bottle, fan and tag"), caption: "Branded accessories" },
+  { slot: plate("BRAND-MOCKUP", sectionAssets.brandMockup, "A sample case, colour swatches and a gift box laid out for approval"), caption: "Approval mockup" },
 ];
 
 /* -------------------------------------------------------------------------- */
-/* 08  Clients, reviews and partner stories                                   */
+/* 07  Step 03, Deliver                                                       */
 /* -------------------------------------------------------------------------- */
+
+export const deliverOpenerSlot = plate(
+  "DELIVER-OPENER",
+  sectionAssets.deliverOpener,
+  "The KIYO building at dusk, a branded lorry being loaded with cases at the door",
+  { focalPoint: "70% center", safeTextArea: "left 44%" },
+);
+
+/** One panel per promise in the Deliver headline, in the headline's order. */
+export const deliverPanels: { slot: ImageSlot; title: string; line: string }[] = [
+  {
+    slot: plate("DELIVER-SHIP", sectionAssets.deliverShip, "Rows of cases on pallets at the loading dock with a lorry waiting", { focalPoint: "40% center" }),
+    title: "Deliver to You",
+    line: "Nationwide, to your office or venue.",
+  },
+  {
+    slot: plate("DELIVER-STORE", sectionAssets.deliverStore, "The main KIYO warehouse hall with teal racking full of cases"),
+    title: "Store Here",
+    line: "Held in Kajang until you call for it.",
+  },
+  {
+    slot: plate("DELIVER-COLLECT", sectionAssets.deliverCollect, "The KIYO showroom with cases on the shelves and a seating area"),
+    title: "Pick Up Anytime",
+    line: "Collect from the showroom, Monday to Saturday.",
+  },
+];
+
+/* -------------------------------------------------------------------------- */
+/* 09  Clients                                                                */
+/* -------------------------------------------------------------------------- */
+
+export const clientsOpenerSlot = plate(
+  "CLIENTS-OPENER",
+  sectionAssets.clientsOpener,
+  "Three clients opening a KIYO gift box beside a cream case at the showroom",
+  { focalPoint: "24% center", safeTextArea: "right 44%" },
+);
 
 /**
  * The client marks, supplied by KIYO with permission to display them. Each is
@@ -183,53 +227,18 @@ export const clientLogoSlots: ImageSlot[] = clientLogoAssets.map((asset) => ({
   alt: CLIENT_NAMES[asset.id] ? `${CLIENT_NAMES[asset.id]} logo` : "Client organisation logo",
 }));
 
-/* The video still and the three partner photographs used to be slots of their
-   own. The chapter now builds its cards from `clientProof.ts`, where each
-   picture sits next to the claim it is evidence for. */
-
 /* -------------------------------------------------------------------------- */
-/* 09  Samantha and recognition                                               */
+/* 10  Samantha and Awards                                                    */
 /* -------------------------------------------------------------------------- */
 
 /**
- * The chapter is one photograph.
- *
- * Samantha, the room and all fourteen trophies are composited in the source
- * rather than stacked at runtime, so nothing has to be re-registered against a
- * shelf line and nothing slides off a shelf at odd browser zoom. Everything
- * laid over it - the copy, and the fourteen hotspots - is positioned as a
- * percentage of this one box, which is why the band has to keep the plate's
- * 1920x800 ratio. See `.founder` in globals.css.
+ * The chapter is one photograph. Samantha, the room and the trophies are
+ * composited in the source, and nothing is laid over the trophies any more,
+ * so the band only has to keep the plate's 1920x800 ratio for the copy to
+ * land on the flat wall beside her. See `.founder` in globals.css.
  */
 export const aboutBandSlot = plate(
   "ABOUT-BAND",
   sectionAssets.aboutBand,
   "Samantha Ng in the KIYO showroom, beside shelves holding the company's awards",
-);
-
-function cutOut(prefix: string, asset: SectionAsset & { id: string }): [string, ImageSlot] {
-  return [
-    asset.id,
-    {
-      id: `${prefix}-${asset.id}`,
-      status: "final",
-      src: asset.src,
-      width: asset.width,
-      height: asset.height,
-      aspectRatio: `${asset.width} / ${asset.height}`,
-      fit: "contain",
-      focalPoint: "center center",
-      alt: "",
-    },
-  ];
-}
-
-/** The fourteen cut-outs the award dialog enlarges, in shelf order. */
-export const awardSlots: Record<string, ImageSlot> = Object.fromEntries(
-  awardAssets.map((asset) => cutOut("AWARD", asset)),
-);
-
-/** The same fourteen at wall size, laid over the trophies standing in the band. */
-export const awardWallSlots: Record<string, ImageSlot> = Object.fromEntries(
-  awardSmallAssets.map((asset) => cutOut("AWARD-WALL", asset)),
 );

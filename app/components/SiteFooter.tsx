@@ -45,10 +45,6 @@ export const VISIT_MESSAGE = enquiry(
   "visit us",
 );
 
-export function giftSetMessage(title: string) {
-  return enquiry(`Hi KIYO. I would like a quote for the ${title}.`, title);
-}
-
 export const WHATSAPP_URL = whatsappLink(GENERAL_MESSAGE);
 
 export const SHOPEE_URL = "https://shopee.com.my/kiyoliving";
@@ -93,8 +89,10 @@ export function SiteFooter({ standalone = false }: { standalone?: boolean }) {
     <footer className="site-footer">
       <div className="site-footer__grid">
         <div className="footer-brand">
+          {/* The white-on-navy lockup from the brand guide, not a recoloured
+              copy of the coral one. */}
           <a className="brand brand--footer" href={standalone ? "/" : "#home"} aria-label="Back to KIYO home">
-            <img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" />
+            <img src="/images/kiyo-logo-white.svg" alt="KIYO" width="212" height="86" />
           </a>
           <p>Designed for Your Journey.</p>
         </div>
@@ -103,13 +101,13 @@ export function SiteFooter({ standalone = false }: { standalone?: boolean }) {
           <h2>B2B Solutions</h2>
           <a href={link("#corporate")}>Corporate Gifts</a>
           <a href={link("#umrah")}>UMRAH Programmes</a>
-          <a href={link("#customise")}>Customisation</a>
-          <a href={link("#build")}>How It Works</a>
+          <a href={link("#choose")}>How It Works</a>
+          <a href={link("#quote")}>Request a Quote</a>
         </nav>
 
         <nav className="footer-column" aria-label="Retail">
           <h2>Retail</h2>
-          <a href={link("#build")}>Product Collection</a>
+          <a href={link("#choose")}>Luggage Collection</a>
           <a href={SHOPEE_URL} target="_blank" rel="noreferrer">
             Shopee Store <ArrowUpRight aria-hidden="true" />
             <span className="sr-only"> (opens in a new tab)</span>
@@ -132,7 +130,10 @@ export function SiteFooter({ standalone = false }: { standalone?: boolean }) {
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
           <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-          <a href={link("#visit")}>Arrange a Visit</a>
+          <a href={whatsappLink(VISIT_MESSAGE)} target="_blank" rel="noreferrer">
+            Arrange a Visit
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
         </div>
 
         <SocialLinks compact />

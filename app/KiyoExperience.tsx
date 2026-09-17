@@ -8,43 +8,42 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, ArrowUpRight, BadgeCheck, Menu, PackageCheck, Warehouse, Wrench, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
-import { BuildYourSet, PROGRAMME_EVENT, type Programme } from "./components/BuildYourSet";
+import { ChooseStep, DeliverStep, PersonaliseStep } from "./components/HowItWorks";
 import { CorporateGiftSets, UmrahGiftSets } from "./components/KiyoInteractiveSections";
-import { ClientProof, FounderAndAwards, VisitKiyo } from "./components/TrustSections";
+import { QuoteSection } from "./components/QuoteSection";
+import { ClientProof, FounderAndAwards, ProofStrip } from "./components/TrustSections";
 import { RetailFlyout, RetailProvider, RetailTrigger } from "./components/RetailFlyout";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
 import { heroSlot, warehouseBandSlot } from "./components/imageSlots";
+import { scrollToSection } from "./components/scroll";
 import { GENERAL_MESSAGE, SHOPEE_URL, SiteFooter, WHATSAPP_URL, whatsappLink } from "./components/SiteFooter";
 
-/* In the order the chapters run, which is UMRAH first. The header had been
-   disagreeing with the page since the chapters were reordered. */
+/* In the order the chapters run. The quotation is not a nav item: it is the
+   primary button beside the nav, on every screen. */
 const navigation = [
   ["UMRAH", "#umrah"],
   ["Corporate", "#corporate"],
-  ["How it works", "#build"],
+  ["How it works", "#choose"],
   ["Clients", "#clients"],
-  ["About KIYO", "#about"],
-  ["Visit us", "#visit"],
+  ["About", "#about"],
 ] as const;
 
 /**
  * Which nav item a chapter marks.
  *
- * Three chapters share one item: the flow is `#build`, `#customise` and
- * `#delivery`, and without this grouping the marker would go blank for the
- * longest stretch of the page. The hero and the warehouse band mark nothing,
- * because neither is a destination in the nav.
+ * Three chapters share one item: the steps are `#choose`, `#personalise` and
+ * `#deliver`, and without this grouping the marker would go blank for the
+ * longest stretch of the page. The hero, the warehouse band and the quotation
+ * mark nothing, because none of them is a destination in the nav.
  */
 const CHAPTER_NAV: Record<string, string> = {
   umrah: "#umrah",
   corporate: "#corporate",
-  build: "#build",
-  customise: "#build",
-  delivery: "#build",
+  choose: "#choose",
+  personalise: "#choose",
+  deliver: "#choose",
   clients: "#clients",
   about: "#about",
-  visit: "#visit",
-  contact: "#visit",
 };
 
 /**
@@ -97,10 +96,6 @@ const capabilities = [
   { label: "Fulfilment", icon: PackageCheck },
 ] as const;
 
-function announce(programme: Programme) {
-  window.dispatchEvent(new CustomEvent<Programme>(PROGRAMME_EVENT, { detail: programme }));
-}
-
 type DialogProps = { open: boolean; onClose: () => void };
 
 function MenuDialog({ open, onClose, current }: DialogProps & { current: string | null }) {
@@ -130,7 +125,7 @@ function MenuDialog({ open, onClose, current }: DialogProps & { current: string 
   return (
     <dialog ref={dialogRef} id="primary-menu" className="mobile-menu" aria-label="Primary navigation" onCancel={(event) => { event.preventDefault(); onClose(); }}>
       <div className="mobile-menu__top">
-        <img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" />
+        <img src="/images/kiyo-logo.svg" alt="KIYO" width="212" height="86" />
         <button className="icon-button" onClick={onClose} aria-label="Close menu"><X aria-hidden="true" /></button>
       </div>
       <nav className="mobile-menu__links">
@@ -141,8 +136,8 @@ function MenuDialog({ open, onClose, current }: DialogProps & { current: string 
         ))}
         <a href={SHOPEE_URL} target="_blank" rel="noreferrer" onClick={onClose}>Retail stores<ArrowUpRight aria-hidden="true" /></a>
       </nav>
-      <a className="button button--coral mobile-menu__cta" href="#build" onClick={onClose}>
-        Build your set <span aria-hidden="true">↓</span>
+      <a className="button button--coral mobile-menu__cta" href="#quote" onClick={onClose}>
+        Request a quote <ArrowRight aria-hidden="true" />
       </a>
     </dialog>
   );
@@ -311,7 +306,7 @@ function SmartHeader({ onMenu, menuOpen, current }: { onMenu: () => void; menuOp
 
   return (
     <header className={`site-header site-header--${mode}`} data-header-mode={mode}>
-      <a className="brand" href="#home" aria-label="KIYO home"><img src="/images/kiyo-logo.png" alt="KIYO" width="653" height="258" /></a>
+      <a className="brand" href="#home" aria-label="KIYO home"><img src="/images/kiyo-logo.svg" alt="KIYO" width="212" height="86" /></a>
       <nav className="desktop-navigation" aria-label="Primary navigation">
         {navigation.map(([label, href]) => (
           <a key={href} href={href} aria-current={href === current ? "true" : undefined}>{label}</a>
@@ -319,8 +314,8 @@ function SmartHeader({ onMenu, menuOpen, current }: { onMenu: () => void; menuOp
       </nav>
       <div className="header-actions">
         <RetailTrigger />
-        <a className="button button--coral header-cta" href="#build">
-          Build your set <span aria-hidden="true">↓</span>
+        <a className="button button--coral header-cta" href="#quote">
+          Request a quote
         </a>
         <button className="menu-trigger" type="button" onClick={onMenu} aria-label="Open menu" aria-haspopup="dialog" aria-controls="primary-menu" aria-expanded={menuOpen}><span>Menu</span><Menu aria-hidden="true" /></button>
       </div>
@@ -362,24 +357,11 @@ export function KiyoExperience() {
       if (!anchor || !href || !href.startsWith("#") || href.length < 2) return;
       if (anchor.hasAttribute("target") || anchor.hasAttribute("download")) return;
 
-      const target = document.getElementById(decodeURIComponent(href.slice(1)));
-      if (!target) return;
+      const id = decodeURIComponent(href.slice(1));
+      if (!document.getElementById(id)) return;
 
       event.preventDefault();
-
-      const header = document.querySelector<HTMLElement>(".site-header");
-      const offset = (header?.offsetHeight ?? 0) + 16;
-      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      window.scrollTo({ top, behavior: reduceMotion ? "auto" : "smooth" });
-
-      /* Keep the URL shareable. replaceState does not fire popstate, so the
-         router stays out of it. */
-      try {
-        window.history.replaceState(window.history.state, "", href);
-      } catch {
-        /* Some embedded contexts refuse history writes; the scroll still works. */
-      }
+      scrollToSection(id);
     };
 
     document.addEventListener("click", onDocumentClick, { capture: true });
@@ -499,15 +481,14 @@ export function KiyoExperience() {
           <div className="hero__media-frame"><ImageSlotVisual slot={heroSlot} className="hero__media" priority /></div>
           <div className="hero__scrim" aria-hidden="true" />
           <div className="hero__copy">
-            <p className="eyebrow">Malaysian travel, thoughtfully made</p>
-            <h1>Designed<br />for your<br />journey.</h1>
-            <p>Premium luggage, corporate gifting and UMRAH programmes, customised, coordinated and delivered by KIYO.</p>
+            <h1><span>Designed for</span><span className="hero__payoff">your journey.</span></h1>
+            <p>Premium luggage, corporate gift sets and UMRAH programmes, customised and delivered from Kajang.</p>
             <div className="hero__actions">
-              <a className="button button--coral" href="#corporate" onClick={() => announce("corporate")}>
-                Explore corporate <ArrowRight aria-hidden="true" />
+              <a className="button button--coral" href="#quote">
+                Request a quote <ArrowRight aria-hidden="true" />
               </a>
-              <a className="button button--ghost" href="#umrah" onClick={() => announce("umrah")}>
-                Plan an UMRAH programme <ArrowRight aria-hidden="true" />
+              <a className="button button--ghost" href="#umrah">
+                See the gift sets <ArrowRight aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -532,6 +513,9 @@ export function KiyoExperience() {
           </ul>
         </section>
 
+        {/* The four numbers, between the band and the first chapter. */}
+        <ProofStrip />
+
         {/* 03 -------------------------------------------------------------- */}
         <UmrahGiftSets />
 
@@ -539,26 +523,28 @@ export function KiyoExperience() {
         <CorporateGiftSets />
 
         {/* 05, 06, 07 ------------------------------------------------------ */}
-        <BuildYourSet />
+        <ChooseStep />
+        <PersonaliseStep />
+        <DeliverStep />
 
         {/* 08 -------------------------------------------------------------- */}
-        <ClientProof />
+        <QuoteSection />
 
         {/* 09 -------------------------------------------------------------- */}
-        <FounderAndAwards />
+        <ClientProof />
 
         {/* 10 -------------------------------------------------------------- */}
-        <VisitKiyo />
+        <FounderAndAwards />
 
         <section id="contact" className="closer">
           <div className="closer__copy" data-reveal-group>
-            <h2>Ready to build your set?</h2>
+            <h2>Ready to start?</h2>
             <p>Tell us your programme. We&apos;ll handle the rest.</p>
           </div>
           <div className="closer__actions" data-reveal>
-            <a className="button button--coral" href="#build">Build your set <ArrowRight aria-hidden="true" /></a>
+            <a className="button button--coral" href="#quote">Request a quote <ArrowRight aria-hidden="true" /></a>
             <a className="button button--outline" href={whatsappLink(GENERAL_MESSAGE)} target="_blank" rel="noreferrer">
-              Talk to KIYO on WhatsApp <FaWhatsapp aria-hidden="true" />
+              WhatsApp <FaWhatsapp aria-hidden="true" />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </div>

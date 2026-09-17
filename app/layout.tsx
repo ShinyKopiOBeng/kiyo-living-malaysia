@@ -25,7 +25,11 @@ export const metadata: Metadata = {
     description: "Designed for every journey. Built for business.",
     images: ["/og.png"],
   },
-  icons: { icon: "/favicon.png", shortcut: "/favicon.png", apple: "/favicon.png" },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/favicon.png", sizes: "192x192", type: "image/png" }],
+    shortcut: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 const organization = {

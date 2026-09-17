@@ -4,45 +4,37 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { carouselProducts, productImage } from "./productCatalogue";
-import { useRetail } from "./RetailFlyout";
-
-export type ProductChoice = { slug: string; name: string; colour: string; colourLabel: string };
 
 /**
- * The chooser offers cases and sets only.
+ * The rail shows cases and sets only.
  *
  * `productCatalogue.ts` is generated from whatever shots are on disk, so the
  * filter lives here rather than in that file: re-running the asset tool must not
  * quietly put the bags back. The bag photography stays shipped and the
- * catalogue stays complete; this step of the enquiry flow simply does not offer
- * them, because a corporate or UMRAH programme is built around luggage.
+ * catalogue stays complete; this chapter simply does not show them, because a
+ * corporate or UMRAH programme is built around luggage.
  */
 const BAGS = new Set(["business-backpack", "flap-commuter-backpack", "slim-laptop-brief", "weekender-duffel"]);
-export const chooserProducts = carouselProducts.filter((product) => !BAGS.has(product.slug));
+export const railProducts = carouselProducts.filter((product) => !BAGS.has(product.slug));
 
 /**
- * Step 1 of the enquiry flow: a paged rail of product cards.
+ * Step 01: the luggage collection on a paged rail.
  *
- * The rail is a native scroll container with scroll snapping, so touch drag,
- * trackpad swipe and keyboard all work without any of it being reimplemented.
- * The arrows page it by exactly one card.
+ * Nothing here is selected any more. The card is the photograph, the name and
+ * one swatch per colour, and a swatch swaps the photograph. The rail is a
+ * native scroll container with scroll snapping, so touch drag, trackpad swipe
+ * and keyboard all work without any of it being reimplemented; the arrows page
+ * it by exactly one card.
  */
-export function ProductCarousel({
-  selected,
-  onSelect,
-}: {
-  selected: ProductChoice | null;
-  onSelect: (choice: ProductChoice) => void;
-}) {
+export function ProductCarousel() {
   const railRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
-  const { openRetail } = useRetail();
 
   const [colours, setColours] = useState<Record<string, string>>(() =>
-    Object.fromEntries(chooserProducts.map((product) => [product.slug, product.colours[0].id])),
+    Object.fromEntries(railProducts.map((product) => [product.slug, product.colours[0].id])),
   );
 
   const syncEdges = useCallback(() => {
@@ -77,29 +69,19 @@ export function ProductCarousel({
     rail.scrollBy({ left: direction * pitch, behavior: reduceMotion ? "auto" : "smooth" });
   };
 
-  const choose = (product: (typeof chooserProducts)[number], colourId: string) => {
-    const option = product.colours.find((entry) => entry.id === colourId) ?? product.colours[0];
-    onSelect({ slug: product.slug, name: product.name, colour: option.id, colourLabel: option.label });
-  };
-
   return (
     <div className="chooser">
-      <div className="chooser__rail" ref={railRef}>
-        {chooserProducts.map((product) => {
+      <div className="chooser__rail" ref={railRef} aria-label="The KIYO luggage collection">
+        {railProducts.map((product) => {
           const colour = colours[product.slug] ?? product.colours[0].id;
-          const isSelected = selected?.slug === product.slug;
+          const colourLabel = product.colours.find((entry) => entry.id === colour)?.label ?? colour;
 
           return (
-            <article className={`product-card${isSelected ? " is-selected" : ""}`} key={product.slug}>
-              {/* Sits inside the card's own bounds, so no frame can crop it. */}
-              <span className="product-card__badge" aria-hidden={!isSelected}>
-                <Check aria-hidden="true" />Selected
-              </span>
-
+            <article className="product-card" key={product.slug}>
               <div className="product-card__media">
                 <img
                   src={productImage(product.slug, colour, "front")}
-                  alt={`${product.name} in ${colour}`}
+                  alt={`${product.name} in ${colourLabel}`}
                   width="860"
                   height="860"
                   loading="lazy"
@@ -120,38 +102,9 @@ export function ProductCarousel({
                     aria-pressed={option.id === colour}
                     aria-label={`${product.name} in ${option.label}`}
                     title={option.label}
-                    onClick={() => {
-                      setColours((current) => ({ ...current, [product.slug]: option.id }));
-                      /* Recolouring a case that is already picked has to update
-                         the enquiry too, or the message names a finish the
-                         visitor is no longer looking at. */
-                      if (isSelected) choose(product, option.id);
-                    }}
+                    onClick={() => setColours((current) => ({ ...current, [product.slug]: option.id }))}
                   />
                 ))}
-              </div>
-
-              <div className="product-card__actions">
-                <button
-                  type="button"
-                  className={`product-card__select${isSelected ? " is-selected" : ""}`}
-                  aria-pressed={isSelected}
-                  onClick={() => choose(product, colour)}
-                >
-                  Select for bulk
-                </button>
-                {/* Retail is one panel with both stores behind it, so a single
-                    unit never leaves the page through a guessed platform. */}
-                <button
-                  type="button"
-                  data-retail-trigger
-                  className="product-card__retail"
-                  aria-haspopup="dialog"
-                  aria-controls="retail-flyout"
-                  onClick={() => openRetail("press")}
-                >
-                  Buy retail <ArrowUpRight aria-hidden="true" />
-                </button>
               </div>
             </article>
           );

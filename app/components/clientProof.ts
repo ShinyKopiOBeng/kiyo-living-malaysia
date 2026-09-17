@@ -1,28 +1,10 @@
-import type { ImageSlot } from "./imageSlots";
-import { sectionAssets } from "./sectionAssets";
 import { TIKTOK_URL } from "./SiteFooter";
 
 /**
- * Everything chapter 8 uses to answer "should I trust these people with a
- * 250-unit order". Kept out of the component because most of it is claims
- * about the real world, and a claim wants to sit next to where it came from.
+ * The claims the page makes about KIYO's standing, kept out of the components
+ * because most of them are claims about the real world, and a claim wants to
+ * sit next to where it came from.
  */
-
-/* Four of these predate the section asset build, so they are not in the
-   generated manifest. Dimensions read off the shipped files. */
-function legacy(id: string, file: string, width: number, height: number, alt: string): ImageSlot {
-  return {
-    id,
-    status: "final",
-    src: `/images/kiyo/${file}.webp`,
-    width,
-    height,
-    aspectRatio: `${width} / ${height}`,
-    fit: "cover",
-    focalPoint: "center center",
-    alt,
-  };
-}
 
 /* -------------------------------------------------------------------------- */
 /* The numbers                                                                */
@@ -62,133 +44,32 @@ export function formatProofNumber({ value, decimals, suffix }: ProofNumber) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* The capability strip                                                       */
+/* The videos                                                                 */
 /* -------------------------------------------------------------------------- */
 
-export type ProofCard = {
+/**
+ * Three client videos under the logo wall. KIYO is supplying the clips; until
+ * a card has a `src` it renders as a branded placeholder rather than a frame
+ * with nothing in it.
+ *
+ * `src` is an MP4 in `public/media/` (drop the file in and point at it) and
+ * `poster` is its first frame as a WebP. A card with `embed` set instead
+ * opens that link in a new tab, for a clip that only exists on TikTok. The
+ * caption says what the clip shows and is written when the clip exists; no
+ * view counts or likes, because KIYO has not supplied any.
+ */
+export type ClientVideo = {
+  id: string;
   caption: string;
-  slot: ImageSlot;
-  href: string;
-  /** What the card opens, printed on it, so the destination is never a surprise. */
-  destination: string;
-  external: boolean;
-  /**
-   * A short muted loop, once KIYO cuts one. Set it and the card plays on hover
-   * instead of only sitting there. Drop files in `public/media/` and fill this
-   * in; nothing else has to change.
-   */
-  clip?: string;
+  src?: string;
+  poster?: string;
+  embed?: string;
 };
 
-/**
- * Five claims, each with the best proof KIYO actually has for it.
- *
- * Two open a product video; three open the part of this site that demonstrates
- * the claim. The mixture is deliberate and it is labelled on every card, so a
- * visitor always knows where a card goes before pressing it.
- *
- * The two video links were checked against their own listings rather than
- * assigned by guesswork: the SORA listing states "360 Spinner Wheels", and the
- * PC+ABS listing states "USB & Cup Holder". No caption is attached to footage
- * that does not show it.
- */
-export const PROOF_CARDS: ProofCard[] = [
-  {
-    caption: "Smooth 360 degree movement, made for everyday travel.",
-    slot: legacy("PROOF-WHEELS", "product-wheels", 1100, 1100, "A close view of the spinner wheels on a KIYO case"),
-    href: "https://www.lazada.com.my/videodetail/?video_id=8000006140731",
-    destination: "Watch on Lazada",
-    external: true,
-  },
-  {
-    caption: "Practical storage designed around real journeys.",
-    slot: legacy("PROOF-STORAGE", "umrah-essentials", 900, 1125, "An open KIYO case packed with UMRAH travel essentials"),
-    href: "#umrah",
-    destination: "UMRAH sets",
-    external: false,
-  },
-  {
-    caption: "Thoughtful details where travellers actually need them.",
-    slot: legacy("PROOF-DETAILS", "product-lock", 1100, 1100, "The TSA lock and zip pulls on a KIYO case"),
-    href: "https://www.lazada.com.my/videodetail/?video_id=8000005574263",
-    destination: "Watch on Lazada",
-    external: true,
-  },
-  {
-    caption: "Custom-branded for companies, teams and travel programmes.",
-    slot: {
-      id: "PROOF-BRANDING",
-      status: "final",
-      src: sectionAssets.brandDetail1.src,
-      width: sectionAssets.brandDetail1.width,
-      height: sectionAssets.brandDetail1.height,
-      aspectRatio: `${sectionAssets.brandDetail1.width} / ${sectionAssets.brandDetail1.height}`,
-      fit: "cover",
-      focalPoint: "center center",
-      alt: "A company logo printed onto a KIYO case shell",
-    },
-    href: "#customise",
-    destination: "Customise",
-    external: false,
-  },
-  {
-    caption: "Stocked, checked and fulfilled locally from Kajang.",
-    slot: legacy("PROOF-WAREHOUSE", "warehouse-2", 1440, 864, "Racked KIYO stock in the Kajang warehouse"),
-    href: "#delivery",
-    destination: "How we deliver",
-    external: false,
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/* The voices                                                                 */
-/* -------------------------------------------------------------------------- */
-
-export type Voice = {
-  quote: string;
-  /** English gloss, where the quote is not in English. */
-  gloss?: string;
-  source: string;
-  /** A public post, credited and linked back, which is what makes quoting it fair. */
-  href?: string;
-  slot?: ImageSlot;
-};
-
-/**
- * Two of these are KIYO's own, attributed to a role because KIYO has not yet
- * asked permission to name anyone. A role is not a reference, and getting those
- * two names is the largest single improvement available to this chapter.
- *
- * The third is a public review post. It is quoted in the reviewer's own words,
- * credited by handle, and linked back to the original, which is the whole basis
- * on which quoting it is fair. Remove it if the reviewer objects.
- */
-export const VOICES: Voice[] = [
-  {
-    quote: "Reliable quality and seamless coordination from start to finish.",
-    source: "Corporate client",
-    slot: {
-      id: "VOICE-CORPORATE",
-      status: "final",
-      src: sectionAssets.partnerCorporate.src,
-      width: sectionAssets.partnerCorporate.width,
-      height: sectionAssets.partnerCorporate.height,
-      aspectRatio: "16 / 9",
-      fit: "cover",
-      focalPoint: "center center",
-      alt: "A corporate gift handover to a client team",
-    },
-  },
-  {
-    quote: "Our jemaah love the sets. Everything was handled for us.",
-    source: "UMRAH agency partner",
-  },
-  {
-    quote: "Berbaloi beli luggage ni. Cute sgtttt!!",
-    gloss: "Worth buying this luggage. So cute.",
-    source: "lily_ssi on Lemon8",
-    href: "https://www.lemon8-app.com/@lily_ssi/7456806039720083976?region=my",
-  },
+export const CLIENT_VIDEOS: ClientVideo[] = [
+  { id: "video-1", caption: "Client video 1" },
+  { id: "video-2", caption: "Client video 2" },
+  { id: "video-3", caption: "Client video 3" },
 ];
 
 /** Where the rest of KIYO's video lives. */

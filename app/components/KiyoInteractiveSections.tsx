@@ -1,30 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ArrowLeft, ArrowRight, Check, Expand, X } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa6";
-import { ImageSlotVisual } from "./ImagePlaceholder";
-import { PROGRAMME_EVENT, type Programme } from "./BuildYourSet";
-import { giftSetMessage, whatsappLink } from "./SiteFooter";
-import {
-  corporateLeadSlot,
-  corporateSetSlots,
-  umrahLeadSlot,
-  umrahSetSlots,
-  type ImageSlot,
-} from "./imageSlots";
+/* Placeholder tiles carry the vector mark, served straight from public. */
+/* eslint-disable @next/next/no-img-element */
 
-export type GiftSet = {
-  id: string;
-  number: string;
-  title: string;
-  summary: string;
-  contents: string[];
-  moq: string;
-  leadTime: string;
-  slot: ImageSlot;
-};
+import { useCallback, useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
+import { ChapterOpener } from "./ChapterOpener";
+import { ImageSlotVisual } from "./ImagePlaceholder";
+import { SetCarousel } from "./SetCarousel";
+import { corporateSets, umrahSets, type GiftSet } from "./giftSets";
+import { corporateOpenerSlot, umrahOpenerSlot, type ImageSlot } from "./imageSlots";
+import { announceProgramme, type Programme } from "./programme";
+import { scrollToSection } from "./scroll";
 
 /* -------------------------------------------------------------------------- */
 /* The set inspector                                                          */
@@ -33,11 +21,13 @@ export type GiftSet = {
 function GiftDialog({
   sets,
   index,
+  programme,
   onChange,
   onClose,
 }: {
   sets: GiftSet[];
   index: number | null;
+  programme: Programme;
   onChange: (index: number) => void;
   onClose: () => void;
 }) {
@@ -81,6 +71,15 @@ function GiftDialog({
   if (index === null) return null;
   const set = sets[index];
 
+  /* The inspector no longer opens WhatsApp. It closes, points the quotation at
+     this programme, and takes the visitor there: one form is where every
+     enquiry now goes. The scroll waits a frame so the body can unlock first. */
+  const requestQuote = () => {
+    announceProgramme(programme);
+    onClose();
+    requestAnimationFrame(() => scrollToSection("quote"));
+  };
+
   return (
     <dialog
       ref={dialogRef}
@@ -94,7 +93,14 @@ function GiftDialog({
           <X aria-hidden="true" />
         </button>
 
-        <ImageSlotVisual slot={set.slot} className="giftdialog__media" />
+        {set.slot ? (
+          <ImageSlotVisual slot={set.slot} className="giftdialog__media" />
+        ) : (
+          <div className="giftdialog__media giftdialog__media--pending" aria-hidden="true">
+            <img src="/images/kiyo-logo-white.svg" alt="" width="212" height="86" />
+            <span>Photo coming soon</span>
+          </div>
+        )}
 
         <div className="giftdialog__detail">
           <p className="giftdialog__index">Set {set.number}</p>
@@ -111,10 +117,9 @@ function GiftDialog({
           </dl>
 
           <div className="giftdialog__actions">
-            <a className="button button--coral" href={whatsappLink(giftSetMessage(set.title))} target="_blank" rel="noreferrer">
-              Enquire on WhatsApp <FaWhatsapp aria-hidden="true" />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
+            <button type="button" className="button button--coral" onClick={requestQuote}>
+              Request a quote <ArrowRight aria-hidden="true" />
+            </button>
             <div className="giftdialog__nav">
               <button type="button" onClick={() => onChange((index - 1 + sets.length) % sets.length)} aria-label="Previous set">
                 <ArrowLeft aria-hidden="true" />
@@ -131,106 +136,66 @@ function GiftDialog({
   );
 }
 
-/**
- * The four-up showcase.
- *
- * Hover or keyboard focus highlights one set and dims the rest; the click opens
- * the inspector. The cover itself stays quiet - name and a "View set"
- * affordance - so the row reads as photography rather than as four buttons.
- */
-function GiftShowcase({ sets }: { sets: GiftSet[] }) {
-  const [active, setActive] = useState<number | null>(null);
-  const [open, setOpen] = useState<number | null>(null);
-
-  return (
-    <>
-      <ul
-        className={`setstrip${active !== null ? " is-focused" : ""}`}
-        data-reveal-group
-        onMouseLeave={() => setActive(null)}
-      >
-        {sets.map((set, index) => (
-          <li
-            className={`setcard${active === index ? " is-active" : ""}`}
-            key={set.id}
-            onMouseEnter={() => setActive(index)}
-          >
-            <button
-              type="button"
-              className="setcard__open"
-              aria-haspopup="dialog"
-              onFocus={() => setActive(index)}
-              onBlur={() => setActive(null)}
-              onClick={() => setOpen(index)}
-            >
-              <ImageSlotVisual slot={set.slot} className="setcard__media" />
-              <span className="setcard__scrim" aria-hidden="true" />
-              <span className="setcard__cta" aria-hidden="true">View set <Expand /></span>
-              <span className="sr-only">View the {set.title}</span>
-            </button>
-            <span className="setcard__label">{set.title}</span>
-          </li>
-        ))}
-      </ul>
-
-      <GiftDialog sets={sets} index={open} onChange={setOpen} onClose={() => setOpen(null)} />
-    </>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /* The shared chapter shell                                                   */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Chapters 3 and 4 are the same chapter twice over: copy on the left, one
- * lifestyle plate on the right, then the showcase underneath. They share this
- * shell so the two can never drift apart, and each passes its own programme so
- * the enquiry flow opens pointed at the right desk.
+ * Chapters 3 and 4 are the same chapter twice over: an opener, then the six
+ * sets on a drifting carousel, then the inspector. They share this shell so
+ * the two can never drift apart, and each passes its own programme so the
+ * quotation opens pointed at the right desk.
  */
 function GiftChapter({
   id,
   tone,
-  eyebrow,
-  headline,
-  intro,
+  label,
+  lines,
+  body,
   cta,
   programme,
-  lead,
+  opener,
+  openerVariant,
+  openerSide,
   sets,
+  ratio,
 }: {
   id: string;
-  tone: "sand" | "paper";
-  eyebrow: string;
-  headline: React.ReactNode;
-  intro: string;
+  tone: "paper" | "sand";
+  label: string;
+  lines: [string, string, string];
+  body: string;
   cta: string;
   programme: Programme;
-  lead: ImageSlot;
+  opener: ImageSlot;
+  openerVariant: "bleed" | "split";
+  openerSide: "left" | "right";
   sets: GiftSet[];
+  ratio: "3 / 2" | "4 / 3";
 }) {
+  const [open, setOpen] = useState<number | null>(null);
+  const close = useCallback(() => setOpen(null), []);
+
   return (
-    <section id={id} className={`gift gift--${tone}`}>
-      <div className="gift__lead">
-        <div className="gift__copy" data-reveal-group>
-          <p className="eyebrow">{eyebrow}</p>
-          <h2>{headline}</h2>
-          <p>{intro}</p>
-          <a
-            className="button button--coral"
-            href="#build"
-            onClick={() => window.dispatchEvent(new CustomEvent<Programme>(PROGRAMME_EVENT, { detail: programme }))}
-          >
+    <section id={id} className={`gift gift--${tone}`} aria-labelledby={`${id}-title`}>
+      <ChapterOpener
+        titleId={`${id}-title`}
+        label={label}
+        lines={lines}
+        body={body}
+        slot={opener}
+        variant={openerVariant}
+        side={openerSide}
+        action={
+          <a className="button button--coral" href="#quote" onClick={() => announceProgramme(programme)}>
             {cta} <ArrowRight aria-hidden="true" />
           </a>
-        </div>
+        }
+      />
 
-        <div className="gift__visual" data-reveal="right">
-          <ImageSlotVisual slot={lead} className="gift__media" />
-        </div>
-      </div>
+      <SetCarousel sets={sets} ratio={ratio} onOpen={setOpen} suspended={open !== null} label={`${label} sets`} />
 
-      <GiftShowcase sets={sets} />
+      <GiftDialog sets={sets} index={open} programme={programme} onChange={setOpen} onClose={close} />
     </section>
   );
 }
@@ -239,64 +204,21 @@ function GiftChapter({
 /* 03  UMRAH                                                                  */
 /* -------------------------------------------------------------------------- */
 
-const MOQ = "100 sets";
-const LEAD_TIME = "6-8 weeks";
-
-const umrahSets: GiftSet[] = [
-  {
-    id: "essential-journey",
-    number: "01",
-    title: "Essential Journey Set",
-    summary: "The core set every jemaah carries, sized for a full UMRAH departure.",
-    contents: ["Cabin, medium and large cases", "Drawstring bag and toiletry pouch", "Insulated travel bottle"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: umrahSetSlots[0],
-  },
-  {
-    id: "comfort-travel",
-    number: "02",
-    title: "Comfort Travel Set",
-    summary: "The essentials plus the pieces that make a long flight easier.",
-    contents: ["Coordinated luggage in cream", "Neck pillow, eye mask and portable fan", "Toiletry pouch and travel bottle"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: umrahSetSlots[1],
-  },
-  {
-    id: "complete-jemaah",
-    number: "03",
-    title: "Complete Jemaah Set",
-    summary: "A full programme package, ready to hand over on departure day.",
-    contents: ["Full coordinated luggage set", "Prayer mat and ibadah essentials", "Comfort and travel accessories"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: umrahSetSlots[2],
-  },
-  {
-    id: "agency-branding",
-    number: "04",
-    title: "Agency Branding Set",
-    summary: "The complete set carrying your agency's identity throughout.",
-    contents: ["Your logo applied across the set", "Branded presentation box and luggage tag", "Coordinated agency colourway"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: umrahSetSlots[3],
-  },
-];
-
 export function UmrahGiftSets() {
   return (
     <GiftChapter
       id="umrah"
-      tone="sand"
-      eyebrow="UMRAH programme"
-      headline={<>Complete UMRAH<br />sets, made simple.</>}
-      intro="Coordinated luggage, travel essentials and agency branding for every jemaah."
-      cta="Plan an UMRAH programme"
+      tone="paper"
+      label="UMRAH programme"
+      lines={["Your Jemaah.", "Your Brand.", "One Complete Journey."]}
+      body="Thoughtfully coordinated luggage and travel essentials, customised for your agency and prepared for every jemaah."
+      cta="Build Your UMRAH Set"
       programme="umrah"
-      lead={umrahLeadSlot}
+      opener={umrahOpenerSlot}
+      openerVariant="bleed"
+      openerSide="left"
       sets={umrahSets}
+      ratio="3 / 2"
     />
   );
 }
@@ -305,61 +227,21 @@ export function UmrahGiftSets() {
 /* 04  Corporate                                                              */
 /* -------------------------------------------------------------------------- */
 
-const corporateSets: GiftSet[] = [
-  {
-    id: "branded-travel",
-    number: "01",
-    title: "Branded Travel Set",
-    summary: "A coordinated travel set for clients, teams and group programmes.",
-    contents: ["Compact branded case", "Headphones, neck pillow and travel pouch", "Custom logo printing available"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: corporateSetSlots[0],
-  },
-  {
-    id: "executive-journey",
-    number: "02",
-    title: "Executive Journey Set",
-    summary: "A senior gift: darker finishes and a heavier presentation.",
-    contents: ["Premium cabin case", "Executive desk and travel pieces", "Custom logo printing available"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: corporateSetSlots[1],
-  },
-  {
-    id: "team-building",
-    number: "03",
-    title: "Team Building Kit",
-    summary: "Practical outdoor pieces chosen for team programmes and events.",
-    contents: ["Handpicked outdoor and team items", "Durable, practical and event-ready", "Custom logo printing available"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: corporateSetSlots[2],
-  },
-  {
-    id: "premium-welcoming",
-    number: "04",
-    title: "Premium Welcoming Gift",
-    summary: "A refined desk and travel gift in an elegant presentation box.",
-    contents: ["Notebook, pen and thermos bottle", "Elegant gift box packaging", "Custom logo printing available"],
-    moq: MOQ,
-    leadTime: LEAD_TIME,
-    slot: corporateSetSlots[3],
-  },
-];
-
 export function CorporateGiftSets() {
   return (
     <GiftChapter
       id="corporate"
-      tone="paper"
-      eyebrow="Corporate gifts"
-      headline={<>Corporate gifts<br />that travel further.</>}
-      intro="Branded travel sets for clients, employees, partners and events."
-      cta="Get a corporate quote"
+      tone="sand"
+      label="Corporate gifts"
+      lines={["Your People.", "Your Brand.", "A Lasting Impression."]}
+      body="Thoughtfully curated gifts, customised for clients, employees, partners and every occasion."
+      cta="Build Your Corporate Gift Set"
       programme="corporate"
-      lead={corporateLeadSlot}
+      opener={corporateOpenerSlot}
+      openerVariant="split"
+      openerSide="right"
       sets={corporateSets}
+      ratio="4 / 3"
     />
   );
 }
