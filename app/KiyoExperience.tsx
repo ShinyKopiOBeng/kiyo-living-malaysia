@@ -477,7 +477,7 @@ export function KiyoExperience() {
 
       <main id="main">
         {/* 01 -------------------------------------------------------------- */}
-        <section id="home" className="hero">
+        <section id="home" className="hero" style={{ "--hero-ratio": heroSlot.aspectRatio } as React.CSSProperties}>
           <div className="hero__media-frame"><ImageSlotVisual slot={heroSlot} className="hero__media" priority /></div>
           <div className="hero__scrim" aria-hidden="true" />
           <div className="hero__copy">
@@ -495,9 +495,8 @@ export function KiyoExperience() {
         </section>
 
         {/* 02 -------------------------------------------------------------- */}
-        <section id="warehouse" className="scale">
+        <section id="warehouse" className="scale" style={{ "--band-ratio": warehouseBandSlot.aspectRatio } as React.CSSProperties}>
           <ImageSlotVisual slot={warehouseBandSlot} className="scale__media" decorative />
-          <div className="scale__scrim" aria-hidden="true" />
           <div className="scale__copy" data-reveal-group>
             <h2 className="scale__headline">
               <span><em>Designed</em> here.</span>

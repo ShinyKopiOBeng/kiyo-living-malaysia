@@ -42,8 +42,10 @@ export function ChapterOpener({
   side?: "left" | "right";
   titleId: string;
 }) {
+  /* The band takes the photograph's own proportions, so the whole picture
+     shows and nothing is cropped off its top or bottom at any width. */
   return (
-    <div className={`opener opener--${variant} opener--${side}`}>
+    <div className={`opener opener--${variant} opener--${side}`} style={{ "--opener-ratio": slot.aspectRatio } as React.CSSProperties}>
       <div className="opener__visual" data-reveal={variant === "split" ? (side === "left" ? "right" : "left") : undefined}>
         <ImageSlotVisual slot={slot} className="opener__media" />
         {variant === "bleed" ? <span className="opener__scrim" aria-hidden="true" /> : null}

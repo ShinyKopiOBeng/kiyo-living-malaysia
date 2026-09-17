@@ -473,10 +473,14 @@ section[id] {
 /* 01  Hero                                                                    */
 /* -------------------------------------------------------------------------- */
 
+/* The band is the photograph's own shape, so the whole picture shows; the
+   floor only matters on narrow desktops, where the copy needs more height
+   than a 2.3:1 picture gives it. */
 .hero {
   position: relative;
   display: flex;
-  min-height: clamp(34rem, 44vw, 46rem);
+  min-height: 30rem;
+  aspect-ratio: var(--hero-ratio, 1916 / 821);
   align-items: center;
   padding: calc(var(--header-height) + clamp(2rem, 4vw, 4rem)) var(--page-padding) clamp(2.5rem, 5vw, 4.5rem);
   overflow: hidden;
@@ -541,16 +545,21 @@ section[id] {
 /* 02  Warehouse band                                                          */
 /* -------------------------------------------------------------------------- */
 
+/* The photograph as delivered, at its own proportions and with no tint over
+   it. The copy sits on the dark left of the picture and carries a soft shadow
+   for the few pixels where the sky comes through behind it. */
 .scale {
   position: relative;
   display: flex;
-  min-height: clamp(24rem, 32vw, 33rem);
+  min-height: 24rem;
+  aspect-ratio: var(--band-ratio, 1920 / 800);
   flex-direction: column;
   justify-content: center;
   padding: clamp(3rem, 5vw, 4.5rem) var(--page-padding) clamp(1.5rem, 2.5vw, 2.25rem);
   overflow: hidden;
   background: var(--ink-deep);
   color: var(--white);
+  text-shadow: 0 1px 2px rgb(0 20 30 / 0.55), 0 0 24px rgb(0 20 30 / 0.35);
 }
 
 .scale__media {
@@ -559,12 +568,6 @@ section[id] {
   width: 100%;
   height: 100%;
   aspect-ratio: auto;
-}
-
-.scale__scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(95deg, rgb(0 39 51 / 0.94) 0%, rgb(0 39 51 / 0.82) 40%, rgb(0 39 51 / 0.55) 70%, rgb(0 39 51 / 0.6) 100%);
 }
 
 .scale__copy {
@@ -730,10 +733,12 @@ section[id] {
 
 /* Full-bleed: the photograph spans the page and the copy sits in the side of
    it that the picture itself fades out. */
+/* The band is the photograph's own shape, so the whole picture shows and
+   nothing is cut off its top or bottom at any width. */
 .opener--bleed {
   position: relative;
   display: flex;
-  min-height: clamp(26rem, 38vw, 36rem);
+  aspect-ratio: var(--opener-ratio, 2 / 1);
   align-items: center;
   overflow: hidden;
 }
@@ -2796,27 +2801,41 @@ section[id] {
     background: linear-gradient(180deg, rgb(244 239 234 / 0.94) 0%, rgb(244 239 234 / 0.86) 45%, rgb(244 239 234 / 0.55) 100%);
   }
 
+  /* At these widths a 2:1 band is too short to hold its copy, so the hero and
+     the warehouse band go back to a height set by the copy and crop the
+     picture behind it. */
+  .hero,
+  .scale {
+    aspect-ratio: auto;
+  }
+
   /* The openers stand the copy under the picture rather than beside it: the
-     photographs' side fades are too narrow to hold a column at this width, so
-     the fade runs bottom-up instead. */
+     photographs' side fades are too narrow to hold a column at this width. The
+     picture keeps its own shape and shows whole; the copy sits on the ground
+     below it. */
   .opener--bleed {
-    min-height: 30rem;
-    align-items: flex-end;
+    display: block;
+    aspect-ratio: auto;
   }
 
-  .opener--bleed.opener--right {
-    justify-content: flex-start;
+  .opener--bleed .opener__visual {
+    position: static;
   }
 
-  .opener--left .opener__scrim,
-  .opener--right .opener__scrim {
-    background: linear-gradient(0deg, rgb(var(--opener-ground) / 0.97) 0%, rgb(var(--opener-ground) / 0.9) 40%, rgb(var(--opener-ground) / 0.35) 68%, transparent 88%);
+  .opener--bleed .opener__media {
+    position: static;
+    height: auto;
+    aspect-ratio: var(--opener-ratio, 2 / 1);
+  }
+
+  .opener__scrim {
+    display: none;
   }
 
   .opener--bleed .opener__copy {
     width: 100%;
     max-width: 38rem;
-    padding-top: 12rem;
+    padding: clamp(1.75rem, 4vw, 2.5rem) var(--page-padding) clamp(1rem, 3vw, 1.5rem);
   }
 
   .opener--split {
@@ -2923,10 +2942,6 @@ section[id] {
 
   .scale__capabilities {
     gap: 1.25rem 2rem;
-  }
-
-  .opener--bleed .opener__copy {
-    padding-top: 10rem;
   }
 
   .opener__title {
