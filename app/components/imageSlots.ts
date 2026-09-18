@@ -10,6 +10,9 @@ export type ImageSlot = {
   aspectRatio: string;
   fit: "cover" | "contain";
   focalPoint?: string;
+  /** Where the crop holds on a phone, when a picture's fade would otherwise
+      show there; falls back to `focalPoint`. */
+  mobileFocalPoint?: string;
   safeTextArea?: string;
   alt: string;
   width?: number;
@@ -28,7 +31,7 @@ function plate(
   id: string,
   asset: SectionAsset,
   alt: string,
-  options: { status?: ImageSlotStatus; aspectRatio?: string; fit?: ImageSlot["fit"]; focalPoint?: string; safeTextArea?: string } = {},
+  options: { status?: ImageSlotStatus; aspectRatio?: string; fit?: ImageSlot["fit"]; focalPoint?: string; mobileFocalPoint?: string; safeTextArea?: string } = {},
 ): ImageSlot {
   return {
     id,
@@ -39,6 +42,7 @@ function plate(
     aspectRatio: options.aspectRatio ?? `${asset.width} / ${asset.height}`,
     fit: options.fit ?? "cover",
     focalPoint: options.focalPoint ?? "center center",
+    mobileFocalPoint: options.mobileFocalPoint,
     safeTextArea: options.safeTextArea,
     alt,
   };
@@ -61,11 +65,15 @@ export const heroSlot = plate(
 /* 02  Warehouse band                                                         */
 /* -------------------------------------------------------------------------- */
 
+/* The building and the lorry are in the right two thirds of the plate, so the
+   crop holds the right edge: a laptop screen keeps the office and the whole
+   lorry, and the copy sits over the open bay on the left. The phone shows
+   the same right-hand crop as a 4:3 above the copy. */
 export const warehouseBandSlot = plate(
   "WAREHOUSE-BAND",
   sectionAssets.warehouseTruck,
-  "KIYO's Kajang warehouse and showroom at dusk with a branded delivery lorry outside",
-  { focalPoint: "68% center", safeTextArea: "left 45%" },
+  "KIYO's Kajang warehouse and office at dusk: the open bay stacked with cases, the teal office, and a branded delivery lorry outside",
+  { focalPoint: "100% center", safeTextArea: "left 45%" },
 );
 
 /* -------------------------------------------------------------------------- */
@@ -77,7 +85,7 @@ export const umrahOpenerSlot = plate(
   "UMRAH-OPENER",
   sectionAssets.umrahOpener,
   "A pilgrim in ihram walking towards the mosque with a coordinated cream KIYO luggage set",
-  { focalPoint: "78% center", safeTextArea: "left 44%" },
+  { focalPoint: "78% center", mobileFocalPoint: "100% center", safeTextArea: "left 44%" },
 );
 
 /** The six UMRAH sets, in carousel order. */
@@ -126,7 +134,7 @@ export const chooseOpenerSlot = plate(
   "CHOOSE-OPENER",
   sectionAssets.chooseOpener,
   "A KIYO consultant and a client at the showroom desk with a cream case, gift sets and colour swatches",
-  { focalPoint: "72% center", safeTextArea: "left 44%" },
+  { focalPoint: "72% center", mobileFocalPoint: "100% center", safeTextArea: "left 44%" },
 );
 
 /* -------------------------------------------------------------------------- */
@@ -138,7 +146,7 @@ export const personaliseOpenerSlot = plate(
   "PERSONALISE-OPENER",
   sectionAssets.personaliseOpener,
   "A KIYO designer showing a client their logo mocked up on a case on screen",
-  { focalPoint: "28% center", safeTextArea: "right 44%" },
+  { focalPoint: "28% center", mobileFocalPoint: "0% center", safeTextArea: "right 44%" },
 );
 
 /**
@@ -161,13 +169,13 @@ export const deliverOpenerSlot = plate(
   "DELIVER-OPENER",
   sectionAssets.deliverOpener,
   "The KIYO building at dusk, a branded lorry being loaded with cases at the door",
-  { focalPoint: "70% center", safeTextArea: "left 44%" },
+  { focalPoint: "70% center", mobileFocalPoint: "100% center", safeTextArea: "left 44%" },
 );
 
 /** One panel per promise in the Deliver headline, in the headline's order. */
 export const deliverPanels: { slot: ImageSlot; title: string; line: string }[] = [
   {
-    slot: plate("DELIVER-SHIP", sectionAssets.deliverShip, "Rows of cases on pallets at the loading dock with a lorry waiting", { focalPoint: "40% center" }),
+    slot: plate("DELIVER-SHIP", sectionAssets.deliverShip, "Rows of white and black KIYO cases and KIYO-marked boxes on pallets in the warehouse, two staff checking a list, a KIYO lorry at the dock", { focalPoint: "center 45%" }),
     title: "Deliver to You",
     line: "Nationwide, to your office or venue.",
   },
@@ -191,16 +199,18 @@ export const clientsOpenerSlot = plate(
   "CLIENTS-OPENER",
   sectionAssets.clientsOpener,
   "Three clients opening a KIYO gift box beside a cream case at the showroom",
-  { focalPoint: "24% center", safeTextArea: "right 44%" },
+  { focalPoint: "24% center", mobileFocalPoint: "0% center", safeTextArea: "right 44%" },
 );
 
 /**
- * Six handovers out of KIYO's own client archive, phone photographs taken on
- * the day. A client is named only where the picture itself carries the name
- * (a backdrop, a branded case) or KIYO filed the photograph under it.
- * `tall` marks the two portrait frames, which the wall stands across two rows.
+ * Twelve handovers out of KIYO's own client archive, phone photographs taken
+ * on the day, in the order the wall lays them. A client is named only where
+ * the picture itself carries the name (a backdrop, a branded case, a bag) or
+ * KIYO filed the photograph under it. Each frame keeps its own proportions
+ * on the masonry; the two 9:16 frames are cropped to 3:4 so they do not
+ * tower over the rest.
  */
-export const clientPhotoSlots: { slot: ImageSlot; caption: string; tall?: boolean }[] = [
+export const clientPhotoSlots: { slot: ImageSlot; caption: string }[] = [
   {
     slot: plate("CLIENT-HEJIRA", sectionAssets.clientHejira, "A family with their pink KIYO cases at the airport check-in before departing for UMRAH", { focalPoint: "center 40%" }),
     caption: "Hejira Travel jemaah, departing with their sets",
@@ -208,24 +218,46 @@ export const clientPhotoSlots: { slot: ImageSlot; caption: string; tall?: boolea
   {
     slot: plate("CLIENT-PTPTN", sectionAssets.clientPtptn, "A handover photograph in front of the Perbadanan Tabung Pendidikan Tinggi Nasional sign"),
     caption: "Handover at Menara PTPTN, Tabung Pendidikan",
-    tall: true,
   },
   {
     slot: plate("CLIENT-IRKAZ", sectionAssets.clientIrkaz, "A group of jemaah at KLIA with their silver IIRKAZ-branded cases", { focalPoint: "center 45%" }),
     caption: "IIRKAZ jemaah at KLIA with their branded cases",
   },
   {
+    slot: plate("CLIENT-OPENING", sectionAssets.clientOpening, "Guests with a child in front of the KIYO Living grand opening backdrop, cases beside them"),
+    caption: "Guests at the KIYO Living grand opening",
+  },
+  {
     slot: plate("CLIENT-KOPERASI-TNB", sectionAssets.clientKoperasiTnb, "Three women from Koperasi TNB with their new KIYO cases", { focalPoint: "center 42%" }),
     caption: "Koperasi TNB, collecting their cases",
-    tall: true,
   },
   {
     slot: plate("CLIENT-MANAZEL", sectionAssets.clientManazel, "The Manazel Mashaer Travel team beside their wrapped stock of green cases", { focalPoint: "center 45%" }),
     caption: "Manazel Mashaer Travel, stock delivered to their office",
   },
   {
+    slot: plate("CLIENT-AL-WAQAR", sectionAssets.clientAlWaqar, "Two people from Al-Waqar Travel in front of their order, rows of wrapped cases stacked in a hall", { aspectRatio: "3 / 4", focalPoint: "center 42%" }),
+    caption: "Al-Waqar Travel, their order delivered and wrapped",
+  },
+  {
     slot: plate("CLIENT-BULK", sectionAssets.clientBulkOrder, "Rows of purple cases printed with a travel agency's smile logo, ready to ship", { focalPoint: "center 50%" }),
     caption: "A branded agency order, printed and ready to ship",
+  },
+  {
+    slot: plate("CLIENT-PRESENTATION-SAMPLES", sectionAssets.clientPresentationSamples, "Three women in a lobby with three sample cases, two red and one silver", { focalPoint: "center 55%" }),
+    caption: "Sample cases presented to a client",
+  },
+  {
+    slot: plate("CLIENT-HRM", sectionAssets.clientHrm, "Four people from HRM around a blue KIYO case in their office"),
+    caption: "The HRM team with their case, at their office",
+  },
+  {
+    slot: plate("CLIENT-CONTAINER", sectionAssets.clientContainer, "Three workers at the open door of a shipping container packed with wrapped pink and blue cases", { focalPoint: "center 45%" }),
+    caption: "A container of stock, unloaded at Kajang",
+  },
+  {
+    slot: plate("CLIENT-PRESENTATION-WAREHOUSE", sectionAssets.clientPresentationWarehouse, "Two women in the KIYO warehouse between racks of wrapped cases", { aspectRatio: "3 / 4", focalPoint: "center 45%" }),
+    caption: "A presentation in the Kajang warehouse",
   },
 ];
 
@@ -276,4 +308,20 @@ export const aboutBandSlot = plate(
   "ABOUT-BAND",
   sectionAssets.aboutBand,
   "Samantha Ng in the KIYO showroom, beside shelves holding the company's awards",
+  /* On a phone the band is Samantha alone, 3:4, held on the plate's left. */
+  { mobileFocalPoint: "0% center" },
+);
+
+/**
+ * The same plate a second time, for the phone only: the two shelves of
+ * awards, which the portrait crop above leaves out, as a 3:2 under her.
+ * `.founder__awards` in globals.css does the zoom into the shelf region
+ * (x 1080 to 1860, y 90 to 610 of the 1920 x 800 plate). Decorative: the
+ * page makes no claim about what is on the shelf.
+ */
+export const aboutAwardsSlot = plate(
+  "ABOUT-AWARDS",
+  sectionAssets.aboutBand,
+  "",
+  { aspectRatio: "3 / 2" },
 );

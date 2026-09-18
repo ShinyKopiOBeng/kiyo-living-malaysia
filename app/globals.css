@@ -74,8 +74,10 @@ deepened tone, which clears AA on both grounds. */
   box-sizing: border-box;
 }
 
+/* The root does not smooth its own scrolling: every anchor on the page goes
+   through `scrollToSection`, and the smoother in smoothScroll.ts eases the
+   wheel. A CSS smooth scroll would fight both. */
 html {
-  scroll-behavior: smooth;
   background: var(--paper);
 }
 
@@ -473,14 +475,19 @@ section[id] {
 /* 01  Hero                                                                    */
 /* -------------------------------------------------------------------------- */
 
-/* The band is the photograph's own shape, so the whole picture shows; the
-   floor only matters on narrow desktops, where the copy needs more height
-   than a 2.3:1 picture gives it. */
+/* The hero fills the first screen, or the photograph's own height on a screen
+   wider than 2.3:1, whichever is taller: so a laptop gets a full screen with
+   the picture covering on the focal point set in imageSlots.ts, and an
+   ultra-wide screen still gets the whole picture. Written as a min-height
+   rather than an aspect-ratio because a ratio next to a min-height transfers
+   that height into the width (Chrome makes the box 2100px wide on a 1440px
+   screen). It is sticky: it stays where it is and the chapters in `.chapters`
+   slide over it. */
 .hero {
-  position: relative;
+  position: sticky;
+  top: 0;
   display: flex;
-  min-height: 30rem;
-  aspect-ratio: var(--hero-ratio, 1916 / 821);
+  min-height: max(100svh, calc(100vw / (var(--hero-ratio, 1916 / 821))));
   align-items: center;
   padding: calc(var(--header-height) + clamp(2rem, 4vw, 4rem)) var(--page-padding) clamp(2.5rem, 5vw, 4.5rem);
   overflow: hidden;
@@ -541,22 +548,36 @@ section[id] {
   margin-top: 2.15rem;
 }
 
+/* Everything after the hero. Positioned, so it paints over the sticky hero
+   rather than under it (a sticky element is positioned, and would otherwise
+   sit above every in-flow chapter that follows), and grounded, so no chapter
+   without a background of its own lets the hero show through. */
+.chapters {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+}
+
 /* -------------------------------------------------------------------------- */
 /* 02  Warehouse band                                                          */
 /* -------------------------------------------------------------------------- */
 
-/* The photograph as delivered, at its own proportions and with no tint over
-   it. The copy sits on the dark left of the picture and carries a soft shadow
-   for the few pixels where the sky comes through behind it. */
+/* The photograph as delivered and with no tint over it. The band holds the
+   screen while the claim arrives (see WarehouseBand), so it is a full screen
+   tall, the picture covering on its focal point; on a screen wider than
+   2.4:1 the picture's own shape wins and the whole of it shows. The copy sits
+   on the dark left of the picture and carries a soft shadow for the few
+   pixels where the sky comes through behind it. The shadow along the top is
+   the band sliding over the hero. */
 .scale {
   position: relative;
   display: flex;
-  min-height: 24rem;
-  aspect-ratio: var(--band-ratio, 1920 / 800);
+  min-height: max(100svh, calc(100vw / (var(--band-ratio, 1920 / 800))));
   flex-direction: column;
   justify-content: center;
-  padding: clamp(3rem, 5vw, 4.5rem) var(--page-padding) clamp(1.5rem, 2.5vw, 2.25rem);
+  padding: calc(var(--header-height) + 1.5rem) var(--page-padding) clamp(1.5rem, 2.5vw, 2.25rem);
   overflow: hidden;
+  box-shadow: 0 -2rem 4.5rem rgb(0 39 51 / 0.3);
   background: var(--ink-deep);
   color: var(--white);
   text-shadow: 0 1px 2px rgb(0 20 30 / 0.55), 0 0 24px rgb(0 20 30 / 0.35);
@@ -581,9 +602,13 @@ section[id] {
 }
 
 /* Three verbs, three of the brand's colours, and the "here" they all share
-   held back at 70% so the verbs carry the line. */
-.scale__headline span {
+   held back at 70% so the verbs carry the line. Each line is a mask for the
+   characters that float up into it, with room under it for descenders. */
+.scale__headline > span {
   display: block;
+  overflow: hidden;
+  padding: 0.06em 0 0.14em;
+  margin: -0.06em 0 -0.14em;
   color: var(--white-70);
 }
 
@@ -591,15 +616,15 @@ section[id] {
   font-style: inherit;
 }
 
-.scale__headline span:nth-child(1) em {
+.scale__headline > span:nth-child(1) em {
   color: var(--sand);
 }
 
-.scale__headline span:nth-child(2) em {
+.scale__headline > span:nth-child(2) em {
   color: var(--teal);
 }
 
-.scale__headline span:nth-child(3) em {
+.scale__headline > span:nth-child(3) em {
   color: var(--coral);
 }
 
@@ -752,11 +777,13 @@ section[id] {
   inset: 0;
 }
 
+/* Taller than its frame by the parallax travel, so the picture never shows
+   an edge while it moves. */
 .opener--bleed .opener__media {
   position: absolute;
-  inset: 0;
+  inset: -6% 0 auto;
   width: 100%;
-  height: 100%;
+  height: 112%;
   aspect-ratio: auto;
 }
 
@@ -805,7 +832,10 @@ section[id] {
   margin-top: 1.1rem;
 }
 
-.opener__title span {
+/* Direct children only: SplitText measures the lines by wrapping each word
+   in a span, and a rule that reached those would put every word on its own
+   line. */
+.opener__title > span {
   display: block;
 }
 
@@ -2004,42 +2034,48 @@ section[id] {
   text-align: center;
 }
 
-/* Six handovers, four columns by two rows. The two portrait frames stand
-   across both rows, and dense packing lets the landscapes fill in around
-   them, so the wall has no holes. */
+/* Twelve handovers on a masonry (see Masonry.tsx): every frame at its own
+   proportions, packed into columns. The wall is a plain grid until the script
+   places the tiles, and stays one without it. */
 .handovers {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-flow: dense;
-  gap: clamp(0.9rem, 1.6vw, 1.25rem);
   max-width: var(--shell);
   margin: clamp(2.5rem, 4vw, 3.5rem) auto 0;
   padding: 0 var(--page-padding);
+}
+
+.masonry {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1rem;
   list-style: none;
+}
+
+.masonry.is-laid {
+  display: block;
+}
+
+.masonry__tile {
+  will-change: transform;
+}
+
+.masonry.is-laid > .masonry__tile {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .handover figure {
   display: flex;
-  height: 100%;
   flex-direction: column;
   gap: 0.6rem;
   margin: 0;
 }
 
 .handover__media {
-  aspect-ratio: 4 / 3;
   border-radius: var(--radius-tile);
   background: var(--sand);
-}
-
-.handover--tall {
-  grid-row: span 2;
-}
-
-.handover--tall .handover__media {
-  flex: 1;
-  min-height: 0;
-  aspect-ratio: auto;
+  box-shadow: 0 10px 40px -12px rgb(0 47 61 / 0.25);
 }
 
 .handover figcaption {
@@ -2104,6 +2140,21 @@ section[id] {
 .founder__band {
   width: 100%;
   aspect-ratio: 1920 / 800;
+}
+
+/* The shelves, for the phone: the same plate zoomed into the region between
+   x 1080 and 1860 and y 90 and 610 of its 1920 x 800, which is a 3:2. The
+   picture is scaled by 1920 / 780 and slid up and left by the region's
+   offset, in percentages of its own size. */
+.founder__awards {
+  display: none;
+}
+
+.founder__awards img {
+  width: 246.154%;
+  max-width: none;
+  height: auto;
+  transform: translate(-56.25%, -11.25%);
 }
 
 /* The wall between Samantha and the shelving is flat and bright, so ink type
@@ -2735,11 +2786,30 @@ section[id] {
 /* Reduced motion                                                              */
 /* -------------------------------------------------------------------------- */
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+/* -------------------------------------------------------------------------- */
+/* Motion helpers                                                              */
+/* -------------------------------------------------------------------------- */
 
+/* SplitText wraps each line of a `data-lines` element in one of these, and
+   the line rises out of it. The padding is room for descenders, which a tight
+   line-height would otherwise leave outside the clip. */
+.line-mask {
+  padding: 0.06em 0 0.14em;
+  margin: -0.06em 0 -0.14em;
+}
+
+/* The sparks drawn on a click: one viewport-sized canvas over everything,
+   which nothing can click through. */
+.click-spark__canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
   .button:hover,
   .whatsapp-float:hover,
   .setcard:hover .setcard__media,
@@ -2797,22 +2867,60 @@ section[id] {
     display: inline-flex;
   }
 
+  /* With the nav gone nothing pushes the actions across; the menu belongs
+     in the right corner. */
+  .header-actions {
+    margin-left: auto;
+  }
+
+  /* A picture with a phone focal point holds that side of itself here. */
+  .image-slot img {
+    object-position: var(--slot-mobile-position, var(--slot-position));
+  }
+
+  /* The band on a phone: a 4:5 crop of the right of the plate, which is the
+     whole lorry with the office behind it, the sky above for the claim and
+     the tarmac below for the capability row, so the copy floats on the
+     photograph as it does on a wide screen. The band is shorter than the
+     screen here, so the pin's spacer takes the navy ground under it. */
+  .scale {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+    padding: calc(var(--header-height) + 1rem) var(--page-padding) 1.25rem;
+  }
+
+  .chapters > .pin-spacer {
+    background: var(--ink-deep);
+  }
+
+  /* One row over the tarmac, whatever the phone's width. */
+  .scale__capabilities {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .scale__capabilities li {
+    gap: 0.35rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+  }
+
+  .scale__capabilities svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
   .hero__scrim {
     background: linear-gradient(180deg, rgb(244 239 234 / 0.94) 0%, rgb(244 239 234 / 0.86) 45%, rgb(244 239 234 / 0.55) 100%);
   }
 
-  /* At these widths a 2:1 band is too short to hold its copy, so the hero and
-     the warehouse band go back to a height set by the copy and crop the
-     picture behind it. */
-  .hero,
-  .scale {
-    aspect-ratio: auto;
-  }
-
   /* The openers stand the copy under the picture rather than beside it: the
-     photographs' side fades are too narrow to hold a column at this width. The
-     picture keeps its own shape and shows whole; the copy sits on the ground
-     below it. */
+     photographs' side fades are too narrow to hold a column at this width.
+     The picture is a square, cropped to the side that carries the subject
+     (each slot's phone focal point), so the fade baked into the other side
+     never shows; the copy sits on the ground below it. */
   .opener--bleed {
     display: block;
     aspect-ratio: auto;
@@ -2825,7 +2933,7 @@ section[id] {
   .opener--bleed .opener__media {
     position: static;
     height: auto;
-    aspect-ratio: var(--opener-ratio, 2 / 1);
+    aspect-ratio: 1 / 1;
   }
 
   .opener__scrim {
@@ -2869,10 +2977,6 @@ section[id] {
     aspect-ratio: 16 / 10;
   }
 
-  .handovers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .accordion {
     flex-direction: column;
     height: auto;
@@ -2907,13 +3011,36 @@ section[id] {
   }
 
   /* Samantha reaches 26% across the plate, and by this width the wall beside
-     her is too narrow to hold the copy, so it stacks under the picture. */
-  .founder__copy {
+     her is too narrow to hold the copy. The chapter becomes three rows down
+     the middle of the screen: her portrait (the plate held on its left,
+     3:4), the shelves under her (the same plate, zoomed), then the copy. */
+  .founder {
+    gap: 1rem;
+    padding: clamp(1.5rem, 4vw, 2.25rem) var(--page-padding) 0;
+  }
+
+  .founder__band {
+    width: min(100%, 24rem);
+    justify-self: center;
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius-tile);
+  }
+
+  .founder__awards {
+    display: block;
     grid-row: 2;
+    grid-column: 1;
+    width: min(100%, 24rem);
+    justify-self: center;
+    border-radius: var(--radius-tile);
+  }
+
+  .founder__copy {
+    grid-row: 3;
     width: auto;
     align-self: start;
     margin-left: 0;
-    padding: clamp(1.5rem, 4vw, 2.25rem) var(--page-padding) clamp(2rem, 4vw, 3rem);
+    padding: clamp(1rem, 3vw, 1.5rem) 0 clamp(2rem, 4vw, 3rem);
   }
 
   .closer {
@@ -2927,7 +3054,6 @@ section[id] {
 
 @media (max-width: 767px) {
   .hero {
-    min-height: 0;
     padding-top: calc(var(--header-height) + 2.5rem);
   }
 
@@ -2938,10 +3064,6 @@ section[id] {
   .hero__actions .button,
   .closer__actions .button {
     width: 100%;
-  }
-
-  .scale__capabilities {
-    gap: 1.25rem 2rem;
   }
 
   .opener__title {
@@ -2985,41 +3107,18 @@ section[id] {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .handovers {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .handover--tall {
-    grid-row: auto;
-  }
-
-  .handover--tall .handover__media {
-    flex: none;
-    aspect-ratio: 3 / 4;
-  }
-
   .proofnumbers {
     gap: 1.1rem;
   }
 
+  /* The quote button is in the menu sheet already, and three things across
+     a phone's header is one too many. */
   .header-cta {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.62rem;
+    display: none;
   }
 
   .site-header {
     gap: 0.6rem;
-  }
-
-  /* The band is 167px tall at this width, which is a letterbox rather than a
-     photograph, so it crops to portrait and holds Samantha. */
-  .founder__band {
-    aspect-ratio: 4 / 5;
-  }
-
-  .founder__band img {
-    object-fit: cover;
-    object-position: 4% center;
   }
 
   .giftdialog__surface {

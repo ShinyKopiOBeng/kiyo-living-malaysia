@@ -6,16 +6,20 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, ArrowUpRight, BadgeCheck, Menu, PackageCheck, Warehouse, Wrench, X } from "lucide-react";
+import { SplitText } from "gsap/SplitText";
+import { ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
+import { ClickSpark } from "./components/ClickSpark";
 import { ChooseStep, DeliverStep, PersonaliseStep } from "./components/HowItWorks";
 import { CorporateGiftSets, UmrahGiftSets } from "./components/KiyoInteractiveSections";
 import { QuoteSection } from "./components/QuoteSection";
 import { ClientProof, FounderAndAwards, ProofStrip } from "./components/TrustSections";
 import { RetailFlyout, RetailProvider, RetailTrigger } from "./components/RetailFlyout";
+import { WarehouseBand } from "./components/WarehouseBand";
 import { ImageSlotVisual } from "./components/ImagePlaceholder";
-import { heroSlot, warehouseBandSlot } from "./components/imageSlots";
+import { heroSlot } from "./components/imageSlots";
 import { scrollToSection } from "./components/scroll";
+import { startSmoothScroll } from "./components/smoothScroll";
 import { GENERAL_MESSAGE, SHOPEE_URL, SiteFooter, WHATSAPP_URL, whatsappLink } from "./components/SiteFooter";
 
 /* In the order the chapters run. The quotation is not a nav item: it is the
@@ -88,14 +92,6 @@ function useCurrentChapter() {
   return current;
 }
 
-/* The four things that happen inside the building, called out under the band. */
-const capabilities = [
-  { label: "Warehouse", icon: Warehouse },
-  { label: "Customisation", icon: Wrench },
-  { label: "QC", icon: BadgeCheck },
-  { label: "Fulfilment", icon: PackageCheck },
-] as const;
-
 type DialogProps = { open: boolean; onClose: () => void };
 
 function MenuDialog({ open, onClose, current }: DialogProps & { current: string | null }) {
@@ -123,7 +119,7 @@ function MenuDialog({ open, onClose, current }: DialogProps & { current: string 
   }, [open]);
 
   return (
-    <dialog ref={dialogRef} id="primary-menu" className="mobile-menu" aria-label="Primary navigation" onCancel={(event) => { event.preventDefault(); onClose(); }}>
+    <dialog ref={dialogRef} id="primary-menu" className="mobile-menu" aria-label="Primary navigation" data-lenis-prevent onCancel={(event) => { event.preventDefault(); onClose(); }}>
       <div className="mobile-menu__top">
         <img src="/images/kiyo-logo.svg" alt="KIYO" width="212" height="86" />
         <button className="icon-button" onClick={onClose} aria-label="Close menu"><X aria-hidden="true" /></button>
@@ -390,11 +386,15 @@ export function KiyoExperience() {
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    /* `clip` is the photograph's own entrance: the frame opens from a soft
+       inset rather than the picture fading in, and the picture is never
+       transparent while it does. */
     const FROM = {
       up: { y: 24, autoAlpha: 0 },
       left: { x: -28, autoAlpha: 0 },
       right: { x: 28, autoAlpha: 0 },
       scale: { scale: 1.04, autoAlpha: 0 },
+      clip: { clipPath: "inset(8% 6% 8% 6% round 24px)", scale: 1.06 },
     } as const;
 
     type Variant = keyof typeof FROM;
@@ -411,16 +411,19 @@ export function KiyoExperience() {
 
     for (const variant of Object.keys(FROM) as Variant[]) {
       const selector = variant === "up"
-        ? "[data-reveal=''], [data-reveal]:not([data-reveal='left']):not([data-reveal='right']):not([data-reveal='scale'])"
+        ? "[data-reveal=''], [data-reveal]:not([data-reveal='left']):not([data-reveal='right']):not([data-reveal='scale']):not([data-reveal='clip'])"
         : `[data-reveal='${variant}']`;
       for (const element of root.querySelectorAll(selector)) claim(element, variant, 0);
     }
 
     /* Groups stagger their own children, so a row of cards arrives as a
-       sequence rather than all at once. */
+       sequence rather than all at once. A child that reveals by line
+       (`data-lines`) is left to the line reveal, or it would animate twice. */
     for (const group of root.querySelectorAll<HTMLElement>("[data-reveal-group]")) {
       const variant = variantOf(group.dataset.revealGroup);
-      Array.from(group.children).forEach((child, index) => claim(child, variant, index * 0.08));
+      Array.from(group.children)
+        .filter((child) => !child.hasAttribute("data-lines"))
+        .forEach((child, index) => claim(child, variant, index * 0.08));
     }
 
     for (const [element, { variant }] of targets) gsap.set(element, FROM[variant]);
@@ -432,9 +435,11 @@ export function KiyoExperience() {
           const meta = targets.get(entry.target);
           observer.unobserve(entry.target);
           targets.delete(entry.target);
+          const clip = meta?.variant === "clip";
           gsap.to(entry.target, {
             x: 0, y: 0, scale: 1, autoAlpha: 1,
-            duration: 0.7, ease: "power3.out", delay: meta?.delay ?? 0,
+            ...(clip ? { clipPath: "inset(0% 0% 0% 0% round 0px)" } : {}),
+            duration: clip ? 1.1 : 0.7, ease: "power3.out", delay: meta?.delay ?? 0,
             overwrite: true,
             /* Hand the element back to the stylesheet once it has arrived. The
                tween finishes by writing `opacity: 1` and a transform inline,
@@ -442,7 +447,7 @@ export function KiyoExperience() {
                on a revealed element was silently dead: the gift showcase could
                not dim its unhovered cards. Clearing the props it set restores
                that without changing the resting appearance. */
-            onComplete: () => gsap.set(entry.target, { clearProps: "opacity,visibility,transform" }),
+            onComplete: () => gsap.set(entry.target, { clearProps: "opacity,visibility,transform,clipPath" }),
           });
         }
       },
@@ -469,8 +474,109 @@ export function KiyoExperience() {
     return () => context.revert();
   }, []);
 
+  /* The page eases toward the wheel instead of jumping. See smoothScroll.ts
+     for what it leaves alone. */
+  useEffect(() => startSmoothScroll(), []);
+
+  /**
+   * Headlines and their sentences arrive line by line, each line rising out
+   * of its own mask, rather than fading up as one block.
+   *
+   * SplitText does the wrapping on the client after hydration, so the served
+   * markup is unchanged; `autoSplit` re-wraps when the width changes. The
+   * reveal itself is driven by the same kind of IntersectionObserver as the
+   * fade-ups and for the same reason: it has no measurement that can go
+   * stale, so no headline can be left inside its mask. An element that has
+   * already been revealed stays revealed when it is re-split.
+   */
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.registerPlugin(SplitText);
+
+    const splits: SplitText[] = [];
+    const revealed = new WeakSet<Element>();
+    let cancelled = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          revealed.add(entry.target);
+          const lines = entry.target.querySelectorAll(".line");
+          gsap.to(lines, {
+            yPercent: 0, duration: 1, stagger: 0.1, ease: "power4.out", overwrite: true,
+            onComplete: () => gsap.set(lines, { clearProps: "transform" }),
+          });
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+
+    /* Splitting before the faces have loaded would measure the fallback
+       font's line breaks. */
+    document.fonts.ready.then(() => {
+      if (cancelled) return;
+      for (const element of root.querySelectorAll<HTMLElement>("[data-lines]")) {
+        splits.push(
+          SplitText.create(element, {
+            type: "lines",
+            mask: "lines",
+            linesClass: "line",
+            tag: "span",
+            autoSplit: true,
+            onSplit: (self) => {
+              if (!revealed.has(element)) gsap.set(self.lines, { yPercent: 110 });
+            },
+          }),
+        );
+        observer.observe(element);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      for (const split of splits) split.revert();
+    };
+  }, []);
+
+  /* The primary buttons lean a few pixels toward the pointer. A finger has no
+     hover, so touch screens get the plain button. */
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const cleanups = Array.from(root.querySelectorAll<HTMLElement>("[data-magnet]")).map((element) => {
+      const xTo = gsap.quickTo(element, "x", { duration: 0.6, ease: "power3" });
+      const yTo = gsap.quickTo(element, "y", { duration: 0.6, ease: "power3" });
+      const onMove = (event: PointerEvent) => {
+        const rect = element.getBoundingClientRect();
+        xTo((event.clientX - (rect.left + rect.width / 2)) * 0.18);
+        yTo((event.clientY - (rect.top + rect.height / 2)) * 0.22);
+      };
+      const onLeave = () => {
+        xTo(0);
+        yTo(0);
+      };
+      element.addEventListener("pointermove", onMove);
+      element.addEventListener("pointerleave", onLeave);
+      return () => {
+        element.removeEventListener("pointermove", onMove);
+        element.removeEventListener("pointerleave", onLeave);
+        gsap.set(element, { clearProps: "transform" });
+      };
+    });
+    return () => cleanups.forEach((cleanup) => cleanup());
+  }, []);
+
   return (
     <RetailProvider>
+    <ClickSpark sparkColor="#e66047" sparkSize={10} sparkRadius={18} sparkCount={8} duration={420}>
     <div ref={rootRef} className="site-shell">
       <a className="skip-link" href="#main">Skip to content</a>
       <SmartHeader onMenu={() => setMenuOpen(true)} menuOpen={menuOpen} current={currentChapter} />
@@ -484,33 +590,22 @@ export function KiyoExperience() {
             <h1><span>Designed for</span><span className="hero__payoff">your journey.</span></h1>
             <p>Premium luggage, corporate gift sets and UMRAH programmes, customised and delivered from Kajang.</p>
             <div className="hero__actions">
-              <a className="button button--coral" href="#quote">
+              <a className="button button--coral" href="#quote" data-magnet>
                 Request a quote <ArrowRight aria-hidden="true" />
               </a>
-              <a className="button button--ghost" href="#umrah">
+              <a className="button button--ghost" href="#umrah" data-magnet>
                 See the gift sets <ArrowRight aria-hidden="true" />
               </a>
             </div>
           </div>
         </section>
 
+        {/* The hero is sticky on wide screens, and everything after it sits in
+            one positioned wrapper so the chapters slide over the hero rather
+            than under it. */}
+        <div className="chapters">
         {/* 02 -------------------------------------------------------------- */}
-        <section id="warehouse" className="scale" style={{ "--band-ratio": warehouseBandSlot.aspectRatio } as React.CSSProperties}>
-          <ImageSlotVisual slot={warehouseBandSlot} className="scale__media" decorative />
-          <div className="scale__copy" data-reveal-group>
-            <h2 className="scale__headline">
-              <span><em>Designed</em> here.</span>
-              <span><em>Prepared</em> here.</span>
-              <span><em>Delivered</em> from here.</span>
-            </h2>
-            <p>Kajang, Selangor</p>
-          </div>
-          <ul className="scale__capabilities">
-            {capabilities.map(({ label, icon: Icon }) => (
-              <li key={label}><Icon aria-hidden="true" />{label}</li>
-            ))}
-          </ul>
-        </section>
+        <WarehouseBand />
 
         {/* The four numbers, between the band and the first chapter. */}
         <ProofStrip />
@@ -537,17 +632,18 @@ export function KiyoExperience() {
 
         <section id="contact" className="closer">
           <div className="closer__copy" data-reveal-group>
-            <h2>Ready to start?</h2>
+            <h2 data-lines>Ready to start?</h2>
             <p>Tell us your programme. We&apos;ll handle the rest.</p>
           </div>
           <div className="closer__actions" data-reveal>
-            <a className="button button--coral" href="#quote">Request a quote <ArrowRight aria-hidden="true" /></a>
-            <a className="button button--outline" href={whatsappLink(GENERAL_MESSAGE)} target="_blank" rel="noreferrer">
+            <a className="button button--coral" href="#quote" data-magnet>Request a quote <ArrowRight aria-hidden="true" /></a>
+            <a className="button button--outline" href={whatsappLink(GENERAL_MESSAGE)} target="_blank" rel="noreferrer" data-magnet>
               WhatsApp <FaWhatsapp aria-hidden="true" />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </div>
         </section>
+        </div>
       </main>
 
       {/* 11 --------------------------------------------------------------- */}
@@ -557,6 +653,7 @@ export function KiyoExperience() {
       <MenuDialog open={menuOpen} onClose={() => setMenuOpen(false)} current={currentChapter} />
       <RetailFlyout />
     </div>
+    </ClickSpark>
     </RetailProvider>
   );
 }

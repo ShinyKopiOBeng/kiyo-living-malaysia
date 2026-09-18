@@ -6,9 +6,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Play, Star } from "lucide-react";
 import { ChapterOpener } from "./ChapterOpener";
+import { Masonry } from "./Masonry";
 import { ImageSlotVisual } from "./ImagePlaceholder";
 import { CLIENT_VIDEOS, PROOF_LINKS, PROOF_NUMBERS, formatProofNumber, type ClientVideo, type ProofNumber } from "./clientProof";
-import { aboutBandSlot, clientLogoSlots, clientPhotoSlots, clientsOpenerSlot } from "./imageSlots";
+import { aboutAwardsSlot, aboutBandSlot, clientLogoSlots, clientPhotoSlots, clientsOpenerSlot } from "./imageSlots";
 
 /* -------------------------------------------------------------------------- */
 /* The proof strip, under the hero                                            */
@@ -226,20 +227,24 @@ export function ClientProof() {
         {CLIENT_VIDEOS.map((video) => <VideoCard video={video} key={video.id} />)}
       </ul>
 
-      {/* Six handovers out of KIYO's own archive: phone photographs from the
-          day, captioned with what they show and, where the picture or KIYO's
-          own filing names the client, who. The two portrait frames stand
-          across both rows so the wall has no gaps. */}
-      <ul className="handovers" data-reveal-group aria-label="Client handovers">
-        {clientPhotoSlots.map(({ slot, caption, tall }) => (
-          <li className={`handover${tall ? " handover--tall" : ""}`} key={slot.id}>
-            <figure>
-              <ImageSlotVisual slot={slot} className="handover__media" />
-              <figcaption>{caption}</figcaption>
-            </figure>
-          </li>
-        ))}
-      </ul>
+      {/* Twelve handovers out of KIYO's own archive: phone photographs from
+          the day, captioned with what they show and, where the picture or
+          KIYO's own filing names the client, who. Each keeps its own
+          proportions on a masonry, which floats them in as the wall is
+          reached. */}
+      <Masonry
+        className="handovers"
+        itemClassName="handover"
+        label="Client handovers"
+        items={clientPhotoSlots}
+        keyOf={({ slot }) => slot.id}
+        renderItem={({ slot, caption }) => (
+          <figure>
+            <ImageSlotVisual slot={slot} className="handover__media" />
+            <figcaption>{caption}</figcaption>
+          </figure>
+        )}
+      />
 
       <p className="clients__more" data-reveal>
         <span>See more from KIYO on</span>
@@ -267,12 +272,14 @@ export function FounderAndAwards() {
   return (
     <section id="about" className="founder" aria-labelledby="about-title">
       <ImageSlotVisual slot={aboutBandSlot} className="founder__band" />
+      {/* Phone only: the shelves, which her portrait crop leaves out. */}
+      <ImageSlotVisual slot={aboutAwardsSlot} className="founder__awards" decorative />
 
       {/* The wall between Samantha and the shelving is the brightest, flattest
           part of the picture, which is why the copy needs no wash under it. */}
       <div className="founder__copy" data-reveal-group>
         <p className="eyebrow">Samantha and Awards</p>
-        <h2 id="about-title">Samantha Ng</h2>
+        <h2 id="about-title" data-lines>Samantha Ng</h2>
         <p className="founder__role">Founder, KIYO Living</p>
         <figure className="founder__quote">
           <blockquote>Built to help organisations move together.</blockquote>

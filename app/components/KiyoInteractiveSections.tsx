@@ -85,6 +85,7 @@ function GiftDialog({
       ref={dialogRef}
       className="giftdialog"
       aria-labelledby="giftdialog-title"
+      data-lenis-prevent
       onCancel={(event) => { event.preventDefault(); onClose(); }}
       onClick={(event) => { if (event.target === dialogRef.current) onClose(); }}
     >

@@ -53,7 +53,9 @@ const PLATES = [
   { id: "heroHome", root: "drive", from: "hero-home-kiyo-plates.png", width: 1920 },
 
   /* 02  Warehouse band ---------------------------------------------------- */
-  { id: "warehouseTruck", root: "source", from: "Section2/warehouseTruck.png", width: 1920 },
+  /* The building, the open bay and the lorry at dusk, from the Drive folder;
+     replaced the older SectionAssets plate in V16 at Kean's choice. */
+  { id: "warehouseTruck", root: "drive", from: "ChatGPT Image Sep 14, 2026, 12_45_27 PM.png", width: 1920 },
 
   /* 03  UMRAH ------------------------------------------------------------- */
   { id: "umrahOpener", root: "drive", from: "ChatGPT Image Sep 14, 2026, 12_46_21 PM.png", width: 1920 },
@@ -88,20 +90,30 @@ const PLATES = [
 
   /* 07  Step 03, Deliver -------------------------------------------------- */
   { id: "deliverOpener", root: "drive", from: "store-and-deliver-on-request.png", width: 1920 },
-  { id: "deliverShip", root: "source", from: "Section7/ChatGPT Image Sep 8, 2026, 11_34_26 AM (6).png", width: 1400 },
+  /* Kean's 2026-09-18 replacement: the same scene with the KIYO mark on the
+     boxes and the lorry, copied into the Drive folder from Downloads. */
+  { id: "deliverShip", root: "drive", from: "deliver-to-you-kiyo-logo.png", width: 1400 },
   { id: "deliverStore", root: "drive", from: "ChatGPT Image May 12, 2026, 12_50_49 PM (1).png", width: 1600 },
   { id: "deliverCollect", root: "drive", from: "warehouse (6).png", width: 1600 },
 
   /* 09  Clients ------------------------------------------------------------ */
   { id: "clientsOpener", root: "drive", from: "real-clients-real-experiences.png", width: 1920 },
-  /* Six handovers out of KIYO's own client archive. Phone photographs, so the
-     ceiling is what they were shot at. */
+  /* Twelve handovers out of KIYO's own client archive. Phone photographs, so
+     the ceiling is what they were shot at; the masonry shows them at most
+     about 330px wide, so 900 is plenty for a portrait and 1280 for a
+     landscape. */
   { id: "clientHejira", root: "clients", from: "hejira-family-airport.jpg", width: 1024 },
   { id: "clientIrkaz", root: "clients", from: "irkaz-jemaah-klia.jpg", width: 1280 },
   { id: "clientPtptn", root: "clients", from: "ptptn-handover.jpg", width: 720 },
   { id: "clientManazel", root: "clients", from: "manazel-mashaer-team.jpg", width: 1400 },
   { id: "clientKoperasiTnb", root: "clients", from: "koperasi-tnb-team.jpg", width: 900 },
   { id: "clientBulkOrder", root: "clients", from: "branded-bulk-order.jpg", width: 1280 },
+  { id: "clientAlWaqar", root: "clients", from: "al-waqar-stock-delivered.jpg", width: 900 },
+  { id: "clientHrm", root: "clients", from: "hrm-team-office.jpg", width: 1280 },
+  { id: "clientOpening", root: "clients", from: "grand-opening-guests.jpg", width: 810 },
+  { id: "clientContainer", root: "clients", from: "container-unloading.jpg", width: 1280 },
+  { id: "clientPresentationWarehouse", root: "clients", from: "presentation-warehouse.jpg", width: 900 },
+  { id: "clientPresentationSamples", root: "clients", from: "presentation-sample-cases.jpg", width: 900 },
 
   /* 10  Samantha and Awards ------------------------------------------------ */
   /* One plate: Samantha, the room and the trophies are composited in the

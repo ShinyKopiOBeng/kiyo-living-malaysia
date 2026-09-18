@@ -21,7 +21,7 @@ form-to-email relay and opens WhatsApp; see [The quotation](#the-quotation).
 | 6 | Step 02, Personalise: the customisation portfolio | `#personalise` |
 | 7 | Step 03, Deliver: the three-promise accordion | `#deliver` |
 | 8 | Quotation and location | `#quote` |
-| 9 | Clients: opener, logo marquee, three videos, six handovers | `#clients` |
+| 9 | Clients: opener, logo marquee, three videos, twelve handovers on a masonry | `#clients` |
 | 10 | Samantha and Awards | `#about` |
 | 11 | Closing call to action and footer | `#contact` |
 
@@ -54,8 +54,10 @@ npm test          # builds, then runs the SSR assertions
 - React 19 and TypeScript
 - Tailwind CSS v4 for design tokens and utilities, alongside a hand-written
   stylesheet
-- GSAP for the tweens; an IntersectionObserver drives the section entrances and
-  ScrollTrigger drives only the header scroll state
+- GSAP for the tweens, with SplitText for the line and character reveals and
+  ScrollTrigger for the header state, the opener parallax and the pinned
+  warehouse band; an IntersectionObserver drives every entrance
+- Lenis for smooth scrolling, on top of the browser's own scroll
 - Native scroll containers for the set carousels and the luggage rail, and
   Pointer Events for the draggable WhatsApp dock
 - Native `<dialog>` for the mobile menu and the set inspector
@@ -101,8 +103,13 @@ override it. It is inlined at build time, so a change needs a rebuild.
 
 | Path | Role |
 | --- | --- |
-| `app/KiyoExperience.tsx` | Page shell, smart header, hero, warehouse band, closing CTA, WhatsApp dock, scroll reveals |
-| `app/components/ChapterOpener.tsx` | The opener the six photographic chapters share |
+| `app/KiyoExperience.tsx` | Page shell, smart header, hero, closing CTA, WhatsApp dock, scroll reveals, line reveals, magnetic buttons |
+| `app/components/WarehouseBand.tsx` | The warehouse band: pinned photograph, the three-line claim arriving one line at a time |
+| `app/components/ScrollFloat.tsx` | Text floating up character by character on scroll (from React Bits) |
+| `app/components/ClickSpark.tsx` | The spark burst on every click (from React Bits) |
+| `app/components/Masonry.tsx` | The client handover wall: natural-height tiles packed into columns, floating in on scroll (from React Bits) |
+| `app/components/smoothScroll.ts` | The one Lenis instance and its GSAP wiring |
+| `app/components/ChapterOpener.tsx` | The opener the six photographic chapters share, with its photograph's parallax and clip reveal |
 | `app/components/KiyoInteractiveSections.tsx` | Chapters 3 and 4: the shared gift shell and the set inspector |
 | `app/components/DriftCarousel.tsx` | The drifting, seamlessly looping carousel both the sets and the luggage use |
 | `app/components/SetCarousel.tsx` | The six-set card on that carousel |
@@ -168,19 +175,24 @@ visitor arrives at the form.
 Three deliveries feed the page: the older `SectionAssets` folder (one
 directory per chapter), the `07_Website` Google Drive folder that V15 added
 (the hero, six openers, twelve gift sets, three warehouse panels) and
-`KIYO-Clients-Picks`, the six handover photographs chosen out of KIYO's client
-archive. None is served directly:
+`KIYO-Clients-Picks`, the twelve handover photographs chosen out of KIYO's
+client archive (its `SOURCE.txt` names each one's Drive folder and file). None is served directly:
 
 ```bash
 node tools/build-section-assets.mjs --source <SectionAssets> --drive <07_Website> --clients <KIYO-Clients-Picks>
 ```
+
+The warehouse band's plate is the Drive folder's `ChatGPT Image Sep 14, 2026,
+12_45_27 PM.png` (the bay, the office and the lorry at dusk).
 
 The tool resizes each plate to the largest size its slot can use, encodes
 WebP, trims the twelve client marks to their ink and fits them to one box, and
 deletes anything in `public/images/kiyo/sections` it did not write. It writes
 `app/components/sectionAssets.ts` with the real `src`, `width` and `height` of
 every output. Alt text is deliberately not generated: it is authored in
-`imageSlots.ts`.
+`imageSlots.ts`, along with each plate's focal point and, where a picture's
+baked-in fade would otherwise show on a phone, its `mobileFocalPoint` (the
+side the phone crop holds).
 
 The three client clips are re-encoded for the web (H.264, at most 540px wide,
 30fps, `faststart`) with a poster frame each by:
@@ -212,10 +224,51 @@ weight range.
 node tools/build-fonts.mjs
 ```
 
+## Smooth scroll
+
+The page eases toward where the wheel sent it instead of jumping there. That
+is one [Lenis](https://github.com/darkroomengineering/lenis) instance, made in
+`app/components/smoothScroll.ts`, ticked from `gsap.ticker` and feeding
+`ScrollTrigger.update` on every scroll. Lenis keeps the browser's own scroll
+and only eases it, so the fixed header, the draggable dock, the native
+dialogs, the IntersectionObservers and the sticky hero all work untouched.
+Horizontal gestures are ignored by Lenis, so the carousels keep their native
+scroll; the two dialogs carry `data-lenis-prevent`. Touch is native. Under
+`prefers-reduced-motion` no instance is made.
+
+`scrollToSection` scrolls through the instance when there is one. The
+stylesheet must not set `scroll-behavior: smooth`; it would fight both.
+
+## The hero and the warehouse band
+
+The hero fills the first screen (`min-height: max(100svh, <the picture's own
+height>)`, written that way rather than as an `aspect-ratio` next to a
+`min-height`, which Chrome resolves into a box wider than the screen) and is
+`position: sticky`. Everything after it sits in `.chapters`, one positioned,
+grounded wrapper, so the chapters slide over the hero rather than under it.
+The photograph, the copy and the load-in are as they were.
+
+The warehouse band (`WarehouseBand.tsx`) pins for two screen heights while its
+claim arrives one line at a time, each line floating up character by
+character (`ScrollFloat`), then the place and the four capabilities. All of it
+is one timeline scrubbed by ScrollTrigger, so a fast scroll runs through it
+and a slow one reads it. The band is a full screen tall so the pin has
+nothing empty under it; on a phone it is a 4:5 crop of the plate's right with
+the copy floating on it, and the pin's spacer carries the navy ground. This is
+the one `pin` on the page, and it lives in the band, not in the page shell.
+
 ## Scroll reveals
 
 Sections fade in through a single `IntersectionObserver` in `KiyoExperience`,
-driven by `data-reveal` and `data-reveal-group` attributes.
+driven by `data-reveal` and `data-reveal-group` attributes. The variants are
+`up` (the default), `left`, `right`, `scale` and `clip`; `clip` opens a
+photograph from a soft inset frame and is what the bleed openers use.
+
+Headlines and their sentences marked `data-lines` arrive line by line instead:
+SplitText wraps each line in a mask on the client after hydration (the served
+markup stays whole), and the same kind of observer releases the lines. A
+`data-lines` child of a reveal group is left to the line reveal so nothing
+animates twice.
 
 It deliberately does **not** use `ScrollTrigger.batch`. That measures every
 start position against the page height at the moment the trigger is created, so
@@ -304,7 +357,8 @@ Two things are deliberately not asserted:
 
 Every `href="#section"` click is handled by a capture-phase listener in
 `KiyoExperience`, not by the router, and the handler calls `preventDefault()`
-and `scrollToSection()` from `app/components/scroll.ts`.
+and `scrollToSection()` from `app/components/scroll.ts`, which scrolls through
+the smoother when the page has one.
 
 This is deliberate and load-bearing. The router treats a fragment link as a
 navigation and requests an RSC payload for it. A static host has no RSC

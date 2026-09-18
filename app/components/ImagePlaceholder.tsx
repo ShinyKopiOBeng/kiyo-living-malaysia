@@ -7,6 +7,7 @@ type SlotStyle = CSSProperties & {
   "--slot-ratio": string;
   "--slot-fit": ImageSlot["fit"];
   "--slot-position": string;
+  "--slot-mobile-position"?: string;
 };
 
 type ImageSlotVisualProps = {
@@ -26,6 +27,7 @@ function slotStyle(slot: ImageSlot): SlotStyle {
     "--slot-ratio": slot.aspectRatio,
     "--slot-fit": slot.fit,
     "--slot-position": slot.focalPoint ?? "center center",
+    ...(slot.mobileFocalPoint ? { "--slot-mobile-position": slot.mobileFocalPoint } : {}),
   };
 }
 

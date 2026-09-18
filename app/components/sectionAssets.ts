@@ -29,7 +29,7 @@ export const sectionAssets = {
   brandDetail4: { src: "/images/kiyo/sections/brandDetail4.webp", width: 700, height: 700 },
   brandMockup: { src: "/images/kiyo/sections/brandMockup.webp", width: 900, height: 620 },
   deliverOpener: { src: "/images/kiyo/sections/deliverOpener.webp", width: 1792, height: 896 },
-  deliverShip: { src: "/images/kiyo/sections/deliverShip.webp", width: 1400, height: 965 },
+  deliverShip: { src: "/images/kiyo/sections/deliverShip.webp", width: 1400, height: 963 },
   deliverStore: { src: "/images/kiyo/sections/deliverStore.webp", width: 1600, height: 900 },
   deliverCollect: { src: "/images/kiyo/sections/deliverCollect.webp", width: 1600, height: 960 },
   clientsOpener: { src: "/images/kiyo/sections/clientsOpener.webp", width: 1792, height: 896 },
@@ -39,6 +39,12 @@ export const sectionAssets = {
   clientManazel: { src: "/images/kiyo/sections/clientManazel.webp", width: 1400, height: 1050 },
   clientKoperasiTnb: { src: "/images/kiyo/sections/clientKoperasiTnb.webp", width: 900, height: 1600 },
   clientBulkOrder: { src: "/images/kiyo/sections/clientBulkOrder.webp", width: 1280, height: 959 },
+  clientAlWaqar: { src: "/images/kiyo/sections/clientAlWaqar.webp", width: 900, height: 1600 },
+  clientHrm: { src: "/images/kiyo/sections/clientHrm.webp", width: 1280, height: 720 },
+  clientOpening: { src: "/images/kiyo/sections/clientOpening.webp", width: 810, height: 1080 },
+  clientContainer: { src: "/images/kiyo/sections/clientContainer.webp", width: 960, height: 1280 },
+  clientPresentationWarehouse: { src: "/images/kiyo/sections/clientPresentationWarehouse.webp", width: 900, height: 1741 },
+  clientPresentationSamples: { src: "/images/kiyo/sections/clientPresentationSamples.webp", width: 900, height: 1200 },
   aboutBand: { src: "/images/kiyo/sections/aboutBand.webp", width: 1920, height: 800 },
 } satisfies Record<string, SectionAsset>;
 

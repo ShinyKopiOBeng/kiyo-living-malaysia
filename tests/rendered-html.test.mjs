@@ -294,13 +294,15 @@ test("clients: the opener, the logo marquee and three video slots", async () => 
   for (const caption of ["IIRKAZ receives its branded cases", "Hejira Travel walks through its UMRAH set", "AQ Travel &amp; Tours collects its printed sets"]) {
     assert.ok(clients.includes(caption), `the videos are missing "${caption}"`);
   }
-  /* Six handovers under the videos, two of them portrait, every one captioned. */
-  assert.ok(clients.indexOf('class="videos"') < clients.indexOf('class="handovers"'));
-  assert.equal(count(clients, 'class="handover[ "]'), 6);
-  assert.equal(count(clients, 'class="handover handover--tall"'), 2);
-  for (const slot of ["CLIENT-HEJIRA", "CLIENT-PTPTN", "CLIENT-IRKAZ", "CLIENT-KOPERASI-TNB", "CLIENT-MANAZEL", "CLIENT-BULK"]) {
+  /* Twelve handovers under the videos on the masonry, every one captioned.
+     The served wall is a plain grid; the script lays the masonry. */
+  assert.ok(clients.indexOf('class="videos"') < clients.indexOf('class="masonry handovers"'));
+  assert.equal(count(clients, 'class="handover masonry__tile"'), 12);
+  assert.ok(!clients.includes("handover--tall"), "the wall no longer spans rows by hand");
+  for (const slot of ["CLIENT-HEJIRA", "CLIENT-PTPTN", "CLIENT-IRKAZ", "CLIENT-OPENING", "CLIENT-KOPERASI-TNB", "CLIENT-MANAZEL", "CLIENT-AL-WAQAR", "CLIENT-BULK", "CLIENT-PRESENTATION-SAMPLES", "CLIENT-HRM", "CLIENT-CONTAINER", "CLIENT-PRESENTATION-WAREHOUSE"]) {
     assert.match(clients, new RegExp(`data-image-slot="${slot}"`), `the wall is missing ${slot}`);
   }
+  assert.match(clients, /<figcaption>Guests at the KIYO Living grand opening<\/figcaption>/);
   assert.match(clients, /<figcaption>Handover at Menara PTPTN, Tabung Pendidikan<\/figcaption>/);
   assert.match(clients, /See more from KIYO on/);
   assert.match(clients, /tiktok\.com\/@kiyoliving/);
@@ -315,7 +317,8 @@ test("about: the photograph, the name and nothing laid over the trophies", async
 
   assert.match(about, /data-image-slot="ABOUT-BAND"/);
   assert.match(about, /class="eyebrow">Samantha and Awards</);
-  assert.match(about, /<h2 id="about-title">Samantha Ng<\/h2>/);
+  /* The name arrives by line, so the heading carries the line-reveal mark. */
+  assert.match(about, /<h2 id="about-title" data-lines="true">Samantha Ng<\/h2>/);
   assert.match(about, /Founder, KIYO Living/);
   assert.match(about, /Built to help organisations move together\./);
   for (const gone of ["awardwall", "awardrow", "awarddialog", "recognition", "Select a trophy", "Rising Star", "TikTok Shop Top Merchant"]) {
@@ -402,8 +405,42 @@ test("keeps the architecture production-ready", async () => {
   assert.match(rail, /<DriftCarousel/);
   assert.match(rail, /productImage\(product\.slug, colour, "angle"\)/);
 
-  /* The reveal has to hand the element back to the stylesheet when it lands. */
-  assert.match(experience, /clearProps: "opacity,visibility,transform"/);
+  /* The reveal has to hand the element back to the stylesheet when it lands,
+     the photograph's clip included. */
+  assert.match(experience, /clearProps: "opacity,visibility,transform,clipPath"/);
+  assert.match(experience, /clip: \{ clipPath: "inset\(/);
+
+  /* The page scrolls through one smoother, which the anchors also use, and
+     the stylesheet must not smooth on its own underneath it. */
+  const smooth = await readFile(new URL("app/components/smoothScroll.ts", templateRoot), "utf8");
+  assert.match(smooth, /new Lenis\(/);
+  assert.match(smooth, /prefers-reduced-motion: reduce/);
+  assert.match(smooth, /lenis\.on\("scroll", ScrollTrigger\.update\)/);
+  assert.match(experience, /startSmoothScroll\(\)/);
+  assert.doesNotMatch(css, /scroll-behavior:\s*smooth/);
+
+  /* Headlines arrive by line through SplitText on the client; the served
+     markup stays whole, which the opener assertions above depend on. */
+  assert.match(experience, /SplitText\.create\(element, \{\s*type: "lines",\s*mask: "lines"/);
+  assert.doesNotMatch(await html(), /class="line-mask"|scrollfloat__char/);
+
+  /* The warehouse claim floats up one line at a time while the band pins; the
+     pin lives in the band, not in the page shell. */
+  const band = await readFile(new URL("app/components/WarehouseBand.tsx", templateRoot), "utf8");
+  assert.match(band, /pin: true/);
+  assert.match(band, /<ScrollFloat/);
+  const float = await readFile(new URL("app/components/ScrollFloat.tsx", templateRoot), "utf8");
+  assert.match(float, /type: "chars"/);
+  assert.match(float, /back\.inOut\(2\)/);
+
+  /* The hero is the first screen and sticky; the chapters slide over it. */
+  assert.match(css, /\.hero \{[^}]*position: sticky/);
+  /* A full screen or the picture's own height, as one min-height: a ratio next
+     to a min-height would make the box wider than the screen. */
+  assert.match(css, /\.hero \{[^}]*min-height: max\(100svh, calc\(100vw \/ \(var\(--hero-ratio/);
+  assert.doesNotMatch(css, /\.hero \{[^}]*aspect-ratio/);
+  assert.match(css, /\.chapters \{[^}]*z-index: 1/);
+  assert.match(await html(), /class="chapters"/);
 
   /* The quotation sends two ways from one press: WhatsApp from the gesture
      itself, then email through the relay. Nothing is read off the visitor's
@@ -447,7 +484,7 @@ test("keeps the architecture production-ready", async () => {
   /* Teal is never small text. The one place it colours type is the display-size
      verb on the dark warehouse band, where it measures 6.3:1. */
   assert.equal((css.match(/(?<!border-)color: var\(--teal\);/g) ?? []).length, 1);
-  assert.match(css, /\.scale__headline span:nth-child\(2\) em \{\s*color: var\(--teal\);/);
+  assert.match(css, /\.scale__headline > span:nth-child\(2\) em \{\s*color: var\(--teal\);/);
 
   /* ScrollTrigger still drives the header, which is scroll-position based and
      self-correcting; the reveals are an IntersectionObserver. */

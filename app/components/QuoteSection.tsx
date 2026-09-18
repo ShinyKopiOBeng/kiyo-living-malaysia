@@ -217,7 +217,7 @@ export function QuoteSection() {
     <section id="quote" className="quote" aria-labelledby="quote-title">
       <div className="quote__where" data-reveal-group>
         <p className="eyebrow">Contact us</p>
-        <h2 id="quote-title" className="quote__title">
+        <h2 id="quote-title" className="quote__title" data-lines>
           Let&apos;s Create Something Thoughtful<span className="quote__stop">.</span>
         </h2>
         <p className="quote__lede">Tell us what you need. We&apos;ll recommend the right set and prepare your quotation.</p>
